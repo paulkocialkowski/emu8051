@@ -1,0 +1,123 @@
+.TH WMNOTIFY 1 "March 2003" "wmnotify" "User's Manual"
+
+.SH NAME
+wmnotify \- Dockable E-mail notification program for single POP3 account
+
+.SH SYNOPSIS
+.B wmnotify
+[\fIOPTION\fR]...
+
+.SH DESCRIPTION
+\fBwmnotify\fR is a dockable application (DockApp) for the WindowMaker window
+manager to periodically check a POP3 E-mail account for new messages. If there
+are new messages in the mailbox, a simple animation is started to notify the
+user. An optional beep or sound can also be produced if desired.
+
+The interface is kept very simple. To immediately check for new messages,
+single-click on the mailbox image. To start your favorite email program, 
+double-click on the mailbox image.
+
+When you double-click on the mailbox image to start your email program,
+the new messages animation is stopped, assuming that you will read your new
+messages. If you don't, the wmnotify program will simply continue it's
+periodic checking of your email account and will restart the new messages
+animation after the usual delay if new messages are unread.
+
+By default, the interval between checks is 1 minute, and this can be changed in
+the configuration file. You can also enable audio notification as well as
+specify an optional audio sound file (WAV or AU). If audio notification is
+enabled but no audio sound file is specified, a beep will be produced. There is
+an option in the configuration file to adjust the volume of the sound file.
+
+.SH "OPTIONS"
+.TP
+.BI "\-\^c " config-file
+.B wmnotify
+reads your POP3 account settings and preferences from the specified
+configuration file. This option overrides the use of the default config file,
+.IR "$HOME/.wmnotifyrc".
+
+.TP
+.BI \-display " host" : display
+Specifies the host and screen to be used by \fBwmnotify\fR. By default this
+is obtained from the environment variable
+.SB DISPLAY.
+
+.TP
+.BI \-geometry " geometry"
+.RB ( *geometry )
+Specifies the initial geometry of the window.
+
+.TP
+\fB\-h\fR
+display usage and exit
+.TP
+\fB\-v\fR
+output version information and exit
+
+.SH "CONFIGURATION FILE"
+.IR $HOME/.wmnotifyrc
+
+The first time the program is run, it will check for the presence of the
+configuration file in the user's home directory. If this file is not found,
+wmnotify will automatically create a new one, and exit. Then the user must
+enter it's POP3 account settings and preferences in the configuration file
+before restarting wmnotify.
+
+.TP
+.BI "server " <pop3-servername>
+POP3 server name.
+
+.TP
+.BI "port " <pop3-portnumber>
+POP3 port number (optional, default value is 110).
+
+.TP
+.BI "username " <pop3-username>
+POP3 username.
+
+.TP
+.BI "password " <pop3-password>
+POP3 password.
+
+.TP
+.BI "mailcheckdelay " <delay-in-minutes>
+Mail check interval, in minutes (optional, default value is 1).
+
+.TP
+.BI "mailclient " <program>
+The program to start when double-clicking on the mailbox image (optional).
+
+.TP
+.BI "enablebeep " <value>
+This option controls the audio notification enabling/disabling. If this option
+is enabled and the "audiofile" option below contains a valid audio file, it
+will be played whenever new message(s) are detected. If "audiofile" is
+commented, the console beep will be used to produce the audio notification. The
+value may be set to "0" to disable or to "1" to enable (optional, default value is 0, disabled).
+
+.TP
+.BI "audiofile " <path-to-audiofile>
+Path and filename of the WAV or AU audio sound file to play when new message(s)
+are detected (optional).
+
+.TP
+.BI "volume " <value>
+Volume value, in percent, when playing an audio file (optional, default value is
+100%). This volume value is relative to the values you have set in your sound
+card mixer settings. If you find the audio notification sound to be too loud,
+just reduce the volume value. On the other hand, if you want to increase the
+audio notification sound amplitude, just increase the volume. If you increase
+the volume value to 100% and you find that it is not sufficient, then you would
+have to increase the volume using your favorite sound card mixer program
+(ex: with alsamixer, increase the PCM or master value).
+
+.SH CREDITS
+\fBwmnotify\fR was written by Hugo Villeneuve <hugovil@videotron.ca>, based on
+the WMPop3 program by Scott Holden <scotth@thezone.net>.
+
+.SH COPYRIGHT
+\fBwmnotify\fR is free; anyone may redistribute it to anyone under the terms
+stated in the GNU General Public License. A copy of the license is included in
+the \fBwmnotify\fR distribution. You can also browse it online at
+.I http://www.gnu.org/copyleft/gpl.html

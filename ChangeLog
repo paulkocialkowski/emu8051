@@ -1,0 +1,492 @@
+------------------------------------------------------------------------------
+2002/11/12	Hugo Villeneuve		<hugovil@videotron.ca>
+	-Removed some warnings for GCC 3.2: replaced <fstream.h> by <fstream>
+	 and <iostream.h> by <iostream>.
+	-Added "using namespace std;" in EmuGtk.hpp (for GCC 3.2)
+	-Removed all unused variables
+	-Corrected error in CPU8051.cpp, in function:
+		'void CPU8051::IntMemBitInfo( unsigned int BitAddress, char *Text )'
+	 Modified this:
+		'sprintf( &Text[ TextLength ], ".%X", BitAddress );'
+	 instead of:
+		'sprintf( &Text[ TextLength ], ".%X" );'
+	-In Opcode2cpp.pl (line 767), modified for GCC 3.2:
+		'print INST_IMP " funcptr[$i]=&CPU8051::$ifunc;\n";'
+	 instead of:
+		'print INST_IMP " funcptr[$i]=&$ifunc;\n";'
+	-EmuGtk.cpp, added '#include <iostream>'
+	-Modified the return type of some functions to void to remove warnings.
+	-In function 'void RegWin::Show( CPU8051 *CPU )' (RegWin.cpp), removed all
+	 the '\n' in 'gtk_clist_set_text' calls (to fix a display problem)
+------------------------------------------------------------------------------
+99/04/27	Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Ajoute les fonctions DumpInt dans EmuConsole.hpp ainsi que ReadInt
+	  dans CPU8051.hpp. Corrige des bugs dans WriteInt et WriteExt.
+
+	- Corrige l'implementation des timers. Les 4 modes ont ete testes et
+	  semblent bien fonctionner maintenant. LEs flags sont mis correctement
+	  et les timers augmentent maintenant (au lieu d'etre decrementes).
+	- Ajoute un fichier timer.hex pour tester les timers.
+
+-----------------------------------------------------------------------------
+99/04/22	Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Ajoute les fonctions ME, MI et MP (voir definitions dans
+	  EmuConsole.cpp). Ajoute les fonctions membres WriteExt et WriteInt
+	  dans la classe CPU8051 afin de suivre la logique de l'espace
+	  memoire du 8051. WriteExt permet de modifier la memoire externe
+	  qui va de $00 a $FFFF (et non de $100 a $FFFF comme c'etait le cas
+	  avant). De meme, WriteInt permet de modifier la memoire interne qui
+	  va de $00 a $FF (incluant les SFR). Meme si la memoire externe
+	  contient les adresses $00 a $FF, il n'y a pas de conflit avec la
+	  memoire interne de $00 a $FF car la memoire externe est accedee avec
+	  l'instruction MOVX alors que la memoire interne l'est avec les
+	  instructions MOV (direct ou indirect).
+
+	- Renomme l'option DD du menu pour DE (dump External data memory).
+	  Change la description de l'option DI du menu pour Dump External
+	  Data Memory.
+
+	- Ajoute la fonction ReadExt dans la classe CPU8051, toujours pour
+	  la logique de la memoire du 8051. Ajoute la fonction DumpExt dans la
+	  classe EmuConsole pour dumper la memoire externe.
+	- Ces nouvelles fonctions ont ete testees et semblent bien fonctionner.
+------------------------------------------------------------------------------
+99/04/09	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Refait marche le RunningState avec les classes.
+	- Reconnecte les signaux aux boutons Trace, Run, Reset et Quit.
+	- Ajoute bouton Step qui ajoute un breakpoint a la ligne suivante
+	et passe en RunningState. Pratique lorsqu'arrive un CALL et qu'on ne
+	veut pas y entrer contrairement a Trace.
+------------------------------------------------------------------------------
+99/04/06	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Creation de EmuConsole.hpp et EmuConsole.cpp
+	- Cette nouvelle archive est presque rendue au meme niveau que
+	l'ancienne. Vous allez pouvoir commencer a laisser faire l'ancienne
+	et vous concentrer sur celle-ci.
+------------------------------------------------------------------------------
+(Les modifs annoncee se rapportent a l'ancienne archive mais elles ont ete
+ramenee dans celle-ci par Jonathan St-Andre)
+99/04/05	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Corrige qq malfonctions dans exec de mainconsole.cpp (nb d'inst.
+	peut etre l'infini, caractere est attendu au clavier seulement
+	si l'execution est arretee par une touche.
+	- Corrige probleme d'instructions sans operandes mal desassemblees
+	(il ne faut pas ecrire le caractere ' ' dans la chaine, il faut
+	utiliser sprintf avec " " a la place car sprintf termine la chaine
+	avec un 0 a la fin. La chaine n'etait pas terminee par un 0 et elle
+	affichait du garbage de la memoire)
+	- Corrige probleme dans disasm.cpp en rapport avec addr11 qui ne
+	prenait pas opcode mais memoire[opcode] (je devais etre chaud quand
+	j'ai ecrit ca).
+	- Bouton Run se change en Stop dans l'interface Gtk+ lorsque l'on
+	clique dessus et le cpu se met en mode execution. Les fonctions de
+	l'interface restent disponibles. N'importe quelle action dans
+	l'interface(excepte le fait de cliquer dans les fenetre memoire
+	et programme) cause l'arret de l'execution et la mise a jour
+	de l'affichage.
+	- Il est possible de placer des breakpoints pendant qu'il est
+	dans le "RunningState".
+	- Enleve les pixmaps sur les boutons dans l'interface Gtk+
+	- Ajoute verification de breakpoint deja existant dans
+	setbreakpoint.
+
+		Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	-Modifie l'affichage de disasm pour que les operandes soient alignees.
+	-Modifie la fonction DP pour qu'elle prenne l'adresse du PC par
+	 defaut si aucune adresse n'est specifiee.
+
+	- Erreur avec l'instruction ACALL qui ne calculait pas l'adresse
+	  correctement et qui ne poussait pas l'adresse de retour sur la pile.
+	  Il est important que le PC soit incremente de 2 avant de calculer
+	  addr11 et de pousser le PC sur la pile...
+	  Il faut aussi modifier le dessassemblage de cette instruction qui
+	  n'affiche que la deuxieme operande (adresse de 8 bits), alors que
+	  l'adresse est sur 11 bits...
+	-Erreur avec l'instruction RET( fichier siae1.asm adresse 03A4) ,
+	 affiche RET   @%K
+	-Ajoute la possibilite d'arreter l'execution du programme en pesant
+	 sur n'importe quelle touche grace a la fonction kbhit().
+	-Ajoute les fonctions SB, RB et DB pour les breakpoints dans le
+	 mode console. L'execution se fait jusqu'au breakpoint. Une fois
+	 arrive au breakpoint, si on fait de nouveau EM, on peut continuer
+	 l'execution du programme passe ce breakpoint. Autrement dit, EM
+	 ne verifie pas si la premiere instruction qu'il execute est un
+	 break point, ce qui est pratique pour continuer l'execution du prog
+	 apres un breakpoint.
+------------------------------------------------------------------------------
+99/03/31-
+99/04/03	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Reecriture de TOUT les sources en imbriquant au maximum
+	dans des classes pour que ce soit plus lisible et reutilisable.
+	- Les classes sont CPU8051, Memory, EmuGtk, MemWin, RegWin, PgmWin
+	et les exceptions.
+	- Tout est en anglais pour rendre le programme disponible sur
+	internet.
+	- Je n'ai pas encore refais l'interface Console en classes donc
+	elle n'est pas incluse dans cette archive. Il faudrait vraiment
+	la refaire en tant que classe.
+	- Ajout fichiers TODO, CREDITS et COPYING (license GPL)
+------------------------------------------------------------------------------
+99/03/30	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Corrige bug lors du desassemblage dans l'interpretation des
+	adresses directes dans 0-7F. disasm.cpp
+	- Corrige bug dans l'opcode 0x85, ajoute conditions particulieres
+	pour cette instruction dans script Perl et dans desassemblage.
+	Les operandes de cette instruction sont inversees dans la memoire
+	programme. Ex.: MOV 50H,51H est ecrit 85 51 50 dans la memoire
+	programme.
+
+		Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Bug dans les instructions ayant un mode d'adressage direct qui
+	utilisent des adresses dans 0-7F. Le desassembleur interprete les
+	adresses comme etant des adresses de bit.
+	- Bug dans l'opcode 0x85 MOV direct,direct. La source et la
+	destination sont inverses dans le desassemblage et dans l'execution.
+------------------------------------------------------------------------------
+99/03/29	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Remplace string::erase pour string::replace partout, g++ a
+	l'universite ne connait pas encore string::erase, c'est trop recent.
+	- Ajoute "-w" pour disabler les warnings et "-fhandle-exceptions"
+	pour activer les exceptions a l'universite.
+
+		Pascal Fecteau		<fectea00@gel.ulaval.ca>
+
+	- Ajoute .h comme extension aux fichiers inclus, sinon ca ne
+	fonctionne pas a l'universite.
+
+		Pascal Fecteau		<fectea00@gel.ulaval.ca>
+		Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Corrige une erreur dans les instructions AJMP addr11
+------------------------------------------------------------------------------
+99/03/28	Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Modification de la presentation de "Dump Register" sur la console.
+	Beaucoup plus facile a lire maintenant.
+	- Correction d'un bug dans l'instruction DA (opcode 0xD4).
+------------------------------------------------------------------------------
+99/03/27	Hugo Villeneuve		<villen01@gel.ulaval.ca>
+
+	- Correction d'un probleme avec l'instruction CJNE.
+	- Correction de bugs dans LoadHexFile (voir 99/03/22)
+
+		Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Augmente la hauteur de la fenetre Internal RAM.
+	- Correction de probleme avec tous les XCH et XCHD, l'operande source
+	n'etait pas modifiee (Trouve par Hugo et suggestion de correction par
+	Hugo).
+	- Ajout de P0, P1, P2 et P3 dans la fenetre des registres.
+	(Suggestion d'Hugo).
+	- View -> Data Memory Dump et View -> Program Memory Dump sont
+	fonctionnels. On ne peut visionner que les 16384 premiers octets.
+	Il ne veut pas prendre 65536 lignes dans une scrolled window.
+	Probablement parce que 18colonnes x 65536lignes = 1179648 cellules
+	est beaucoup trop.
+	- J'ai remarque qu'avec Gtk, on peut facilement changer les raccoucis
+	dans les menus. Pour associer "View -> Program Memory Dump" au
+	raccourci "Alt-2" par exemple, il suffit d'aller dans le menu "View",
+	se placer au dessus de "Program Memory Dump" et appuyer "Alt-2".
+	Le menu se modifiera automatiquement pour afficher "Alt-2" au bout
+	de la ligne et desormais, lorsque vous appuierez "Alt-2", l'action
+	sera executee. Ca dure seulement durant la session presente.
+	- Reduit la taille de la fenetre principale en largeur de 120 pixels
+	et en hauteur de 20 pixels.
+------------------------------------------------------------------------------
+99/03/25	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Fenetre dump connais la position ou on clique dedans.
+	- Generalise dans une classe la fenetre memorydump, il sera plus
+	facile d'ajouter plusieurs fenetres memory dump a partir du menu
+	plus tard.
+	- Implemente Run jusqu'a un breakpoint (si aucun breakpoint,
+	loop sans fin -> il faut killer).
+	- Suffit de cliquer sur une ligne de programme dans Gtk pour placer
+	ou retirer un breakpoint. Les breakpoints apparaissent comme une
+	asterisque (*) a droite de l'adresse dans la fenetre program.
+	- Ajoute bouton Run dans interface Gtk
+	- Implemente quelques fonctions necessaires au breakpoints.
+	- Change un peu le layout
+	- Enleve image de fond (cause leger delai au chargement)
+	- Fait un peu de menage dans fichiers relatifs au Gtk
+------------------------------------------------------------------------------
+99/03/23	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Changement des champs GTK_TEXT des fenetres Registre, Program et
+	Internal RAM pour des champs GTK_CLIST. Plus beau, moins de
+	flickering quand on trace et plus pratique pour ce qui s'en vient.
+	- Integration des fichiers xpm dans l'executable. Mais c'est encore
+	trop long a charger lors de l'execution, va probablement falloir les
+	compresser ou laisser faire l'image de fond.
+	- Ajout de pixmaps sur les boutons Trace, Reset et Quit (Gtk)
+	- Ajout de pixmap comme fond (Gtk)
+------------------------------------------------------------------------------
+99/03/22        Hugo Villeneuve <villen01@gel.ulaval.ca>
+
+	- Corrige un bug dans la fonction LoadHexFile : Le checksum n'etait
+	  pas calcule correctement, ce qui entrainait des erreurs a l'ouverture
+	  de certains fichiers HEX. L'erreur venait du fait que le checksum se
+	  calculait avec la valeur absolue du LoadOffset, au lieu d'utiliser
+	  les caracteres composant le LoadOffset. Exemple : si LoadOffset =
+	  0103, il faut additionner 01h+03h=4h au Checksum et non pas 0103h = 
+	  259 en decimal.
+	- Deplace la fonction enleve_espaces de main_console vers mainemu
+	  car elle est commune aux deux interfaces graphiques.
+	- Modifie la fonction majuscules pour qu'elle puisse convertir les
+	  lettres de minuscule a majuscule meme si la chaine contient des
+	  chiffres ou autres signes de ponctuation.
+	- Modifie la declaration des fonctions dans tous les fichiers .hpp:
+	  enleve le nom des parametres car c'etait inutile.
+	- Stocke le nom des registres dans un fichier registres8051.hpp.
+	  Ainsi, si on veut emuler un autre type de processeur, il suffira
+	  de se creer un autre fichier registres8052xxx.hpp par exemple.
+	- Implemente l'affichage en francais ou en anglais dependant de
+	  l'option passee sur la ligne de commande. L'interface est beaucoup
+	  plus lisible de cette facon. Par defaut, l'affichage est en anglais.
+------------------------------------------------------------------------------
+99/03/21        Hugo Villeneuve <villen01@gel.ulaval.ca>
+
+	- Ajoute deux parametres qu'on peut passer par la ligne de commande:
+	    /?  affiche les options disponibles sur la ligne de commande.
+	    -f  force l'affichage en francais (pas encore implemente!!!)
+	- Ajoute le controle d'erreur pour le chargement d'un fichier HEX.
+	  Les differentes erreurs sont controlees ( checksum, rectype,
+	  fin de fichier, etc.).
+	- Modifie la fonction unasm pour qu'elle accepte 0,1 ou 2 parametres.
+	  U (adresse) (nombre d'instructions)
+	  Si adresse et nombre d'instructions non-specifies:
+	    Adresse = PC et Nombre d'Instructions = 16
+	  Si adresse specifie et nombre d'instructions non-specifie:
+	    Adresse = adresse specifiee et Nombre d'Instructions = 16
+	  Si adresse specifie et nombre d'instructions specifie:
+	    Adresse = adresse specifiee et Nombre d'Instructions = nb specifie
+	  A noter: on peut specifier une adresse comme etant un nombre
+	  hexadecimal, ou tout simplement en entrant "PC" ou "pc".
+
+		Jonathan St-Andre	<standr00@gel.ulaval.ca
+
+	- Fait le menage dans la fonction main
+	- Modifie Makefile.console et Makefile.gtk
+	- Rearrangement des fichiers pour limiter les impacts sur
+	tout le projet lors de modifications dans une partie et
+	pour accelerer la compilation (en modules).
+	- Creation de mainconsole.hpp + mainconsole.cpp
+	- Creation de maingtk.cpp + maingtk.hpp
+	- Creation de mainemu.cpp + mainemu.hpp
+	- Elimine fonctions.cpp.
+	- Elimination du 2e parametre a unasm. Desassemble
+	de nouveau 16 instructions.
+	- Ajustement du menu pour qu'il rentre dans la largeur
+	d'un terminal 80x25.
+	
+		Jimmy Ringuette	<ringue00@gel.ulaval.ca>
+
+	- Ajout des interruptions du port serie.
+	- Ajout du timer 2 (8052).
+------------------------------------------------------------------------------
+99/03/20        Hugo Villeneuve <villen01@gel.ulaval.ca>
+
+	- Separe le fichier main.cpp en deux: main.cpp et fonctions.cpp.
+	  fonctions.cpp contient les fonctions necessaires a main.cpp.
+	- Ajoute un fichier exceptions.hpp qui permet de gerer les erreurs.
+	- Modifie le Makefile en consequence.
+	- On peut maintenant entrer les adresses < a quatre caracteres :
+	  ex: adresse 0000h = 0 ou 00 ou 000 ou 0000.
+	- Enleve le include <stdlib.h>
+	- Remplace toutes les commandes printf du main par cout.
+	- Modifie l'apparence du menu.
+	- Le programme est maintenant plus robuste en ce qui concerne les
+	  erreurs de syntaxe, les adresses invalides, etc (a tester...).
+	- Modifier l'operation et la syntaxe de certaines commandes
+	  S (set register) devient MR (modify register) car set veut
+	  plutot dire "mettre a 1", et on pourra aussi implementer
+	  MM (modify Memory).
+	  R devient DR (display Register), pour suivre la logique de
+	  DP, DM et DI.
+	- Ajoute une commande Execute Memory: EM addr n
+	- La gestion des chaines de caracteres se fait maintenant
+	  uniquement avec des variables de type STRING, selon le C++.
+	- Enleve variables i,j,k et inputcars dans le main.
+	- Modifie la fonction RESET pour quelle n'affiche pas les
+	  registres au demarrage... ca faisait pas beau! Ajoute
+	  cependant un message pour dire que le up est resette.
+	- Pour changer un registre, on doit entrer PC (et non p) ainsi
+	  que SP (et non seulement s).
+	- Ajoute une fonction qui convertit une chaine de caracteres
+	  en majuscules.
+------------------------------------------------------------------------------
+99/03/19	Jonathan St-Andre	<standr00@gel.ulaval.ca>
+
+	- Fonction reset51() ajoutee dans cpu8051.cpp, reset() ajoutee
+	dans main.cpp.
+	- Commande "Z" fait un reset du processeur sur la console et le
+	bouton Reset fonctionne dans le GUI.
+
+		Jimmy Ringuette	<ringue00@gel.ulaval.ca>
+
+	- Les interruptions sont maintenant implementees. check_hardware() a
+	ete supprimee et Do_timers() est appelee directement de exec8051().
+------------------------------------------------------------------------------
+99/03/18        Hugo Villeneuve <villen01@gel.ulaval.ca>
+
+	- Modifie l'entree des commandes pour gerer un peu plus les erreurs
+	  de syntaxe (je n'ai pas fini, il y a encore de la job a faire pour
+	  mettre ca error proof).
+	- Simplifie l'entree des parametres pour chacune des fonctions.
+	- Re-modifie l'instruction trace pour avoir seulement deux modes:
+	  trace a adresse et trace 1 instruction. Cela simplifie l'entree de
+	  la commande (on n'a pas a faire TA, qui n'est pas une commande
+ 	  standard dans les emulateurs). Si on veut faire tracer pour plusieurs
+	  instructions, alors il suffira d'implementer la commande
+	  EXECUTE Nombre_instructions, ce qui est beaucoup plus logique et 
+	  c'est ce qu'on retrouve dans la plupart des emulateurs.
+	- Ajoute la description des commandes en francais (loi 101).
+------------------------------------------------------------------------------
+99/03/18	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Le bouton Trace dans la version Gtk+ fonctionne. On peut tracer
+	et les 3 fenetres(registres, memoire, programme) se mettent a jour.
+	- Ajout de 2 nouvelles fonctions trace : "tracenb()" et "traceat()"
+	Qui, respectivement, prenent un nombre d'instruction a executer ou
+	une adresse ou commencer l'execution. La fonction trace() a ete
+	resimplifiee.
+	- Dans les instructions RET, RETI, LCALL, PUSH et POP la pile prend
+	la iram seulement pour les adresses sous 0x80, la data RAM est
+	utilisee autrement. Avant, les SFR se faisaient ecraser!
+	- Modes d'addressage addr16, reladdr, #data16 modifies!
+	En tenant compte de ce que Hugo avait fait remarquer ce matin :
+	ex.: si PC++ apparait 2 fois sur une ligne, les 2 fois il repartira
+	de la meme valeur de PC et suite a cette ligne, on se trouve avec
+	un PC incremente 1 fois au lieu de 2.
+	- Menu accepte maj/minuscules
+	- Corrige bug dans "setreg", les registres peuvent vraiment
+	etre donnes en maj/minuscules maintenant.
+------------------------------------------------------------------------------
+99/03/17	Hugo Villeneuve	<villen01@gel.ulaval.ca
+
+        - Corrige les instructions LJMP et LCALL qui ne calculaient pas la
+          bonne adresse pour le PC. Toutes les autres instructions de
+          branchement sont probablement a revoir pour le meme probleme. Le
+          probleme etait cause par la syntaxe dans le fichier instructions.hpp
+          (lignes ou on retrouve addr16 = (pgm_mem[PC++] << 8)+pgm_mem[PC++] a
+          remplacer par addr16 = (pgm_mem[PC+1] << 8) + pgm_mem[PC+2] )
+	- Modifie la commande TRACE pour qu'on puisse lui passer une adresse
+          de depart comme parametre (main.cpp lignes 406-409) et modifie
+          en consequence ascii2hex pour qu'il ignore les espaces avant
+          l'adresse. (main.cpp ligne 133).
+------------------------------------------------------------------------------
+99/03/14	Pascal Fecteau <fectea00@gel.ulaval.ca>
+
+	- Correction de bugs relatifs a la compilation sur VC5.
+	Dont ajout de #include <string.h>.
+------------------------------------------------------------------------------
+99/03/13	Jimmy Ringuette <ringue00@gel.ulaval.ca>
+
+	- Ajout des timers dans cpu8051.cpp. Il faudrait tester a fond.
+------------------------------------------------------------------------------
+99/03/12	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Je crois qu'il sera plus interessant si on garde le memory
+	dump normal dans une fenetre exterieur et dont on pourra en ouvrir
+	plusieurs pour monitorer differents endroits de la memoire, c'est
+	pourquoi je n'ai place que "Internal RAM" comme memory dump dans
+	la fenetre principale.
+	- Au demarrage, effectue un premier memory dump dans la fenetre
+	"Internal RAM", un unasm dans "Program" et un show register dans
+	"Registers".
+	- Bouton Quit, menus "File -> Quit" et "Help -> About" reagissent.
+	- Comporte maintenant 2 Makefile : Makefile.console(fonctionne sur
+	toutes les plateformes) et Makefile.gtk(teste seulement sous Linux).
+	- DEBUT d'interface graphique Gtk+ (ne fait qu'afficher une fenetre
+	avec un layout tres simple), presentement je cours apres des sources
+	de documentations.(le manuel n'est pas encore complet)
+------------------------------------------------------------------------------
+99/03/09	Jimmy Ringuette <ringue00@gel.ulaval.ca>
+
+        - Regle le bug avec mul (probleme avec les bits 15-8 du resultat
+	ne se ramenaient pas dans les bits 7-0 du registre B)
+        - La conversion chaine->hexadecimal accepte les minuscules
+        - Il n'est plus obligatoire d'ecrire les 4 caracteres lorsqu'il faut
+	entrer une valeur hexadecimale.
+------------------------------------------------------------------------------
+99/03/05	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Corrige un warning de compilation sous Solaris.
+------------------------------------------------------------------------------
+99/03/04	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Ca execute! (presque) 
+	- Phase de corrections des bugs dans les instructions, une premiere
+	implementation est faite pour toutes les instructions. 
+	- Ajout fonction "trace" et "dump internal memory" 
+	- Les modes d'adressage sont pratiquement termines dans
+	les instructions. 
+	- Certaines instructions ont un debut d'implementation. 
+	- Desassembleur, bit addressable segment 00-7F -> 20.0-2F.7 
+------------------------------------------------------------------------------
+99/03/03	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Ajout automatique de certaines lignes de codes concernant
+	l'adressage dans les fonctions d'instructions tres brouillon 
+	- Ajout de stub pour write_mem et read_mem, modifs dans exec8051 
+	- Ajout de la fonction showregister() et de la commande 'r'. 
+	- Correction d'une erreur iram_mem doit etre unsigned char et non int
+	- Note : Il y a des references a certaines parties du 8052 mais
+	elles ne seront pas implementees. Ce n'est qu'a titre d'informations.
+	- Ajout de #define pour faire correspondre les registres SFR avec
+	leur adresse dans la iram. 
+	- Renomme instructions.cpp a instructions.hpp et ajout du tableau
+	de pointeurs sur les fonctions 
+	- Ajout de la ram interne 00-FF et valeurs initiale au reset
+	dans cpu8051.cpp avec le registre : unsigned int PC. 
+	- Ajout de cpu8051.cpp contenant exec8051() 
+------------------------------------------------------------------------------
+99/03/02	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Ajout de remarques dans le source 
+	- Il faudrait maintenant tester avec plusieurs programmes pour
+	reperer les bugs. 
+	- Le desassembleur reconnait maintenant les registres du SFR
+	(ex.: 88H est remplace par TCON, F0 par B, etc...) 
+	- Changement au desassembleur (instructions peuvent avoir jusqu'a 3
+	arguments ex.: CJNE R0,#data,reladdr) 
+	- La vrai instruction CJNE comporte 3 arguments il faut changer 
+	radicalement le desassembleur 
+------------------------------------------------------------------------------
+99/03/01	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Probleme dans opcodes.lst au niveau de l'instruction CJNE (mauvaise
+	 definition) 
+	- Tous les types d'adressages semblent fonctionner 
+	- Le desassembleur peut lire les arguments et les afficher 
+	(ex.: MOV A,#data peut devenir plus concret MOV A,#20) 
+	- Desassembleur (instructions ont 2 arguments : instleftarg et 
+	instrightarg) 
+------------------------------------------------------------------------------
+99/02/28	Jonathan St-Andre <standr00@gel.ulaval.ca>
+
+	- Charge un fichier .hex donne en parametre (format Intel Hexadecimal 
+	produit par ASM51) 
+	- Effectue le dump program memory et dump data memory 
+	- On peut quitter (YEAH!) 
+	- Affiche le menu 
+	- Creation de opcodes.lst et script Perl pour l'interpreter 
+	- Debut
+
+
+
+
+
+
+
+

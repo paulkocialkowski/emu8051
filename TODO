@@ -1,0 +1,15 @@
+	THINGS TO DO
+	------------
+
+-Compile only one program for both graphical and console modes, or
+ support only the graphical mode.
+- Some fine tuning around the classes
+- Make MemWin, RegWin be able to make a standalone
+  window if parentwin=0.
+- Connect File->Open, View->... and Help->License menus.
+- Make the RegWin and MemWin react when mouse clicked. (modify register or
+  memory)
+- Enlever les fonctions ReadI, WriteI, dumpI etc... et plutot utiliser les
+  fonctions ReadInt, WriteInt, DumpInt, DumpExt, etc.
+- Lors d'un DumpInt, verifier a ne pas afficher plus haut que la taille
+  reelle de la memoire interne. (Detail)
