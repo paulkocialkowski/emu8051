@@ -3,7 +3,7 @@
 dnl Initialization stuff.
 AC_INIT(emu8051, 0.2.0)
 AC_CONFIG_AUX_DIR(config)
-AC_CONFIG_SRCDIR(src/CPU8051.cpp)
+AC_CONFIG_SRCDIR(src/cpu8051.c)
 AM_CONFIG_HEADER(config.h:config-h.in)
 dnl Checking if the NEWS file has been updated to reflect the current version.
 AM_INIT_AUTOMAKE(check-news)
@@ -46,14 +46,7 @@ else
   LIBS="${LIBS} ${GTK_LIBS}",AC_MSG_ERROR(GTK+-2.0 not found!))dnl
 fi
 
-dnl Tests the C++ compiler
-AC_PROG_CXX
-AC_LANG_CPLUSPLUS
-
-CXXFLAGS="${CFLAGS}"
-
 AC_SUBST(CFLAGS)
-AC_SUBST(CXXFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 

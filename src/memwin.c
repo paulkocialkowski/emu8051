@@ -1,19 +1,25 @@
-/* memwin.cpp */
+/* memwin.c */
 
 
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
-#include "MemWin.hpp"
 #include <stdio.h>
 
+#include "cpu8051.h"
+#include "memwin.h"
+
+
+/*static GtkWidget *memwin;*/
+static GtkWidget *memclist;
+
 
 //////////////////////////////////////////////////////////////////////////////
-// MemWin::MemWin( GtkWidget *parentwin )
 // MemWin constructor
 //////////////////////////////////////////////////////////////////////////////
-MemWin::MemWin( GtkWidget *parentwin )
+void
+memwin_init( GtkWidget *parentwin )
 {
   int i;
   GtkStyle *style;
@@ -49,19 +55,10 @@ MemWin::MemWin( GtkWidget *parentwin )
 
 
 //////////////////////////////////////////////////////////////////////////////
-// MemWin::~MemWin( )
-// MemWin destructor
-//////////////////////////////////////////////////////////////////////////////
-MemWin::~MemWin( )
-{
-
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// void MemWin::DumpD( CPU8051 *mCPU, unsigned int Address )
 // Dump 16 rows of 16 bytes from Address in Memory (direct addressing)
 //////////////////////////////////////////////////////////////////////////////
-void MemWin::DumpD( CPU8051 *mCPU, unsigned int Address)
+void
+memwin_DumpD( unsigned int Address )
 {
 char TextTmp[255];
 int row, column, TextLength;
@@ -72,14 +69,14 @@ gtk_clist_freeze( GTK_CLIST( memclist ) );
    gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
 
    for ( column = 0; column < 16; column++ ) {
-     sprintf( TextTmp, "%.2X", ( int ) mCPU->ReadD( Address + column ) );
+     sprintf( TextTmp, "%.2X", ( int ) cpu8051_ReadD( Address + column ) );
      gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
    }
 
    TextLength = 0;
    for ( column = 0; column < 16; column++ ) {
-     if ( ( ( int ) mCPU->ReadD( Address + column ) >= 32 ) && ( ( int ) mCPU->ReadD( Address + column ) <= 126 ) )
-       TextLength += sprintf( &TextTmp[ TextLength ], "%c", mCPU->ReadD( Address + column ) );
+     if ( ( ( int ) cpu8051_ReadD( Address + column ) >= 32 ) && ( ( int ) cpu8051_ReadD( Address + column ) <= 126 ) )
+       TextLength += sprintf( &TextTmp[ TextLength ], "%c", cpu8051_ReadD( Address + column ) );
      else TextLength += sprintf( &TextTmp[ TextLength ], "." );
    }
    gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
@@ -91,38 +88,35 @@ gtk_clist_select_row( GTK_CLIST( memclist ), 0, 0 );
 gtk_clist_thaw( GTK_CLIST( memclist ) );
 }
 
+
 //////////////////////////////////////////////////////////////////////////////
-// void MemWin::DumpI( CPU8051 *mCPU, unsigned int Address )
 // Dump 16 rows of 16 bytes from Address in Memory (indirect addressing)
 //////////////////////////////////////////////////////////////////////////////
-void MemWin::DumpI( CPU8051 *mCPU, unsigned int Address)
+void
+memwin_DumpI( unsigned int Address )
 {
-char TextTmp[255];
-int row, column, TextLength;
-
-gtk_clist_freeze( GTK_CLIST( memclist ) );
- for ( row = 0; row < 16; row++ ) {
-   sprintf( TextTmp, "%.4X", Address );
-   gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
-
-   for ( column = 0; column < 16; column++ ) {
-     sprintf( TextTmp, "%.2X", ( int ) mCPU->ReadI( Address + column ) );
-     gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
-   }
-
-   TextLength = 0;
-   for ( column = 0; column < 16; column++ ) {
-     if ( ( ( int ) mCPU->ReadI( Address + column ) >= 32 ) && ( ( int ) mCPU->ReadI( Address + column ) <= 126 ) )
-       TextLength += sprintf( &TextTmp[ TextLength ], "%c", mCPU->ReadI( Address + column ) );
-     else TextLength += sprintf( &TextTmp[ TextLength ], "." );
-   }
-   gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
-
-   Address += 16;
- }
-gtk_clist_thaw( GTK_CLIST( memclist ) );
+  char TextTmp[255];
+  int row, column, TextLength;
+  
+  gtk_clist_freeze( GTK_CLIST( memclist ) );
+  for ( row = 0; row < 16; row++ ) {
+    sprintf( TextTmp, "%.4X", Address );
+    gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
+    
+    for ( column = 0; column < 16; column++ ) {
+      sprintf( TextTmp, "%.2X", ( int ) cpu8051_ReadI( Address + column ) );
+      gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
+    }
+    
+    TextLength = 0;
+    for ( column = 0; column < 16; column++ ) {
+      if ( ( ( int ) cpu8051_ReadI( Address + column ) >= 32 ) && ( ( int ) cpu8051_ReadI( Address + column ) <= 126 ) )
+	TextLength += sprintf( &TextTmp[ TextLength ], "%c", cpu8051_ReadI( Address + column ) );
+      else TextLength += sprintf( &TextTmp[ TextLength ], "." );
+    }
+    gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
+    
+    Address += 16;
+  }
+  gtk_clist_thaw( GTK_CLIST( memclist ) );
 }
-
-
-
-

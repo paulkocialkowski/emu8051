@@ -17,6 +17,7 @@
 #endif
 
 #include "common.h"
+#include "memory.h"
 
 
 /* Convert an ascii string to an hexadecimal number. */
@@ -53,7 +54,7 @@ Ascii2Hex( char *istring, int length )
 
 
 void
-LoadHexFile( const char *filename, void (* cpu_write_pgm)( unsigned int Address, unsigned char Value ) )
+LoadHexFile( const char *filename )
 {
   int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
   
@@ -114,7 +115,7 @@ LoadHexFile( const char *filename, void (* cpu_write_pgm)( unsigned int Address,
     
     for ( j = 0; j < RecLength; j++ ) {
       Data = Ascii2Hex( &line[ i ], 2 );
-      (*cpu_write_pgm)( (unsigned int)(LoadOffset + j), (unsigned char)Data );
+      memory_write8( PGM_MEM_ID, (unsigned int)(LoadOffset + j), (unsigned char)Data );
       i += 2;
       Checksum += Data;
     }

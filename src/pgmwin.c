@@ -1,24 +1,43 @@
-/* pgmwin.cpp */
+/* pgmwin.c */
 
 
 #if HAVE_CONFIG_H
 #  include "config.h"
 #endif
 
-#include "PgmWin.hpp"
 #include <stdio.h>
 
+#include "cpu8051.h"
+#include "pgmwin.h"
+
+
+/* private */
+GtkWidget *pgmwin;
+GtkWidget *pgmclist;
+int NbBreakpoints;
+unsigned int Breakpoints[ MAXBP ];
+unsigned int DisasmAddresses[ 24 ];
+
+
+/*
 int PgmWinNumber = 0;
 int PgmWinNumbers[ 1 ];
-PgmWin *PgmWinPtrs[ 1 ];
+*/
+
+
+/*PgmWin *PgmWinPtrs[ 1 ];*/
+
+
+/* in cpu8051.c */
+extern unsigned int PC;
+
 
 //////////////////////////////////////////////////////////////////////////////
-// PgmWin::PgmWin( GtkWidget *parentwin, CPU8051 *mCPU )
 // PgmWin constructor
 //////////////////////////////////////////////////////////////////////////////
-PgmWin::PgmWin( GtkWidget *parentwin, CPU8051 *mCPU )
+void
+pgmwin_init( GtkWidget *parentwin )
 {
-  CPU = mCPU;
   int i;
   GtkStyle *style;
   GdkFont *fixedfont;
@@ -49,41 +68,33 @@ PgmWin::PgmWin( GtkWidget *parentwin, CPU8051 *mCPU )
 
   NbBreakpoints = 0;
 
-  if ( PgmWinNumber >= 1 ) g_print( "WARNING! Too many PgmWin objects to handle signals!\n");
-  else {
-    PgmWinPtrs[ PgmWinNumber ] = this;
-    PgmWinNumbers[ PgmWinNumber ] = PgmWinNumber;
-    gtk_signal_connect( GTK_OBJECT( pgmclist ), "button-press-event", GTK_SIGNAL_FUNC( PgmWinButtonPress ), &PgmWinNumbers[ PgmWinNumber++ ] );
-  }
-}
-
-
-//////////////////////////////////////////////////////////////////////////////
-// PgmWin::~PgmWin( )
-// PgmWin destructor
-//////////////////////////////////////////////////////////////////////////////
-PgmWin::~PgmWin( )
-{
+  /*
+  PgmWinPtrs[ PgmWinNumber ] = this;
+  PgmWinNumbers[ PgmWinNumber ] = PgmWinNumber;
+  gtk_signal_connect( GTK_OBJECT( pgmclist ), "button-press-event", GTK_SIGNAL_FUNC( PgmWinButtonPress ), &PgmWinNumbers[ PgmWinNumber++ ] );
+  */
 
 }
 
+
 //////////////////////////////////////////////////////////////////////////////
-// void PgmWin::Disasm( )
+// void pgmwin_Disasm( )
 // Disasm 24 lines from CPU
 //////////////////////////////////////////////////////////////////////////////
-void PgmWin::Disasm( )
+void
+pgmwin_Disasm( )
 {
 char TextTmp[255];
 int row;
 //int TextLength;
 int InstSize;
 unsigned int Address;
-Address = CPU->GetPC( );
+Address = PC;
 
 gtk_clist_freeze( GTK_CLIST( pgmclist ) );
  for ( row = 0; row < 24; row++ ) {
-   InstSize = CPU->Disasm( Address, TextTmp );
-   if ( IsBreakpoint( Address ) ) TextTmp[0] = '*';
+   InstSize = cpu8051_Disasm( Address, TextTmp );
+   if ( pgmwin_IsBreakpoint( Address ) ) TextTmp[0] = '*';
    gtk_clist_set_text( GTK_CLIST( pgmclist ), row, 0, TextTmp );
    DisasmAddresses[ row ] = Address;
    Address += InstSize;
@@ -93,23 +104,23 @@ gtk_clist_thaw( GTK_CLIST( pgmclist ) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// gint PgmWin::ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
+// gint pgmwin_ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 // Mouse button pressed in the window
 //////////////////////////////////////////////////////////////////////////////
-gint PgmWin::ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
+gint pgmwin_ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
   gint row, column;
   char TextTmp[ 255 ];
-  //g_print( "PgmWin::ButtonPressEvent(...)\n" );
+  //g_print( "pgmwin_ButtonPressEvent(...)\n" );
   gtk_clist_get_selection_info( GTK_CLIST( pgmclist ), ( int )event->button.x ,( int )event->button.y, &row, &column );
   if (row >= 24 || row < 0)
     return TRUE;
   if (column >= 1 || column < 0)
     return TRUE;
-  sprintf( TextTmp, "PgmWin::ButtonPressEvent( ) at %d,%d\n", column, row );
+  sprintf( TextTmp, "pgmwin_ButtonPressEvent( ) at %d,%d\n", column, row );
   g_print( TextTmp );
-  ToggleBreakpoint( DisasmAddresses[ row ] );
-  Disasm( );
+  pgmwin_ToggleBreakpoint( DisasmAddresses[ row ] );
+  pgmwin_Disasm( );
   return FALSE;
 }
 
@@ -117,28 +128,32 @@ gint PgmWin::ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data
 // gint PgmWinButtonPress( GtkWidget *widget, GdkEvent *event, gpointer data )
 // Signal Stub with 3 parameters
 //////////////////////////////////////////////////////////////////////////////
-void PgmWinButtonPress( GtkWidget *widget, GdkEvent *event, gpointer data )
+void
+PgmWinButtonPress( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
-int PWNumber = (* ( static_cast< int * >( data ) ) );
-PgmWinPtrs[ PWNumber ]->ButtonPressEvent( widget, event, 0 );
+  /*int PWNumber = *( (int *) data );*/
+  
+  pgmwin_ButtonPressEvent( widget, event, 0 );
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
-// void PgmWin::ShowBreakpoints( )
+// void pgmwin_ShowBreakpoints( )
 // Show Breakpoints list
 //////////////////////////////////////////////////////////////////////////////
-void PgmWin::ShowBreakpoints( )
+void pgmwin_ShowBreakpoints( )
 {
-  for ( int Index = 0; Index < NbBreakpoints ; Index++ )
+  int Index;
+
+  for ( Index = 0; Index < NbBreakpoints ; Index++ )
     printf( "Breakpoint at Address = %.4X\n", Breakpoints[ Index ] );
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// void PgmWin::ClearBreakpoint( unsigned int Address )
+// void pgmwin_ClearBreakpoint( unsigned int Address )
 // Clear Breakpoint at Address from list
 //////////////////////////////////////////////////////////////////////////////
-void PgmWin::ClearBreakpoint( unsigned int Address )
+void pgmwin_ClearBreakpoint( unsigned int Address )
 {
   int Index = 0;
   while ( Index < NbBreakpoints && Breakpoints[ Index ] != Address ) Index++;
@@ -148,20 +163,20 @@ void PgmWin::ClearBreakpoint( unsigned int Address )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// void PgmWin::SetBreakpoint( unsigned int Address )
+// void pgmwin_SetBreakpoint( unsigned int Address )
 // Set Breakpoint at Address from list
 //////////////////////////////////////////////////////////////////////////////
-void PgmWin::SetBreakpoint( unsigned int Address )
+void pgmwin_SetBreakpoint( unsigned int Address )
 {
-  if ( IsBreakpoint( Address ) ) return;
+  if ( pgmwin_IsBreakpoint( Address ) ) return;
   if ( NbBreakpoints < MAXBP ) Breakpoints[ NbBreakpoints++ ] = Address;
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// int PgmWin::IsBreakpoint( unsigned int Address )
+// int pgmwin_IsBreakpoint( unsigned int Address )
 // Is the a breakpoint at Address
 //////////////////////////////////////////////////////////////////////////////
-int PgmWin::IsBreakpoint( unsigned int Address )
+int pgmwin_IsBreakpoint( unsigned int Address )
 {
   int Index = 0;
   while ( Index < NbBreakpoints && Breakpoints[ Index ] != Address ) Index++;
@@ -169,13 +184,13 @@ int PgmWin::IsBreakpoint( unsigned int Address )
 }
 
 //////////////////////////////////////////////////////////////////////////////
-// void PgmWin::ToggleBreakpoint( unsigned int Address )
+// void pgmwin_ToggleBreakpoint( unsigned int Address )
 // Toggle the breakpoint at Address
 //////////////////////////////////////////////////////////////////////////////
-void PgmWin::ToggleBreakpoint( unsigned int Address )
+void pgmwin_ToggleBreakpoint( unsigned int Address )
 {
-  if ( IsBreakpoint( Address ) ) ClearBreakpoint( Address );
-  else SetBreakpoint( Address );
+  if ( pgmwin_IsBreakpoint( Address ) ) pgmwin_ClearBreakpoint( Address );
+  else pgmwin_SetBreakpoint( Address );
 }
 
 
