@@ -34,24 +34,6 @@ static GtkWidget *mainwin;
 extern char *hex_file;
 
 
-/* Signal DeleteEvent */
-/* If you return FALSE in the "delete_event" signal handler,
- * GTK will emit the "destroy" signal. Returning TRUE means
- * you don't want the window to be destroyed.
- * This is useful for popping up 'are you sure you want to quit?'
- * type dialogs.
- */
-static gboolean
-WindowDeleteEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
-{
-  g_print( "emugtk_DeleteEvent(...)\n" );
-
-  emugtk_StopRunning( );
-
-  return FALSE;
-}
-
-
 /* Signal DestroyEvent */
 static void
 WindowDestroyEvent( GtkWidget *widget, gpointer data )
@@ -77,7 +59,7 @@ AddPixButton( GtkWidget *box, gchar **pixmap_array )
   icon = gtk_pixmap_new( image, transparent );
   gtk_container_add( GTK_CONTAINER(button), icon );
 
-  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 2 );
+  gtk_box_pack_start( GTK_BOX(box), button, FALSE, FALSE, 0 );
 
   return button;
 }
@@ -91,7 +73,7 @@ AddButtons( void )
   GtkWidget *button;
 
   /* The buttons of the hbox are NOT given equal space in the box. */
-  button_hbox = gtk_hbox_new( FALSE, 5 );
+  button_hbox = gtk_hbox_new( FALSE, 0 );
 
   /* Creating the RESET button. */
   button = AddPixButton( button_hbox, reset_xpm );
@@ -160,10 +142,6 @@ emugtk_window_init( void )
 
   /* Window DESTROY event. */
   gtk_signal_connect( GTK_OBJECT(mainwin), "destroy", GTK_SIGNAL_FUNC(WindowDestroyEvent),
-		      NULL );
-
-  /* Window DELETE event. */
-  gtk_signal_connect( GTK_OBJECT(mainwin), "delete_event", GTK_SIGNAL_FUNC(WindowDeleteEvent),
 		      NULL );
 
   /* Setting main window geometry based on command line options (if specified). */
