@@ -4,11 +4,11 @@ AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = src doc
 
-EXTRA_DIST = bootstrap \
+EXTRA_DIST = autogen.sh \
              $(ac_aux_dir)/debug.m4 \
              $(ac_aux_dir)/gtk2.m4 \
-             pixmaps/*.xpm \
-             test_files/*
+             pixmaps \
+             test_files
 
 ACLOCAL = aclocal -I $(ac_aux_dir)
 

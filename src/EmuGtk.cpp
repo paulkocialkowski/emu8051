@@ -6,10 +6,10 @@
 #include "CPU8051.hpp"
 #include "EmuGtk.hpp"
 #include "exceptions.hpp"
-#include "pixmaps/reset.xpm"
-#include "pixmaps/run.xpm"
-#include "pixmaps/stop.xpm"
-#include "pixmaps/step.xpm"
+#include "reset.xpm"
+#include "run.xpm"
+#include "stop.xpm"
+#include "step.xpm"
 
 
 int EmuGtkNumber = 0;

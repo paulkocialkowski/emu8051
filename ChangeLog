@@ -1,3 +1,11 @@
+
+------------------------------------------------------------------------------
+2004/05/07	Hugo Villeneuve		<hugo@hugovil.com>
+	-Corrected a bug with the CJNE instruction.
+	-Modified the directory layout and autoconf files.
+	-Added support for GTK2.
+	-Added project to subversion.
+
 ------------------------------------------------------------------------------
 2002/11/12	Hugo Villeneuve		<hugovil@videotron.ca>
 	-Removed some warnings for GCC 3.2: replaced <fstream.h> by <fstream>

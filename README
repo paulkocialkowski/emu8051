@@ -1,0 +1,20 @@
+                  Emu8051
+
+Emu8051 is a simulator/emulator for the Intel 8051 family of microcontrollers. It is
+available in two versions: a console (text-only) version and a graphical version (using
+the GTK+ toolkit). This is an Open-Source project. The program can load Intel HEX files.
+Once loaded, a program can be run (it will run indefinitely or until a breakpoint is
+encountered). You can also use the STEP button to execute only a single instruction at
+a time and see the effects on registers and memory. It is written in C++, and uses Perl
+scripts to generate automatically C++ functions corresponding to each assembly instruction
+of the 8051 microcontroller.
+
+Project website:
+	http://www.hugovil.com/en/emu8051
+
+This program was tested on the following systems:
+	"Linux From Scratch 4.0"
+	
+For installation instructions, see the INSTALL file.
+
+For recent project news, see the NEWS file.

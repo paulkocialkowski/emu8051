@@ -1,0 +1,4 @@
+
+2005-05-07: emu8051-0.1.0 has been released.
+        Fixed bug with CJNE instruction and autoconf files cleanup.
+        See the file 'ChangeLog' for further details.
