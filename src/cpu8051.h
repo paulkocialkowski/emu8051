@@ -5,6 +5,28 @@
 #define CPU8051_H 1
 
 
+typedef struct cpu8051_t
+{
+  unsigned int pc;
+  unsigned long clock;
+  int active_priority;
+} cpu8051_t;
+
+
+/* Exported variables */
+#undef _SCOPE_
+#ifdef CPU8051_M
+#  define _SCOPE_ /**/
+#else
+#  define _SCOPE_ extern
+#endif
+
+_SCOPE_ cpu8051_t cpu8051;
+
+
+void
+cpu8051_init( void );
+
 void
 cpu8051_Exec( void );
 
@@ -26,10 +48,8 @@ cpu8051_ReadD( unsigned int Address );
 unsigned char
 cpu8051_ReadInt( unsigned int Address );
 
-
 unsigned char
 cpu8051_ReadI( unsigned int Address );
-
 
 unsigned int
 cpu8051_GetNextAddress( void );

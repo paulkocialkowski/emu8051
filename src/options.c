@@ -23,24 +23,13 @@
 char *hex_file;
 
 
-char *
-GetHexFileName( void )
-{
-  return hex_file;
-}
-
-
 /*******************************************************************************
  * Display the help message and exit
  ******************************************************************************/
 static void
 DisplayUsage( void )
 {
-  printf( "Usage: %s [OPTION]... [FILENAME]\n", PACKAGE );
-  printf( "Simulator/emulator for 8051 family microcontrollers.\n\n" );
-  printf( "  -h                        display this help and exit\n" );
-  printf( "  -version                  display version information and exit\n");
-  printf( "\n" );
+  printf( COMMAND_LINE_OPTIONS );
 }
 
 
@@ -52,7 +41,7 @@ DisplayVersion( void )
 {
   printf( "\n" );
   printf( "  %s, version %s\n", PACKAGE, VERSION );
-  printf( "  Written by Hugo Villeneuve, Jonathan St-André and Pascal Fecteau.\n\n" );
+  printf( "  Written by Jonathan St-André, Pascal Fecteau and Hugo Villeneuve\n\n" );
 }
 
 

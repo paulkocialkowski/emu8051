@@ -9,8 +9,8 @@
 #include "gtksizes.h"
 
 
-void
-regwin_init( GtkWidget *parentwin );
+GtkWidget *
+regwin_init( int width, int height );
 
 void
 regwin_Show( void );

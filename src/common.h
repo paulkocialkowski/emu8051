@@ -15,6 +15,14 @@
 #endif
 
 
+#if ( GTK_MAJOR_VERSION == 2 )
+#  define FIXED_FONT "monospace 12"
+#else
+/*#  define FIXED_FONT "-misc-fixed-medium-r-*-*-*-140-*-*-*-*-*-*"*/
+#  define FIXED_FONT "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1"
+#endif
+
+
 /* Common constants. */
 #ifndef EXIT_SUCCESS
 #  define EXIT_SUCCESS 0

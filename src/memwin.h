@@ -8,8 +8,8 @@
 #include <gtk/gtk.h>
 
 
-void
-memwin_init( GtkWidget *parentwin );
+GtkWidget *
+memwin_init( int width, int height );
 
 void
 memwin_DumpD( unsigned int Address );

@@ -1,6 +1,10 @@
 /* cpu8051.c */
 
 
+/* Define only here, for not having extern scope on local variables. */
+#define CPU8051_M 1
+
+
 #include <stdio.h>
 
 #include "reg8051.h"
@@ -10,16 +14,17 @@
 #include "instructions_8051.h"
 
 
-unsigned int PC = 0;
-unsigned long CLOCK = 0;
-int ActivePriority = -1;
-
-
-extern OPCODE_FP opcode_table[256];
+void
+cpu8051_init( void )
+{
+  cpu8051.pc = 0;
+  cpu8051.clock = 0;
+  cpu8051.active_priority = -1;
+}
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Execute at address PC from PGMMem
+// Execute at address cpu8051.pc from PGMMem
 //////////////////////////////////////////////////////////////////////////////
 void
 cpu8051_Exec( void )
@@ -28,26 +33,26 @@ cpu8051_Exec( void )
   unsigned char opcode;
   int insttiming;
 
-  opcode = memory_read8( PGM_MEM_ID, PC );
-  PC++;
+  opcode = memory_read8( PGM_MEM_ID, cpu8051.pc );
+  cpu8051.pc++;
   insttiming = (*opcode_table[opcode])(); /* Function callback. */
   
   for( i = 0; i < insttiming; i++ ) {
     cpu8051_CheckInterrupts();
     cpu8051_DoTimers();
-    CLOCK++;
+    cpu8051.clock++;
   }
 }
 
 
 //////////////////////////////////////////////////////////////////////////////
-// Return PC + size in bytes of current instruction
+// Return cpu8051.pc + size in bytes of current instruction
 //////////////////////////////////////////////////////////////////////////////
 unsigned int
 cpu8051_GetNextAddress( void )
 {
 #ifdef DECPP
-  return ( PC + InstSizesTbl[ memory_read8( PGM_MEM_ID, PC ) ] );
+  return ( cpu8051.pc + InstSizesTbl[ memory_read8( PGM_MEM_ID, cpu8051.pc ) ] );
 #endif
   return 0; /* temp */
 }
@@ -59,9 +64,9 @@ cpu8051_GetNextAddress( void )
 void
 cpu8051_Reset( void )
 {
-  PC = 0;
-  CLOCK = 0;
-  ActivePriority = -1;
+  cpu8051.pc = 0;
+  cpu8051.clock= 0;
+  cpu8051.active_priority = -1;
 
   // Reinitialisation des registres
   int i;
@@ -238,18 +243,18 @@ cpu8051_CheckInterrupts()
 
   if ( cpu8051_ReadD( _IE_ ) & 0x80 ) {
     for ( i = 1; i >= 0; i-- )
-      if ( ActivePriority < i ) {
+      if ( cpu8051.active_priority < i ) {
 	//-------------------------  External interrupt 0 ----------------------------     
 	//        if ( ( cpu8051_ReadD( _IE_ ) & 0x01 ) && ( ( cpu8051_ReadD( _IP_ ) & 0x01 ) ? i : !i ) && pin0 )
 	//-------------------------- Interrupt timer 0 -------------------------------
 	if ( ( cpu8051_ReadD( _IE_ ) & 0x02 ) && ( ( cpu8051_ReadD( _IP_ & 0x02 ) ? i : !i ) && ( cpu8051_ReadD( _TCON_ ) & 0x20 ) ) ){
 	  cpu8051_WriteD( _TCON_, cpu8051_ReadD( _TCON_ ) & 0xDF );
 	  SP = cpu8051_ReadD( _SP_ );
-	  cpu8051_WriteI( ++SP, ( PC & 0xFF ) );
-	  cpu8051_WriteI( ++SP, ( PC >> 8 ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc & 0xFF ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );
 	  cpu8051_WriteD( _SP_, SP );
-	  PC = 0x0B;  
-	  ActivePriority = i;
+	  cpu8051.pc = 0x0B;  
+	  cpu8051.active_priority = i;
 	  return;          
 	}
 	//-------------------------- External interrupt 1 ----------------------------     
@@ -258,31 +263,31 @@ cpu8051_CheckInterrupts()
 	if ( ( cpu8051_ReadD( _IE_ ) & 0x08 ) && ( ( cpu8051_ReadD( _IP_ ) & 0x08 ) ? i : !i ) && ( cpu8051_ReadD( _TCON_ ) & 0x80 ) ) {
 	  cpu8051_WriteD( _TCON_, cpu8051_ReadD( _TCON_ ) & 0x7F );
 	  SP = cpu8051_ReadD( _SP_ );
-	  cpu8051_WriteI( ++SP, ( PC & 0xFF ) );
-	  cpu8051_WriteI( ++SP, ( PC >> 8 ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc & 0xFF ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );
 	  cpu8051_WriteD( _SP_, SP );
-	  PC = 0x1B;
-	  ActivePriority = i;
+	  cpu8051.pc = 0x1B;
+	  cpu8051.active_priority = i;
 	  return;
 	}
 	//-------------------------- Serial Interrupts -------------------------------
 	if ( ( cpu8051_ReadD( _IE_ ) & 0x10 ) && ( ( cpu8051_ReadD( _IP_ ) & 0x10 ) ? i : !i ) && ( cpu8051_ReadD( _SCON_ ) & 0x03 ) ) {
 	  SP = cpu8051_ReadD( _SP_ );
-	  cpu8051_WriteI( ++SP, ( PC & 0xFF ) );
-	  cpu8051_WriteI( ++SP, ( PC >> 8 ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc & 0xFF ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );
 	  cpu8051_WriteD( _SP_, SP );
-	  PC = 0x23;
-	  ActivePriority = i;
+	  cpu8051.pc = 0x23;
+	  cpu8051.active_priority = i;
 	  return;
 	}
 	//-------------------------- Interrupt timer 2 -------------------------------
 	if ( ( cpu8051_ReadD( _IE_ ) & 0x20 ) && ( ( cpu8051_ReadD( _IP_ ) & 0x20 ) ? i : !i ) && ( cpu8051_ReadD( _T2CON_ ) & 0x80 ) ) {          
 	  SP = cpu8051_ReadD( _SP_ );
-	  cpu8051_WriteI( ++SP, ( PC & 0xFF ) );
-	  cpu8051_WriteI( ++SP, ( PC >> 8 ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc & 0xFF ) );
+	  cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );
 	  cpu8051_WriteD( _SP_, SP );
-	  PC = 0x2B;
-	  ActivePriority = i;
+	  cpu8051.pc = 0x2B;
+	  cpu8051.active_priority = i;
 	  return;
 	}
       }

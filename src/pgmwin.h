@@ -12,32 +12,14 @@
 #define MAXBP 32
 
 
-void
-pgmwin_init( GtkWidget *parentwin );
+GtkWidget *
+pgmwin_init( int width, int height );
 
 void
 pgmwin_Disasm( void );
 
-gint
-pgmwin_ButtonPressEvent( GtkWidget *widget, GdkEvent *event, gpointer data );
-
-void
-pgmwin_ShowBreakpoints( void );
-
-void
-pgmwin_SetBreakpoint( unsigned int Address );
-
-void
-pgmwin_ClearBreakpoint( unsigned int Address );
-
 int
 pgmwin_IsBreakpoint( unsigned int Address );
-
-void
-pgmwin_ToggleBreakpoint( unsigned int Address );
-
-void
-pgmwin_PgmWinButtonPress( GtkWidget *widget, GdkEvent *event, gpointer data );
 
 
 #endif /* PGMWIN_H */

@@ -7,61 +7,60 @@
 
 #include <stdio.h>
 
+#include "common.h"
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "regwin.h"
 
 
-/* private */
-/*GtkWidget *regwin;*/
-GtkWidget *regclist;
+static GtkWidget *regclist;
 
 
-/* in cpu8051.c */
-extern unsigned int PC;
-
-
-//////////////////////////////////////////////////////////////////////////////
-// RegWin constructor
-//////////////////////////////////////////////////////////////////////////////
-void
-regwin_init( GtkWidget *parentwin )
+GtkWidget *
+regwin_init( int width, int height )
 {
   int i;
-  GtkStyle *style;
-  GdkFont *fixedfont;
-  fixedfont = gdk_font_load( "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1" );
-  
+  GtkWidget *fixed_frame;
+
+  fixed_frame = gtk_frame_new(0);
+  gtk_frame_set_shadow_type( GTK_FRAME( fixed_frame ), GTK_SHADOW_ETCHED_OUT );
+  gtk_widget_set_usize( GTK_WIDGET( fixed_frame ), width, height );
+
   regclist = gtk_clist_new( 1 );
   gtk_clist_set_selection_mode( GTK_CLIST( regclist ), GTK_SELECTION_SINGLE );
-  gtk_widget_set_usize( GTK_WIDGET( regclist ), REG_WIN_WIDTH, REG_WIN_HEIGHT );
+  gtk_widget_set_usize( GTK_WIDGET( regclist ), width, height );
   gtk_clist_set_column_justification( GTK_CLIST( regclist ), 0, GTK_JUSTIFY_LEFT );
-  gtk_clist_set_column_width( GTK_CLIST( regclist ), 0, REG_WIN_WIDTH );
+  gtk_clist_set_column_width( GTK_CLIST( regclist ), 0, width );
 
-  style = gtk_widget_get_style( GTK_WIDGET( regclist ) );
-
-#ifdef USE_GTK2
-  gtk_style_set_font( style, fixedfont );
+#if ( GTK_MAJOR_VERSION == 2)
+  PangoFontDescription *pango_font;
+  pango_font = pango_font_description_from_string( FIXED_FONT );
+  gtk_widget_modify_font( regclist, pango_font );
 #else
-  style->font = fixedfont;
+  {
+    GtkStyle *style;
+    /* Setting font for the widget. */
+    style = gtk_style_new();
+    gdk_font_unref( style->font );
+    
+    /* Load a fixed font */
+    style->font = gdk_font_load( FIXED_FONT );
+    gtk_widget_set_style( GTK_WIDGET( regclist ), style );
+  }
 #endif
 
-  gtk_widget_set_style( GTK_WIDGET( regclist ), style );
-
   char *regdummy[] = { 0 };
-  for ( i = 0; i < 24; i++ )
+  for ( i = 0; i < 24; i++ ) {
     gtk_clist_append( GTK_CLIST( regclist ), regdummy );
+  }
   
-  gtk_container_add( GTK_CONTAINER( parentwin ), regclist );
+  gtk_container_add( GTK_CONTAINER( fixed_frame ), regclist );
 
-  gtk_widget_show( regclist );
+  return fixed_frame;
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// void regwin_Show( CPU8051 *CPU )
-// Show registers
-//////////////////////////////////////////////////////////////////////////////
+/* Show registers. */
 void
 regwin_Show( void )
 {
@@ -73,7 +72,7 @@ regwin_Show( void )
   gtk_clist_freeze( GTK_CLIST( regclist ) );
   
   // Main registers
-  sprintf( TextTmp , "PC   = %.4X", PC );
+  sprintf( TextTmp , "PC   = %.4X", cpu8051.pc );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
   sprintf( TextTmp , "SP   =   %.2X", cpu8051_ReadD( _SP_ ) );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
@@ -89,13 +88,13 @@ regwin_Show( void )
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
 
   // Ports registers
-  sprintf( TextTmp , "P0 =     %.2X", cpu8051_ReadD( _P0_ ) );
+  sprintf( TextTmp , "P0   =   %.2X", cpu8051_ReadD( _P0_ ) );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
-  sprintf( TextTmp , "P1 =     %.2X", cpu8051_ReadD( _P1_ ) );
+  sprintf( TextTmp , "P1   =   %.2X", cpu8051_ReadD( _P1_ ) );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
-  sprintf( TextTmp , "P2 =     %.2X", cpu8051_ReadD( _P2_ ) );
+  sprintf( TextTmp , "P2   =   %.2X", cpu8051_ReadD( _P2_ ) );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
-  sprintf( TextTmp , "P3 =     %.2X", cpu8051_ReadD( _P3_ ) );
+  sprintf( TextTmp , "P3   =   %.2X", cpu8051_ReadD( _P3_ ) );
   gtk_clist_set_text( GTK_CLIST( regclist ), row++, 0, TextTmp );
 
   // Misc Registers

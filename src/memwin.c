@@ -7,91 +7,102 @@
 
 #include <stdio.h>
 
+#include "common.h"
 #include "cpu8051.h"
 #include "memwin.h"
 
 
-/*static GtkWidget *memwin;*/
 static GtkWidget *memclist;
 
 
-//////////////////////////////////////////////////////////////////////////////
-// MemWin constructor
-//////////////////////////////////////////////////////////////////////////////
-void
-memwin_init( GtkWidget *parentwin )
+GtkWidget *
+memwin_init( int width, int height )
 {
   int i;
-  GtkStyle *style;
-  GdkFont *fixedfont;
-  fixedfont = gdk_font_load( "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1" );
+  GtkWidget *fixed_frame;
+
+  fixed_frame = gtk_frame_new(0);
+  gtk_frame_set_shadow_type( GTK_FRAME( fixed_frame ), GTK_SHADOW_ETCHED_OUT );
+  gtk_widget_set_usize( GTK_WIDGET( fixed_frame ), width, height );
 
   memclist = gtk_clist_new( 18 );
   gtk_clist_set_selection_mode( GTK_CLIST( memclist ), GTK_SELECTION_SINGLE );
   gtk_widget_set_usize( GTK_WIDGET( memclist ), 620, 250 );
 
-  for ( i = 0; i < 18; i++ ) gtk_clist_set_column_justification( GTK_CLIST( memclist ), i, GTK_JUSTIFY_LEFT );
+  for( i = 0; i < 18; i++ ) {
+    gtk_clist_set_column_justification( GTK_CLIST( memclist ), i, GTK_JUSTIFY_LEFT );
+  }
+
   gtk_clist_set_column_width( GTK_CLIST( memclist ), 0, 5*8 );
-  for ( i = 1; i < 17; i++ ) gtk_clist_set_column_width( GTK_CLIST( memclist ), i, 2*8 );
+
+  for( i = 1; i < 17; i++ ) {
+    gtk_clist_set_column_width( GTK_CLIST( memclist ), i, 2*8 );
+  }
+
   gtk_clist_set_column_width( GTK_CLIST( memclist ), 17, 16*8 );
 
-  style = gtk_widget_get_style( GTK_WIDGET( memclist ) );
-
-#ifdef USE_GTK2
-  gtk_style_set_font( style, fixedfont );
+#if ( GTK_MAJOR_VERSION == 2)
+  PangoFontDescription *pango_font;
+  pango_font = pango_font_description_from_string( FIXED_FONT );
+  gtk_widget_modify_font( memclist, pango_font );
 #else
-  style->font = fixedfont;
+  {
+    GtkStyle *style;
+    /* Setting font for the widget. */
+    style = gtk_style_new();
+    gdk_font_unref( style->font );
+    
+    /* Load a fixed font */
+    style->font = gdk_font_load( FIXED_FONT );
+    gtk_widget_set_style( GTK_WIDGET( memclist ), style );
+  }
 #endif
 
-  gtk_widget_set_style( GTK_WIDGET( memclist ), style );
+    char *memdummy[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
+  for( i = 0; i < 16; i++ ) {
+    gtk_clist_append( GTK_CLIST( memclist ), memdummy );
+  }
 
-  char *memdummy[] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 };
-  for ( i = 0; i < 16; i++ ) gtk_clist_append( GTK_CLIST( memclist ), memdummy );
+  gtk_container_add( GTK_CONTAINER( fixed_frame ), memclist );
 
-  gtk_container_add( GTK_CONTAINER( parentwin ), memclist );
-
-  gtk_widget_show( memclist );
+  return fixed_frame;
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// Dump 16 rows of 16 bytes from Address in Memory (direct addressing)
-//////////////////////////////////////////////////////////////////////////////
+/* Dump 16 rows of 16 bytes from Address in Memory (direct addressing) */
 void
 memwin_DumpD( unsigned int Address )
 {
-char TextTmp[255];
-int row, column, TextLength;
+  char TextTmp[255];
+  int row, column, TextLength;
 
-gtk_clist_freeze( GTK_CLIST( memclist ) );
- for ( row = 0; row < 16; row++ ) {
-   sprintf( TextTmp, "%.4X", Address );
-   gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
+  gtk_clist_freeze( GTK_CLIST( memclist ) );
+  for ( row = 0; row < 16; row++ ) {
+    sprintf( TextTmp, "%.4X", Address );
+    gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
 
-   for ( column = 0; column < 16; column++ ) {
-     sprintf( TextTmp, "%.2X", ( int ) cpu8051_ReadD( Address + column ) );
-     gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
-   }
+    for ( column = 0; column < 16; column++ ) {
+      sprintf( TextTmp, "%.2X", ( int ) cpu8051_ReadD( Address + column ) );
+      gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
+    }
 
-   TextLength = 0;
-   for ( column = 0; column < 16; column++ ) {
-     if ( ( ( int ) cpu8051_ReadD( Address + column ) >= 32 ) && ( ( int ) cpu8051_ReadD( Address + column ) <= 126 ) )
-       TextLength += sprintf( &TextTmp[ TextLength ], "%c", cpu8051_ReadD( Address + column ) );
-     else TextLength += sprintf( &TextTmp[ TextLength ], "." );
-   }
-   gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
+    TextLength = 0;
+    for ( column = 0; column < 16; column++ ) {
+      if ( ( ( int ) cpu8051_ReadD( Address + column ) >= 32 ) && ( ( int ) cpu8051_ReadD( Address + column ) <= 126 ) )
+	TextLength += sprintf( &TextTmp[ TextLength ], "%c", cpu8051_ReadD( Address + column ) );
+      else TextLength += sprintf( &TextTmp[ TextLength ], "." );
+    }
+    gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
 
-   Address += 16;
- }
+    Address += 16;
+  }
 
-gtk_clist_select_row( GTK_CLIST( memclist ), 0, 0 );
-gtk_clist_thaw( GTK_CLIST( memclist ) );
+  gtk_clist_select_row( GTK_CLIST( memclist ), 0, 0 );
+  gtk_clist_thaw( GTK_CLIST( memclist ) );
 }
 
 
-//////////////////////////////////////////////////////////////////////////////
-// Dump 16 rows of 16 bytes from Address in Memory (indirect addressing)
-//////////////////////////////////////////////////////////////////////////////
+/* Dump 16 rows of 16 bytes from Address in Memory (indirect addressing) */
 void
 memwin_DumpI( unsigned int Address )
 {

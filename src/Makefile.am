@@ -5,22 +5,21 @@ INCLUDES = -I$(top_srcdir)/pixmaps
 bin_PROGRAMS = emu8051
 # emu8051_console
 
-emu8051_SOURCES = cpu8051.c emugtk.c memory.c memwin.c pgmwin.c regwin.c options.c file.c \
-                  instructions_8051.c
+emu8051_SOURCES = cpu8051.c emugtk.c memory.c memwin.c pgmwin.c regwin.c options.c hexfile.c \
+                  instructions_8051.c filemenu.c viewmenu.c helpmenu.c messagebox.c
 
 #emu8051_console_SOURCES = EmuConsole.cpp cpu8051.c memory.c options.c file.c
 
 # These headers will be included in the distribution tarball, but will not be
 # installed by 'make install'
-noinst_HEADERS = instructions_8051.h EmuConsole.hpp Keyboard.hpp reg8051.h gtksizes.h \
-                 disasm.hpp
-#                 exceptions.hpp
+noinst_HEADERS = EmuConsole.hpp Keyboard.hpp reg8051.h gtksizes.h hexfile.h filemenu.h \
+                 filemenu.h viewmenu.h helpmenu.h messagebox.h pgmwin.h memwin.h regwin.h
 
 CLEANFILES     = *~
 
 DISTCLEANFILES = .deps/*.P
 
-MAINTAINERCLEANFILES = Makefile.in
+MAINTAINERCLEANFILES = Makefile.in instructions_8051.c instructions_8051.h disasm.h
 
 EXTRA_DIST = opcode2c.pl opcodes.lst instructions_8051.h
 

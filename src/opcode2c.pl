@@ -15,8 +15,6 @@ print INST_IMP "#include \"reg8051.h\"\n";
 print INST_IMP "#include \"cpu8051.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
 print INST_IMP "#include \"instructions_8051.h\"\n\n\n";
-print INST_IMP "extern int ActivePriority;\n";
-print INST_IMP "extern unsigned int PC;\n\n\n";
 
 print DISASM_H "/* disasm.h */\n\n\n";
 print DISASM_H "/* Do not modify this file directly, as it was created by opcode2c.pl\n";
@@ -159,9 +157,9 @@ for ($i=0 ; $i< 256; $i++) {
 
     if( $i == 0x85 ) {
 	# Cas particulier pour MOV direct,direct -> src et dest sont inverses dans la memoire
-        print INST_IMP "  unsigned char srcaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+        print INST_IMP "  unsigned char srcaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	print INST_IMP "  unsigned char source = cpu8051_ReadD( srcaddr );\n";
-	print INST_IMP "  unsigned char destaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+	print INST_IMP "  unsigned char destaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	print INST_IMP "  unsigned char destination = cpu8051_ReadD( destaddr );\n";
 	print INST_IMP "  destination = source;\n";
 	print INST_IMP "  cpu8051_WriteD( destaddr, destination );\n";
@@ -170,17 +168,17 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
 	    if ($op_destination == 0) { # addr11
-		print INST_IMP "  unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, PC - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "  unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	    }
 	    if ($op_destination == 1) { # addr16
-		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, PC++ ) << 8 );\n";
-		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, cpu8051.pc++ ) << 8 );\n";
+		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	    }
 	    if ($op_destination == 2) { # A
 		print INST_IMP "unsigned char destination = cpu8051_ReadD( _ACC_ );\n";
 	    }
 	    if ($op_destination == 3) { # direct
-		print INST_IMP "unsigned char destaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char destaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 		print INST_IMP "unsigned char destination = cpu8051_ReadD( destaddr );\n";
 	    }
 	    if ($op_destination == 4) { # @R0
@@ -215,15 +213,15 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R7_ );\n";
 	    }
 	    if ($op_destination == 14) { # bitaddr
-		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 		print INST_IMP "destination = cpu8051_ReadB( dstbitaddr );\n";
 	    }
 	    if ($op_destination == 15) { # reladdr
-		print INST_IMP "PC++;\n";
-		print INST_IMP "unsigned int destination = ( ( memory_read8( PGM_MEM_ID, PC - 1 ) + PC ) & 0xFF ) + ( PC & 0xFF00 );\n";
+		print INST_IMP "cpu8051.pc++;\n";
+		print INST_IMP "unsigned int destination = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) + cpu8051.pc ) & 0xFF ) + ( cpu8051.pc & 0xFF00 );\n";
 	    }
 	    if ($op_destination == 16) { # #data
-		print INST_IMP "unsigned char destination = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char destination = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	    }
 	    if ($op_destination == 17) { # C
 		print INST_IMP "unsigned char destination = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
@@ -240,11 +238,11 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned int destination = ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ );\n";
 	    }
 	    if ($op_destination == 22) { # #data16
-		print INST_IMP "unsigned char destination = ( memory_read8( PGM_MEM_ID, PC++ ) << 8 );\n";
-		print INST_IMP "destination += memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char destination = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
+		print INST_IMP "destination += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_destination == 23) { # /bitaddr
-		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 		print INST_IMP "destination = ( cpu8051_ReadB( dstbitaddr ) ^ 1 );\n";
 	    }
 	    if ($op_destination == 24) { # @DPTR
@@ -255,17 +253,17 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 1) {
 	    $op_source=$instargs[$i*4+2];
 	    if ($op_source == 0) { # addr11
-		print INST_IMP "unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, PC - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_source == 1) { # addr16
-		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, PC++ ) << 8 );\n";
-		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
+		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_source == 2) { # A
 		print INST_IMP "unsigned char source = cpu8051_ReadD( _ACC_ );\n";
 	    }
 	    if ($op_source == 3) { # direct
-		print INST_IMP "unsigned char srcaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char srcaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 		print INST_IMP "unsigned char source = cpu8051_ReadD( srcaddr );\n";
 	    }
 	    if ($op_source == 4) { # @R0
@@ -300,15 +298,15 @@ for ($i=0 ; $i< 256; $i++) {
 	    }
 
 	    if ($op_source == 14) { # bitaddr
-		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 		print INST_IMP "source = cpu8051_ReadB( srcbitaddr );\n";
 	    }
 	    if ($op_source == 15) { # reladdr
-		print INST_IMP "PC++;\n";
-		print INST_IMP "unsigned int source = ( ( memory_read8( PGM_MEM_ID, PC - 1 ) + PC ) & 0xFF ) + ( PC & 0xFF00 );\n";
+		print INST_IMP "(cpu8051.pc)++;\n";
+		print INST_IMP "unsigned int source = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) + cpu8051.pc ) & 0xFF ) + ( cpu8051.pc & 0xFF00 );\n";
 	    }
 	    if ($op_source == 16) { # #data
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_source == 17) { # C
 		print INST_IMP "unsigned char source = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
@@ -317,17 +315,17 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + cpu8051_ReadD( _DPTRLOW_ ) + ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) );\n";
 	    }
 	    if ($op_source == 19) { # @A+PC
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + ( ++PC ) );\n";
+		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + ( ++cpu8051.pc ) );\n";
 	    }
 	    if ($op_source == 21) { # DPTR
 		print INST_IMP "unsigned int source = ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ );\n";
 	    }
 	    if ($op_source == 22) { # #data16
-		print INST_IMP "unsigned char source = ( memory_read8( PGM_MEM_ID, PC++ ) << 8 );\n";
-		print INST_IMP "source += memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
+		print INST_IMP "source += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_source == 23) { # /bitaddr
-		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, PC++ );\n";
+		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 		print INST_IMP "source = ( cpu8051_ReadB( srcbitaddr ) ^ 1 );\n";
 	    }
 	    if ($op_source == 24) { # @DPTR
@@ -351,22 +349,22 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JBC
 	if ($insttype[$i] == 5) {
-	    print INST_IMP "if ( destination == 1 ) { PC = source; destination = 0; }\n";
+	    print INST_IMP "if ( destination == 1 ) { cpu8051.pc = source; destination = 0; }\n";
 	}
 
 	# ACALL
 	if ($insttype[$i] == 6) {
 	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( PC & 0x00FF ) );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( PC >> 8 ) );\n";
+	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc & 0x00FF ) );\n";
+	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );\n";
 	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
 	}
 
 	# LCALL
 	if ($insttype[$i] == 7) {
 	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( PC & 0x00FF ) );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( PC >> 8 ) );\n";
+	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc & 0x00FF ) );\n";
+	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );\n";
 	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
 	}
 
@@ -384,14 +382,14 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JB
 	if ($insttype[$i] == 10) {
-	    print INST_IMP "if ( destination == 1 ) { PC = source; }\n";
+	    print INST_IMP "if ( destination == 1 ) { cpu8051.pc = source; }\n";
 	}
 
 	# RET
 	if ($insttype[$i] == 11) {
 	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "PC = ( cpu8051_ReadI( SP-- ) << 8 );\n";
-	    print INST_IMP "PC += cpu8051_ReadI ( SP-- );\n";
+	    print INST_IMP "cpu8051.pc = ( cpu8051_ReadI( SP-- ) << 8 );\n";
+	    print INST_IMP "cpu8051.pc += cpu8051_ReadI ( SP-- );\n";
 	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
 	}
 
@@ -413,15 +411,15 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JNB
 	if ($insttype[$i] == 14) {
-	    print INST_IMP "if ( destination == 0 ) { PC = source; }\n";
+	    print INST_IMP "if ( destination == 0 ) { cpu8051.pc = source; }\n";
 	}
 
 	# RETI
 	if ($insttype[$i] == 15) {
-	    print INST_IMP "ActivePriority = -1;\n";
+	    print INST_IMP "cpu8051.active_priority = -1;\n";
 	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "PC = ( cpu8051_ReadI( SP-- ) << 8 );\n";
-	    print INST_IMP "PC += cpu8051_ReadI( SP-- );\n";
+	    print INST_IMP "cpu8051.pc = ( cpu8051_ReadI( SP-- ) << 8 );\n";
+	    print INST_IMP "cpu8051.pc += cpu8051_ReadI( SP-- );\n";
 	}
 
 	# RLC
@@ -445,7 +443,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JC
 	if ($insttype[$i] == 18) {
-	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) > 0x7F) { PC = destination; }\n";
+	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) > 0x7F) { cpu8051.pc = destination; }\n";
 	}
 
 	# ORL
@@ -461,7 +459,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JNC
 	if ($insttype[$i] == 20) {
-	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) < 0x80 ) { PC = destination; }\n";
+	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) < 0x80 ) { cpu8051.pc = destination; }\n";
 	}
 
 	# ANL
@@ -477,7 +475,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JZ
 	if ($insttype[$i] == 22) {
-	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) == 0 ) { PC = destination; }\n";
+	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) == 0 ) { cpu8051.pc = destination; }\n";
 	}
 
 	# XRL
@@ -487,12 +485,12 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JNZ
 	if ($insttype[$i] == 24) {
-	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) != 0 ) { PC = destination; }\n";
+	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) != 0 ) { cpu8051.pc = destination; }\n";
 	}
 
 	# JMP
 	if ($insttype[$i] == 25) {
-	    print INST_IMP "PC = destination;\n";
+	    print INST_IMP "cpu8051.pc = destination;\n";
 	}
 
 	# MOV
@@ -502,7 +500,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# SJMP
 	if ($insttype[$i] == 27) {
-	    print INST_IMP "PC = destination;\n";
+	    print INST_IMP "cpu8051.pc = destination;\n";
 	}
 
 	# MOVC
@@ -547,10 +545,10 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# CJNE
 	if ($insttype[$i] == 34) {
-	    print INST_IMP "unsigned int reladdr = ( ( memory_read8( PGM_MEM_ID, PC ) + ( ( PC + 1 ) & 0x00FF ) ) & 0x00FF ) + ( ( PC + 1 ) & 0xFF00 );\n";
+	    print INST_IMP "unsigned int reladdr = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc ) + ( ( cpu8051.pc + 1 ) & 0x00FF ) ) & 0x00FF ) + ( ( cpu8051.pc + 1 ) & 0xFF00 );\n";
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) );\n";
 	    print INST_IMP "if ( destination < source ) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
-	    print INST_IMP "if ( destination != source ) PC = reladdr;\n";
+	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr;\n";
 	}
 
 	# PUSH
@@ -604,7 +602,7 @@ for ($i=0 ; $i< 256; $i++) {
 	# DJNZ
 	if ($insttype[$i] == 42) {
 	    print INST_IMP "destination--;\n";
-	    print INST_IMP "if ( destination != 0 ) PC = source;\n";
+	    print INST_IMP "if ( destination != 0 ) cpu8051.pc = source;\n";
 	}
 
 	# XCHD
@@ -628,10 +626,10 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
 	    if ($op_destination == 0) { # addr11
-		print INST_IMP "PC = ( PC & 0xF800 ) | addr11;\n";
+		print INST_IMP "cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;\n";
 	    }
 	    if ($op_destination == 1) { # addr16
-		print INST_IMP "PC = addr16;\n";
+		print INST_IMP "cpu8051.pc = addr16;\n";
 	    }
 	    if ($op_destination == 2) { # A
 		print INST_IMP "cpu8051_WriteD( _ACC_, destination );\n";
@@ -692,10 +690,10 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($instargs[$i*4] > 1) {
 		$op_source=$instargs[$i*4+2];
 		if ($op_source == 0) { # addr11
-		    print INST_IMP "PC = ( PC & 0xF800 ) | addr11;\n";
+		    print INST_IMP "cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;\n";
 		}
 		if ($op_source == 1) { # addr16
-		    print INST_IMP "PC = addr16;\n";
+		    print INST_IMP "cpu8051.pc = addr16;\n";
 		}
 		if ($op_source == 2) { # A
 		    print INST_IMP "cpu8051_WriteD( _ACC_, source );\n";
