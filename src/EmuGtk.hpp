@@ -22,6 +22,8 @@ class EmuGtk {
 public:
   EmuGtk( int argc , char **argv, CPU8051 *mCPU );
   ~EmuGtk( );
+
+  CPU8051 *CPU; /* Test */
   
   void Main( );
 
@@ -49,12 +51,11 @@ public:
   void StopRunning( );
   void Running( );
 
-  void LoadHexFile( string Filename );
   void UpdateDisplay();
 
 private:
   int     EmuGtkID;
-  CPU8051 *CPU;
+
   int     RunningState;
   int     RunFuncTag;
   MemWin  *memwin;
@@ -96,8 +97,6 @@ private:
   GdkPixmap *STEP_pixmap;
   GtkWidget *STEP_widget;
   GtkWidget *ButtonStep;
- 
-  unsigned int Ascii2Hex( string istring, int length );
 };
 
 void EmuGtkSignalStub3( GtkWidget *widget, GdkEvent *event, gpointer data );

@@ -5,10 +5,11 @@ INCLUDES = -I$(top_srcdir)/pixmaps
 bin_PROGRAMS = emu8051 emu8051_console
 
 emu8051_SOURCES = EmuGtk.hpp EmuGtk.cpp CPU8051.hpp CPU8051.cpp Memory.hpp Memory.cpp \
-                  MemWin.hpp MemWin.cpp PgmWin.hpp PgmWin.cpp RegWin.hpp RegWin.cpp
+                  MemWin.hpp MemWin.cpp PgmWin.hpp PgmWin.cpp RegWin.hpp RegWin.cpp options.c \
+                  common.h file.c
 
 emu8051_console_SOURCES = EmuConsole.hpp EmuConsole.cpp CPU8051.hpp CPU8051.cpp Memory.hpp \
-                          Memory.cpp Keyboard.hpp
+                          Memory.cpp Keyboard.hpp options.c common.h file.c
 
 # These headers will be included in the distribution tarball, but will not be
 # installed by 'make install'

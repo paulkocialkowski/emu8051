@@ -24,6 +24,8 @@ public:
   EmuConsole( int argc, char **argv, CPU8051 *mCPU );
   ~EmuConsole( );
 
+  CPU8051 *CPU;
+
   void Main( );
 
   void Reset( );
@@ -46,12 +48,9 @@ public:
 
 
 private:
-  CPU8051 *CPU;
   int NbBreakpoints;
   unsigned int Breakpoints[ MAXBP ];
 
-  void LoadHexFile( string Filename );
-  unsigned int Ascii2Hex( string istring, unsigned int length );
   void Capitalize( string *InputString );
   void RemoveSpaces( string *InputString );
 

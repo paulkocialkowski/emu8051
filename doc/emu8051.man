@@ -20,7 +20,7 @@ It is written in C++, and uses Perl scripts to generate automatically C++ functi
 \fB\-h\fR
 display usage and exit
 .TP
-\fB\-v\fR
+\fB\-version\fR
 output version information and exit
 
 .SH CREDITS

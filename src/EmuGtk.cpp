@@ -11,6 +11,11 @@
 #include "stop.xpm"
 #include "step.xpm"
 
+extern "C" {
+#include "options.h"
+#include "file.h"
+}
+
 
 int EmuGtkNumber = 0;
 int NbSignals = 0;
@@ -32,6 +37,13 @@ enum
 };
 
 
+static void
+cpu_write_pgm( unsigned int Address, unsigned char Value )
+{
+  EmuGtkPtr->CPU->WritePGM( Address, Value );
+}
+
+
 int main( int argc, char **argv )
 {
   CPU8051 *maincpu = new CPU8051;
@@ -46,6 +58,7 @@ int main( int argc, char **argv )
   return 0;
 }
 
+
 //////////////////////////////////////////////////////////////////////////////
 // EmuGtk::EmuGtk(  )
 // EmuGtk constructor
@@ -55,6 +68,8 @@ EmuGtk::EmuGtk( int argc, char **argv, CPU8051 *mCPU )
   CPU = mCPU;
   RunningState = 0;
 
+  ParseCommandLineOptions( argc, argv );
+  
   g_print( "\n" );
 
   gtk_init( &argc, &argv );
@@ -161,10 +176,10 @@ EmuGtk::EmuGtk( int argc, char **argv, CPU8051 *mCPU )
       EmuGtkNumber++;
     }
 
-  if ( argc > 1 )
-    LoadHexFile( argv[1] );
+  if( GetHexFileName() != NULL ) {
+    LoadHexFile( GetHexFileName(), cpu_write_pgm );
+  }
 }
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -411,13 +426,13 @@ void FileOpenDialog_OK( GtkButton *button, gpointer data )
 
   const gchar *SelectedFile;
 
-  SelectedFile = gtk_file_selection_get_filename ( GTK_FILE_SELECTION ( data ) );
+  SelectedFile = (const gchar *) gtk_file_selection_get_filename ( GTK_FILE_SELECTION ( data ) );
   
   g_print( "EmuGtk::File = %s\n", SelectedFile );
   
   EmuGtkPtr->StopRunning( );
 
-  EmuGtkPtr->LoadHexFile( SelectedFile );
+  LoadHexFile( SelectedFile, cpu_write_pgm );
 
   gtk_widget_destroy( GTK_WIDGET( data ) );
 
@@ -505,114 +520,6 @@ void EmuGtk::StepEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
   Step( );
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// unsigned int EmuGtk::Ascii2Hex( string istring, int length = 0 )
-// Convert an ascii string to an hexadecimal number
-//////////////////////////////////////////////////////////////////////////////
-unsigned int EmuGtk::Ascii2Hex( string istring, int length = 0 )
-{
-  if ( !length || ( length > (int) istring.size() ) )
-    length = istring.size();
-  
-  if ( istring.empty() )
-    throw MissingParameter();
-  
-  unsigned int result = 0;
-  int i, ascii_code;
-  for ( i = 0; i < length; i++ ) {
-    ascii_code = istring[ i ];
-    if ( ascii_code > 0x39 )
-      ascii_code &= 0xDF;
-    if ( ( ascii_code >= 0x30 && ascii_code <= 0x39 ) || ( ascii_code >= 0x41 && ascii_code <= 0x46 ) ) {
-      ascii_code -= 0x30;
-      if ( ascii_code > 9 )
-	ascii_code -= 7;
-      result <<= 4;
-      result += ascii_code;
-    }
-    else {
-      throw SyntaxError();
-    }
-  }
-  return result;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// void EmuGtk::LoadHexFile( string Filename )
-// Load an HEX file into program memory
-//////////////////////////////////////////////////////////////////////////////
-void EmuGtk::LoadHexFile( string Filename )
-{
-  printf("LoadHex\n");
-  int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
-  char Line[ 250 ];
-
-  ifstream HexFile( Filename.c_str() );
-  try { 
-    if ( ! HexFile )
-      throw ErrorOpeningFile();
-    
-    while( ! HexFile.eof() ) {
-      i = 0;
-      Checksum = 0;
-      HexFile.getline( Line, 250, '\n' );  
-
-      if ( Line[ i++ ] != ':' )
-	throw ErrorHexFileFormat();
-      
-      RecLength = Ascii2Hex( &Line[ i ], 2 );
-      i += 2;
-      Checksum += RecLength;
-      
-      LoadOffset = Ascii2Hex( &Line[i], 4 );
-      Checksum += LoadOffset / 256;
-      Checksum += LoadOffset % 256;
-      i += 4;
-
-      RecType = Ascii2Hex( &Line[i],2);
-      i += 2;
-      Checksum += RecType;
-
-      if ( RecType == 1 ) {
-	Checksum += Ascii2Hex( &Line[ i ], 2 );
-	if ( Checksum &= 0x000000FF )
-	  throw ErrorHexFileFormat();
-	throw FinishedLoading();
-      }   
-      if ( RecType )
-	throw ErrorHexFileFormat();
-      
-      for ( j = 0; j < RecLength; j++ ) {
-	Data = Ascii2Hex( &Line[ i ], 2 );
-	CPU->WritePGM( (unsigned int)(LoadOffset + j), (unsigned char)Data );
-	i += 2;
-	Checksum += Data;
-      }
-      RecType = Ascii2Hex( &Line[ i ], 2 );
-      Checksum += RecType;      
-
-      if ( Checksum &= 0x000000FF )
-	throw ErrorHexFileFormat();
-    }
-    throw ErrorHexFileFormat();
-  }
-  catch ( ErrorOpeningFile ) {
-    cout << "Error opening file " << Filename << endl;
-  }
-  catch ( ErrorHexFileFormat ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( SyntaxError ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( MissingParameter ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( FinishedLoading ) {
-    cout << "Using file " << Filename << " as input program." << endl;  
-  }
-  HexFile.close();  
-}
 
 //////////////////////////////////////////////////////////////////////////////
 // gint EmuGtkSignalStub2( GtkWidget *widget, gpointer data )

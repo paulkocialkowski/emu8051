@@ -1,4 +1,4 @@
-// EmuConsole.cpp
+/* EmuConsole.cpp */
 
 #include <stdio.h>
 #include <iostream>
@@ -8,6 +8,21 @@
 #include "CPU8051.hpp"
 #include "Reg8051.hpp"
 #include "Keyboard.hpp"
+
+extern "C" {
+#include "options.h"
+#include "file.h"
+}
+
+
+EmuConsole *EmuConsolePtr;
+
+
+static void
+cpu_write_pgm( unsigned int Address, unsigned char Value )
+{
+  EmuConsolePtr->CPU->WritePGM( Address, Value );
+}
 
 
 int main( int argc, char **argv )
@@ -26,6 +41,37 @@ int main( int argc, char **argv )
 }
 
 
+unsigned int
+Ascii2Hex_TEMP( string istring, unsigned int length )
+{
+  if ( !length || ( length > istring.size() ) )
+    length = istring.size();
+  
+  if ( istring.empty() )
+    throw MissingParameter();
+  
+  unsigned int result = 0;
+  unsigned int i, ascii_code;
+  for ( i = 0; i < length; i++ ) {
+    ascii_code = istring[ i ];
+    if ( ascii_code > 0x39 )
+      ascii_code &= 0xDF;
+    if ( ( ascii_code >= 0x30 && ascii_code <= 0x39 ) || ( ascii_code >= 0x41 && ascii_code <= 0x46 ) ) {
+      ascii_code -= 0x30;
+      if ( ascii_code > 9 )
+	ascii_code -= 7;
+      result <<= 4;
+      result += ascii_code;
+    }
+    else {
+      throw SyntaxError();
+    }
+  }
+  return result;
+}
+
+
+
 //////////////////////////////////////////////////////////////////////////////
 // EmuConsole::EmuConsole( int argc, char **argv, CPU8051 *mCPU )
 // EmuConsole constructor
@@ -35,7 +81,14 @@ EmuConsole::EmuConsole( int argc, char **argv, CPU8051 *mCPU )
   CPU = mCPU;
   CPU->Reset( );
   NbBreakpoints = 0;
-  if ( argc > 1 ) LoadHexFile( argv[ 1 ] );
+
+  EmuConsolePtr = this;
+
+  ParseCommandLineOptions( argc, argv );
+
+  if( GetHexFileName() != NULL ) {
+    LoadHexFile( GetHexFileName(), cpu_write_pgm );
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -183,18 +236,18 @@ void EmuConsole::Main( )
 	  if ( Parameter1.empty() || Parameter2.empty() )
 	    throw MissingParameter();
 	  else if ( Command == "ME" ) {
-	    unsigned int adresse = Ascii2Hex( Parameter1, 4 );
-	    unsigned char valeur = Ascii2Hex( Parameter2, 2 );
+	    unsigned int adresse = Ascii2Hex_TEMP( Parameter1, 4 );
+	    unsigned char valeur = Ascii2Hex_TEMP( Parameter2, 2 );
 	    CPU->WriteExt( adresse, valeur );
 	  }
 	  else if ( Command == "MI" ) {
-	    unsigned char adresse = Ascii2Hex( Parameter1, 2 );
-	    unsigned char valeur = Ascii2Hex( Parameter2, 2 );
+	    unsigned char adresse = Ascii2Hex_TEMP( Parameter1, 2 );
+	    unsigned char valeur = Ascii2Hex_TEMP( Parameter2, 2 );
 	    CPU->WriteInt( adresse, valeur );
 	  }
 	  else if ( Command == "MP" ) {
-	    unsigned int adresse = Ascii2Hex( Parameter1, 4 );
-	    unsigned char valeur = Ascii2Hex( Parameter2, 2 );
+	    unsigned int adresse = Ascii2Hex_TEMP( Parameter1, 4 );
+	    unsigned char valeur = Ascii2Hex_TEMP( Parameter2, 2 );
 	    CPU->WritePGM( adresse, valeur );
 	  }
 	  else if ( Command == "MR" )
@@ -215,7 +268,7 @@ void EmuConsole::Main( )
 	    if ( Parameter1.empty( ) )
 	      ClearBreakpoint( CPU->GetPC( ) );
 	    else
-	      ClearBreakpoint( Ascii2Hex( Parameter1, 4 ) );
+	      ClearBreakpoint( Ascii2Hex_TEMP( Parameter1, 4 ) );
 	  }
 	  else
 	    throw SyntaxError( );
@@ -227,7 +280,7 @@ void EmuConsole::Main( )
 	    if ( Parameter1.empty( ) )
 	      SetBreakpoint( CPU->GetPC( ) );
 	    else
-	      SetBreakpoint( Ascii2Hex( Parameter1, 4 ) );
+	      SetBreakpoint( Ascii2Hex_TEMP( Parameter1, 4 ) );
 	  }
 	  else
 	    throw SyntaxError( );
@@ -299,7 +352,7 @@ void EmuConsole::Reset( )
 //////////////////////////////////////////////////////////////////////////////
 void EmuConsole::Trace( string Address )
 {
-  if ( !Address.empty( ) ) CPU->SetPC( Ascii2Hex( Address, Address.size( ) ) );
+  if ( !Address.empty( ) ) CPU->SetPC( Ascii2Hex_TEMP( Address, Address.size( ) ) );
   CPU->Exec( );
   ShowRegisters( );
   DisasmN( CPU->GetPC( ), 1 );
@@ -315,10 +368,10 @@ void EmuConsole::Exec( string Address, string NumberInst )
   int NbInst = -1;     // -1 is infinity
   if ( !Address.empty( ) ) {
     Capitalize( &Address );
-    if ( Address != "PC" ) CPU->SetPC( Ascii2Hex( Address, Address.size( ) ) );
+    if ( Address != "PC" ) CPU->SetPC( Ascii2Hex_TEMP( Address, Address.size( ) ) );
   }
 
-  if ( !NumberInst.empty( ) ) NbInst = Ascii2Hex( NumberInst, NumberInst.size( ) );
+  if ( !NumberInst.empty( ) ) NbInst = Ascii2Hex_TEMP( NumberInst, NumberInst.size( ) );
 
   InitUnixKB( );
 
@@ -392,9 +445,9 @@ void EmuConsole::Disasm( string Address, string NumberInst )
   unsigned int MemAddress, NbInst;
   Capitalize( &Address );
   if ( Address.empty( ) || ( Address == "PC" ) ) MemAddress = CPU->GetPC( );
-  else MemAddress = Ascii2Hex( Address, Address.size( ) );
+  else MemAddress = Ascii2Hex_TEMP( Address, Address.size( ) );
   if ( NumberInst.empty( ) ) NumberInst = "10";
-  NbInst = Ascii2Hex( NumberInst, NumberInst.size( ) );
+  NbInst = Ascii2Hex_TEMP( NumberInst, NumberInst.size( ) );
   DisasmN( MemAddress, NbInst );
 }
 
@@ -426,7 +479,7 @@ void EmuConsole::DumpPGM( string Address )
     if ( Address == "PC" )
       MemAddress = CPU->GetPC( );
     else
-      MemAddress = Ascii2Hex( Address, Address.size( ) );
+      MemAddress = Ascii2Hex_TEMP( Address, Address.size( ) );
   }
   for ( Offset = 0; Offset < 256; Offset += 16 ) {
     printf( "%.4X ", MemAddress + Offset );
@@ -456,7 +509,7 @@ void EmuConsole::DumpI( string Address )
   unsigned int MemAddress = 0;
   int Offset, Column;
   unsigned char Byte;
-  if ( !Address.empty( ) ) MemAddress = Ascii2Hex( Address, Address.size( ) );
+  if ( !Address.empty( ) ) MemAddress = Ascii2Hex_TEMP( Address, Address.size( ) );
   for ( Offset = 0; Offset < 256; Offset += 16 ) {
     printf( "%.4X ", MemAddress + Offset );
     for ( Column = 0; Column < 16; Column++ ) 
@@ -482,7 +535,7 @@ void EmuConsole::DumpInt( string Address )
   int Offset, Column;
   unsigned char Byte;
   if ( !Address.empty( ) )
-    MemAddress = Ascii2Hex( Address, 4 );
+    MemAddress = Ascii2Hex_TEMP( Address, 4 );
   for ( Offset = 0; Offset < 256; Offset += 16 ) {
     printf( "%.4X ", MemAddress + Offset );
     for ( Column = 0; Column < 16; Column++ ) 
@@ -509,7 +562,7 @@ void EmuConsole::DumpExt( string Address )
   int Offset, Column;
   unsigned char Byte;
   if ( !Address.empty( ) )
-    MemAddress = Ascii2Hex( Address, 4 );
+    MemAddress = Ascii2Hex_TEMP( Address, 4 );
   for ( Offset = 0; Offset < 256; Offset += 16 ) {
     printf( "%.4X ", MemAddress + Offset );
     for ( Column = 0; Column < 16; Column++ ) 
@@ -534,7 +587,7 @@ void EmuConsole::DumpD( string Address )
   unsigned int MemAddress = 0;
   int Offset, Column;
   unsigned char Byte;
-  if ( !Address.empty( ) ) MemAddress = Ascii2Hex( Address, Address.size( ) );
+  if ( !Address.empty( ) ) MemAddress = Ascii2Hex_TEMP( Address, Address.size( ) );
   for ( Offset = 0; Offset < 256; Offset += 16 ) {
     printf( "%.4X ", MemAddress + Offset );
     for ( Column = 0; Column < 16; Column++ ) 
@@ -557,10 +610,10 @@ void EmuConsole::DumpD( string Address )
 void EmuConsole::SetRegister( string Register, string NewValue )
 {
   Capitalize( &Register );
-  if ( Register == "PC" ) CPU->SetPC( Ascii2Hex( NewValue, 4 ) );
-  else if ( Register == "A" ) CPU->WriteD( _ACC_, Ascii2Hex( NewValue, 2 ) );
-  else if ( Register == "B" ) CPU->WriteD( _B_, Ascii2Hex( NewValue, 2 ) );
-  else if ( Register == "SP" ) CPU->WriteD( _SP_, Ascii2Hex( NewValue, 2 ) );
+  if ( Register == "PC" ) CPU->SetPC( Ascii2Hex_TEMP( NewValue, 4 ) );
+  else if ( Register == "A" ) CPU->WriteD( _ACC_, Ascii2Hex_TEMP( NewValue, 2 ) );
+  else if ( Register == "B" ) CPU->WriteD( _B_, Ascii2Hex_TEMP( NewValue, 2 ) );
+  else if ( Register == "SP" ) CPU->WriteD( _SP_, Ascii2Hex_TEMP( NewValue, 2 ) );
   else throw InvalidRegister( );
 }
 
@@ -617,121 +670,3 @@ void EmuConsole::ShowRegisters( )
   printf( "----------------------------------------------------------------------%s", ENDLINE );
 
 }
-
-//////////////////////////////////////////////////////////////////////////////
-// void EmuConsole::LoadHexFile( string Filename )
-// 
-//////////////////////////////////////////////////////////////////////////////
-void EmuConsole::LoadHexFile( string Filename )
-{
-
-  printf("LoadHex\n");
-  int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
-  char Line[ 250 ];
-
-  ifstream HexFile( Filename.c_str() );
-  try { 
-    if ( ! HexFile )
-      throw ErrorOpeningFile();
-    
-    while( ! HexFile.eof() ) {
-      i = 0;
-      Checksum = 0;
-      HexFile.getline( Line, 250, '\n' );  
-
-      if ( Line[ i++ ] != ':' )
-	throw ErrorHexFileFormat();
-      
-      RecLength = Ascii2Hex( &Line[ i ], 2 );
-      i += 2;
-      Checksum += RecLength;
-      
-      LoadOffset = Ascii2Hex( &Line[i], 4 );
-      Checksum += LoadOffset / 256;
-      Checksum += LoadOffset % 256;
-      i += 4;
-
-      RecType = Ascii2Hex( &Line[i],2);
-      i += 2;
-      Checksum += RecType;
-
-      if ( RecType == 1 ) {
-	Checksum += Ascii2Hex( &Line[ i ], 2 );
-	if ( Checksum &= 0x000000FF )
-	  throw ErrorHexFileFormat();
-	throw FinishedLoading();
-      }   
-      if ( RecType )
-	throw ErrorHexFileFormat();
-      
-      for ( j = 0; j < RecLength; j++ ) {
-	Data = Ascii2Hex( &Line[ i ], 2 );
-	CPU->WritePGM( (unsigned int)(LoadOffset + j), (unsigned char)Data );
-	i += 2;
-	Checksum += Data;
-      }
-      RecType = Ascii2Hex( &Line[ i ], 2 );
-      Checksum += RecType;      
-
-      if ( Checksum &= 0x000000FF )
-	throw ErrorHexFileFormat();
-    }
-    throw ErrorHexFileFormat();
-  }
-  catch ( ErrorOpeningFile ) {
-    cout << "Error opening file " << Filename << endl;
-  }
-  catch ( ErrorHexFileFormat ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( SyntaxError ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( MissingParameter ) {
-    cout << "Invalid format for " << Filename << " file..." << endl;
-  }
-  catch ( FinishedLoading ) {
-    cout << "Using file " << Filename << " as input program." << endl;  
-  }
-  HexFile.close();  
-
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// unsigned int EmuConsole::Ascii2Hex( string istring, int length )
-//
-//////////////////////////////////////////////////////////////////////////////
-unsigned int EmuConsole::Ascii2Hex( string istring, unsigned int length )
-{
-  if ( !length || ( length > istring.size() ) )
-    length = istring.size();
-
-  if ( istring.empty() )
-    throw MissingParameter();
-
-  unsigned int result = 0;
-  unsigned int i, ascii_code;
-  for ( i = 0; i < length; i++ ) {
-    ascii_code = istring[ i ];
-    if ( ascii_code > 0x39 )
-      ascii_code &= 0xDF;
-    if ( ( ascii_code >= 0x30 && ascii_code <= 0x39 ) || ( ascii_code >= 0x41 && ascii_code <= 0x46 ) ) {
-      ascii_code -= 0x30;
-      if ( ascii_code > 9 )
-	ascii_code -= 7;
-      result <<= 4;
-      result += ascii_code;
-    }
-    else {
-      throw SyntaxError();
-    }
-  }
-  return result;
-}
-
-
-
-
-
-
-
