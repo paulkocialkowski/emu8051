@@ -1,6 +1,9 @@
 # This file is processed by GNU automake to generate Makefile.in
 
-INCLUDES = -I$(top_srcdir)/pixmaps
+INCLUDES = \
+	-I$(top_srcdir) \
+	-I$(top_srcdir)/pixmaps \
+	$(GTK_CFLAGS)
 
 bin_PROGRAMS = emu8051
 # emu8051_console
@@ -11,11 +14,11 @@ bin_PROGRAMS = emu8051
 emu8051_SOURCES = instructions_8051.c emugtk.c memwin.c pgmwin.c regwin.c filemenu.c \
                   viewmenu.c helpmenu.c messagebox.c options.c hexfile.c cpu8051.c memory.c
 
-#emu8051_console_SOURCES = EmuConsole.cpp cpu8051.c memory.c options.c file.c EmuConsole.hpp Keyboard.hpp
+emu8051_LDADD = $(GTK_LIBS)
 
 # These headers will be included in the distribution tarball, but will not be
 # installed by 'make install'
-noinst_HEADERS = emugtk.h memwin.h pgmwin.h regwin.h filemenu.h viewmenu.h helpmenu.h \
+noinst_HEADERS = common.h emugtk.h memwin.h pgmwin.h regwin.h filemenu.h viewmenu.h helpmenu.h \
                  messagebox.h options.h hexfile.h cpu8051.h memory.h reg8051.h gtksizes.h
 
 # These files are generated automatically by a perl script.

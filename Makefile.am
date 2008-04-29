@@ -6,9 +6,8 @@ SUBDIRS = src doc
 
 EXTRA_DIST = autogen.sh \
              $(ac_aux_dir)/debug.m4 \
-             $(ac_aux_dir)/gtk2.m4 \
              pixmaps \
-             test_files
+             test-files
 
 ACLOCAL = aclocal -I $(ac_aux_dir)
 

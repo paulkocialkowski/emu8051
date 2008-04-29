@@ -1,7 +1,7 @@
-# configure.in -- Process this file with autoconf to produce configure
+# configure.ac -- Process this file with autoconf to produce configure
 
 dnl Initialization stuff.
-AC_INIT(emu8051, 0.2.0)
+AC_INIT(emu8051, 1.0.0)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/cpu8051.c)
 AM_CONFIG_HEADER(config.h:config-h.in)
@@ -33,18 +33,10 @@ dnl -g is for GDB debugging
   CFLAGS="${CFLAGS} -g -gdwarf-2 -g3"
 fi
 
-dnl Checks for '--with-gtk2' option
-HV_CHECK_FOR_GTK2
-
-if test x"${use_gtk2}" = x0; then
-  dnl Checks for Gtk+-1.2.0
-  AM_PATH_GTK(1.2.0, CFLAGS="${CFLAGS} ${GTK_CFLAGS}" LIBS="${LIBS} ${GTK_LIBS}",
-  AC_MSG_ERROR(GTK+ not found!))dnl
-else
-  dnl Checks for Gtk+-2.0
-  PKG_CHECK_MODULES(GTK,gtk+-2.0 >= 2.0.5, CFLAGS="${CFLAGS} ${GTK_CFLAGS}" \
-  LIBS="${LIBS} ${GTK_LIBS}",AC_MSG_ERROR(GTK+-2.0 not found!))dnl
-fi
+dnl Checks for Gtk+-2.0
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.0.5)
+AC_SUBST(GTK_CFLAGS)
+AC_SUBST(GTK_LIBS)
 
 AC_SUBST(CFLAGS)
 AC_SUBST(LIBS)
@@ -61,13 +53,6 @@ Configuration:
   Compiler:            ${CC}
   Compiler flags:      ${CFLAGS}
   Linker flags:        ${LIBS}"
-
-echo -n "  GTK base version:    "
-if test x"${use_gtk2}" = x1; then
-  echo "2"
-else
-  echo "1"
-fi
 
 echo -n "  Debugging messages:  "
 if test x"${debug_messages}" = x1; then

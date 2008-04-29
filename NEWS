@@ -1,4 +1,7 @@
 
+2008-04-28: emu8051-1.0.0 has been released.
+        Removed gtk+-1.0 support, now requires gtk+-2
+
 2005-05-07: emu8051-0.1.0 has been released.
         Fixed bug with CJNE instruction and autoconf files cleanup.
         See the file 'ChangeLog' for further details.
