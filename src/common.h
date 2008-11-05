@@ -1,8 +1,29 @@
-/* common.h */
+/*
+ * common.h
+ *
+ * Copyright (C) 1999 Jonathan St-André
+ * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 #ifndef COMMON_H
 #define COMMON_H 1
 
+/* Define this to have debugging output. */
+/* #define EMU8051_DEBUG 1 */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,14 +35,7 @@
 #  include <strings.h>
 #endif
 
-
-#if ( GTK_MAJOR_VERSION == 2 )
-#  define FIXED_FONT "monospace 12"
-#else
-/*#  define FIXED_FONT "-misc-fixed-medium-r-*-*-*-140-*-*-*-*-*-*"*/
-#  define FIXED_FONT "-adobe-courier-medium-r-normal--12-120-75-75-m-70-iso8859-1"
-#endif
-
+#define FIXED_FONT "monospace 12"
 
 /* Common constants. */
 #ifndef EXIT_SUCCESS

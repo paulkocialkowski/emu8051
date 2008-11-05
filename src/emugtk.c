@@ -1,5 +1,23 @@
-/* emugtk.c */
-
+/*
+ * emugtk.c
+ *
+ * Copyright (C) 1999 Jonathan St-André
+ * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 #include <stdio.h>
 #include "config.h"
@@ -38,7 +56,9 @@ extern char *hex_file;
 static void
 WindowDestroyEvent( GtkWidget *widget, gpointer data )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_DestroyEvent(...)\n" );
+#endif
 
   gtk_main_quit();
 }
@@ -241,7 +261,9 @@ AddMenuSeparator( GtkWidget *menu )
 void
 emugtk_UpdateDisplay( void )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_UpdateDisplay()\n" );
+#endif
 
   regwin_Show();
   pgmwin_Disasm();
@@ -292,7 +314,9 @@ emugtk_Step( void )
 void
 emugtk_ResetEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_ResetEvent(...)\n" );
+#endif
   emugtk_StopRunning( );
   emugtk_Reset( );
 }
@@ -304,7 +328,9 @@ emugtk_ResetEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 void
 emugtk_RunEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_RunEvent(...)\n" );
+#endif
   if ( RunningState ) {
     //   g_print( "Getting out of RunningState! \n" );
     emugtk_StopRunning( );
@@ -322,7 +348,9 @@ emugtk_RunEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 void
 emugtk_StopEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_StopEvent(...)\n" );
+#endif
   emugtk_StopRunning( );
 }
 
@@ -333,7 +361,9 @@ emugtk_StopEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 void
 emugtk_StepEvent( GtkWidget *widget, GdkEvent *event, gpointer data )
 {
+#ifdef EMU8051_DEBUG
   g_print( "emugtk_StepEvent(...)\n" );
+#endif
   emugtk_StopRunning( );
   emugtk_Step();
 }
@@ -347,7 +377,9 @@ emugtk_Running( )
 {
   cpu8051_Exec( );
   if( pgmwin_IsBreakpoint( cpu8051.pc ) ) {
+#ifdef EMU8051_DEBUG
     g_print( "Breakpoint Hit, stopping!\n" );
+#endif
     emugtk_StopRunning( );
   }
 }
@@ -371,9 +403,9 @@ void
 emugtk_StartRunning( void )
 {
   if ( !RunningState ) {
-
+#ifdef EMU8051_DEBUG
     printf( "emugtk_StartRunning( )\n" );
-
+#endif
     /*RunFuncTag = gtk_idle_add( GtkFunction( RunningFunction ), 0 );*/
     RunFuncTag = gtk_idle_add( RunningFunction, 0 );
 
@@ -393,7 +425,9 @@ void
 emugtk_StopRunning( )
 {
   if (RunningState) {
+#ifdef EMU8051_DEBUG
     printf( "emugtk_StopRunning( )\n" );
+#endif
     gtk_idle_remove( RunFuncTag );
     RunningState = 0;
     //gtk_widget_hide( GTK_WIDGET( ButtonStop ) );

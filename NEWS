@@ -1,4 +1,7 @@
 
+2008-11-05: emu8051-1.0.1 has been released.
+        See the file 'ChangeLog' for further details.
+
 2008-04-28: emu8051-1.0.0 has been released.
         Removed gtk+-1.0 support, now requires gtk+-2
 

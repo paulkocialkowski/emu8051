@@ -1,3 +1,11 @@
+------------------------------------------------------------------------------
+2008/11/05	Hugo Villeneuve		<hugo@hugovil.com>
+        -Added licencing informations for each source file.
+        -Removed some debugging messages.
+
+------------------------------------------------------------------------------
+2008/04/28	Hugo Villeneuve		<hugo@hugovil.com>
+        Removed gtk+-1.0 support, now requires gtk+-2
 
 ------------------------------------------------------------------------------
 2004/05/07	Hugo Villeneuve		<hugo@hugovil.com>

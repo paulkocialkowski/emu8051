@@ -1,14 +1,51 @@
 #!/usr/bin/perl
-
+#
+# Copyright (C) 1999 Jonathan St-André
+# Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 open INST_DEF, ">instructions_8051.h" or die "Error creating <instructions_8051.h> : $!\n";
 open INST_IMP, ">instructions_8051.c" or die "Error creating <instructions_8051.c> : $!\n";
 open OPCODELST, "opcodes.lst" or die "Error opening <opcodes.lst> : $!\n";
 open DISASM_H, ">disasm.h" or die "Error creating <disasm.h> : $!\n";
 
-print INST_IMP "/* instructions_8051.c */\n\n\n";
-print INST_IMP "/* Do not modify this file directly, as it was created by opcode2c.pl\n";
-print INST_IMP " * Any modifications made directly to this file will be lost. */\n\n\n";
+# Header for instructions_8051.c
+print INST_IMP "/*\n";
+print INST_IMP " * instructions_8051.c\n";
+print INST_IMP " *\n";
+print INST_IMP " * Do not modify this file directly, as it was created by opcode2c.pl\n";
+print INST_IMP " * Any modifications made directly to this file will be lost.\n";
+print INST_IMP " *\n";
+print INST_IMP " * Copyright (C) 1999 Jonathan St-André\n";
+print INST_IMP " * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>\n";
+print INST_IMP " *\n";
+print INST_IMP " * This program is free software; you can redistribute it and/or modify\n";
+print INST_IMP " * it under the terms of the GNU General Public License as published by\n";
+print INST_IMP " * the Free Software Foundation; either version 2 of the License, or\n";
+print INST_IMP " * (at your option) any later version.\n";
+print INST_IMP " *\n";
+print INST_IMP " * This program is distributed in the hope that it will be useful,\n";
+print INST_IMP " * but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+print INST_IMP " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+print INST_IMP " * GNU General Public License for more details.\n";
+print INST_IMP " *\n";
+print INST_IMP " * You should have received a copy of the GNU General Public License\n";
+print INST_IMP " * along with this program; if not, write to the Free Software\n";
+print INST_IMP " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print INST_IMP "*/\n\n";
 print INST_IMP "/* Define only here, for not having extern scope on local variables. */\n";
 print INST_IMP "#define INSTRUCTIONS_8051_M 1\n\n\n";
 print INST_IMP "#include \"reg8051.h\"\n";
@@ -16,12 +53,32 @@ print INST_IMP "#include \"cpu8051.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
 print INST_IMP "#include \"instructions_8051.h\"\n\n\n";
 
-print DISASM_H "/* disasm.h */\n\n\n";
-print DISASM_H "/* Do not modify this file directly, as it was created by opcode2c.pl\n";
-print DISASM_H " * Any modifications made directly to this file will be lost. */\n\n\n";
+# Header for disasm.h
+print DISASM_H "/*\n";
+print DISASM_H " * disasm.h\n";
+print DISASM_H " *\n";
+print DISASM_H " * Do not modify this file directly, as it was created by opcode2c.pl\n";
+print DISASM_H " * Any modifications made directly to this file will be lost.\n";
+print DISASM_H " *\n";
+print DISASM_H " * Copyright (C) 1999 Jonathan St-André\n";
+print DISASM_H " * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>\n";
+print DISASM_H " *\n";
+print DISASM_H " * This program is free software; you can redistribute it and/or modify\n";
+print DISASM_H " * it under the terms of the GNU General Public License as published by\n";
+print DISASM_H " * the Free Software Foundation; either version 2 of the License, or\n";
+print DISASM_H " * (at your option) any later version.\n";
+print DISASM_H " *\n";
+print DISASM_H " * This program is distributed in the hope that it will be useful,\n";
+print DISASM_H " * but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+print DISASM_H " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+print DISASM_H " * GNU General Public License for more details.\n";
+print DISASM_H " *\n";
+print DISASM_H " * You should have received a copy of the GNU General Public License\n";
+print DISASM_H " * along with this program; if not, write to the Free Software\n";
+print DISASM_H " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print DISASM_H "*/\n\n";
 print DISASM_H "#ifndef DISASM_H\n";
 print DISASM_H "#define DISASM_H 1\n\n\n";
-
 
 $nbinst=0;
 $nbaddr=0;
@@ -757,10 +814,31 @@ for ($i=0 ; $i< 256; $i++) {
 # ------------------------------------------------------------------------------
 
 
+# Header for instructions_8051.h
+print INST_DEF "/*\n";
+print INST_DEF " * instructions_8051.h\n";
+print INST_DEF " *\n";
+print INST_DEF " * Do not modify this file directly, as it was created by opcode2c.pl\n";
+print INST_DEF " * Any modifications made directly to this file will be lost.\n";
+print INST_DEF " *\n";
+print INST_DEF " * Copyright (C) 1999 Jonathan St-André\n";
+print INST_DEF " * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>\n";
+print INST_DEF " *\n";
+print INST_DEF " * This program is free software; you can redistribute it and/or modify\n";
+print INST_DEF " * it under the terms of the GNU General Public License as published by\n";
+print INST_DEF " * the Free Software Foundation; either version 2 of the License, or\n";
+print INST_DEF " * (at your option) any later version.\n";
+print INST_DEF " *\n";
+print INST_DEF " * This program is distributed in the hope that it will be useful,\n";
+print INST_DEF " * but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
+print INST_DEF " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
+print INST_DEF " * GNU General Public License for more details.\n";
+print INST_DEF " *\n";
+print INST_DEF " * You should have received a copy of the GNU General Public License\n";
+print INST_DEF " * along with this program; if not, write to the Free Software\n";
+print INST_DEF " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print INST_DEF "*/\n\n";
 
-print INST_DEF "/* instructions_8051.h */\n\n\n";
-print INST_DEF "/* Do not modify this file directly, as it was created by opcode2c.pl\n";
-print INST_DEF " * Any modifications made directly to this file will be lost. */\n\n\n";
 print INST_DEF "#ifndef INSTRUCTIONS_8051_H\n";
 print INST_DEF "#define INSTRUCTIONS_8051_H 1\n\n\n";
 print INST_DEF "#define BANKPSW ( cpu8051_ReadD( _PSW_ ) & 0x18 )\n\n";
@@ -801,5 +879,3 @@ close DISASM_H;
 close OPCODELST;
 close INST_DEF;
 close INST_IMP;
-
-
