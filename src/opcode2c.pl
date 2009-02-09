@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 open INST_DEF, ">instructions_8051.h" or die "Error creating <instructions_8051.h> : $!\n";
 open INST_IMP, ">instructions_8051.c" or die "Error creating <instructions_8051.c> : $!\n";
@@ -44,7 +44,7 @@ print INST_IMP " * GNU General Public License for more details.\n";
 print INST_IMP " *\n";
 print INST_IMP " * You should have received a copy of the GNU General Public License\n";
 print INST_IMP " * along with this program; if not, write to the Free Software\n";
-print INST_IMP " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print INST_IMP " * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.\n";
 print INST_IMP "*/\n\n";
 print INST_IMP "/* Define only here, for not having extern scope on local variables. */\n";
 print INST_IMP "#define INSTRUCTIONS_8051_M 1\n\n\n";
@@ -75,7 +75,7 @@ print DISASM_H " * GNU General Public License for more details.\n";
 print DISASM_H " *\n";
 print DISASM_H " * You should have received a copy of the GNU General Public License\n";
 print DISASM_H " * along with this program; if not, write to the Free Software\n";
-print DISASM_H " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print DISASM_H " * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.\n";
 print DISASM_H "*/\n\n";
 print DISASM_H "#ifndef DISASM_H\n";
 print DISASM_H "#define DISASM_H 1\n\n\n";
@@ -836,7 +836,7 @@ print INST_DEF " * GNU General Public License for more details.\n";
 print INST_DEF " *\n";
 print INST_DEF " * You should have received a copy of the GNU General Public License\n";
 print INST_DEF " * along with this program; if not, write to the Free Software\n";
-print INST_DEF " * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.\n";
+print INST_DEF " * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.\n";
 print INST_DEF "*/\n\n";
 
 print INST_DEF "#ifndef INSTRUCTIONS_8051_H\n";
