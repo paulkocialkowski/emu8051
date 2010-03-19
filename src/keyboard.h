@@ -1,5 +1,5 @@
 /*
- * hexfile.h
+ * keyboard.h
  *
  * Copyright (C) 1999 Jonathan St-André
  * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
@@ -19,13 +19,19 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef HEXFILE_H
-#define HEXFILE_H 1
+#ifndef _KEYBOARD_H_
+#define _KEYBOARD_H_
 
-unsigned int
-Ascii2Hex(char *istring, int length);
+int
+kbhit(void);
+
+int
+getch(void);
 
 void
-LoadHexFile( const char *filename );
+InitUnixKB(void);
 
-#endif /* HEXFILE_H */
+void
+ResetUnixKB(void);
+
+#endif /* _KEYBOARD_H_ */

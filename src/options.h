@@ -21,7 +21,6 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H 1
 
-
 #define COMMAND_LINE_OPTIONS \
   "Usage: " PACKAGE " [OPTION]... [FILENAME]\n" \
   "Simulator/emulator for 8051 family microcontrollers.\n\n" \
@@ -37,9 +36,10 @@
   "Jonathan St-André\n" \
   "Pascal Fecteau"
 
-
 void
-ParseCommandLineOptions( int argc, char *argv[] );
+ParseCommandLineOptions(int argc, char *argv[]);
 
+char *
+get_hex_filename(void);
 
 #endif /* OPTIONS_H */

@@ -35,9 +35,16 @@
 #include "common.h"
 #include "options.h"
 
+static char *hex_file;
 
-char *hex_file;
-
+/*
+ * Return the hex file name
+ */
+char *
+get_hex_filename(void)
+{
+	return hex_file;
+}
 
 /*******************************************************************************
  * Display the help message and exit

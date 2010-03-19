@@ -51,10 +51,10 @@ typedef int bool;
 
 
 /* Returns TRUE if the strings 'a' and 'b' are equal. */
-#define STREQ(a, b) (strcmp((a), (b)) == 0)
+#define STREQ(a, b) (strcasecmp((a), (b)) == 0)
 
 /* Returns TRUE if the first 'c' characters of strings 'a' and 'b' are equal. */
-#define STREQ_LEN(a, b, c) (strncmp((a), (b), (c)) == 0)
+#define STREQ_LEN(a, b, c) (strncasecmp((a), (b), (c)) == 0)
 
 
 inline void

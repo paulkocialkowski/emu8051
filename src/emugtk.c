@@ -23,16 +23,17 @@
 #include "config.h"
 
 #include <gtk/gtk.h>
-#include "emugtk.h"
-#include "reset.xpm"
-#include "run.xpm"
-#include "stop.xpm"
-#include "step.xpm"
 
 #include "common.h"
 #include "cpu8051.h"
 #include "options.h"
 #include "hexfile.h"
+
+#include "emugtk.h"
+#include "reset.xpm"
+#include "run.xpm"
+#include "stop.xpm"
+#include "step.xpm"
 #include "filemenu.h"
 #include "viewmenu.h"
 #include "helpmenu.h"
@@ -40,17 +41,9 @@
 #include "pgmwin.h"
 #include "memwin.h"
 
-
 static int RunningState;
 static int RunFuncTag;
-
-
 static GtkWidget *mainwin;
-
-
-/* In options.c */
-extern char *hex_file;
-
 
 /* Signal DestroyEvent */
 static void
@@ -210,6 +203,8 @@ emugtk_window_init( void )
 int
 main( int argc, char **argv )
 {
+  char *hex_file;
+
   ParseCommandLineOptions( argc, argv );
 
   cpu8051_init();
@@ -219,6 +214,8 @@ main( int argc, char **argv )
   gtk_init( &argc, &argv );
 
   emugtk_window_init();
+
+  hex_file = get_hex_filename();
 
   if( hex_file != NULL ) {
     emugtk_new_file( hex_file );
@@ -406,14 +403,9 @@ emugtk_StartRunning( void )
 #ifdef EMU8051_DEBUG
     printf( "emugtk_StartRunning( )\n" );
 #endif
-    /*RunFuncTag = gtk_idle_add( GtkFunction( RunningFunction ), 0 );*/
     RunFuncTag = gtk_idle_add( RunningFunction, 0 );
 
     RunningState = 1;
-
-    // gtk_widget_hide( GTK_WIDGET( ButtonRun ) );
-    // gtk_widget_show_now( GTK_WIDGET( ButtonStop ) );
-    // gtk_table_attach_defaults( GTK_TABLE( ButtonTable ), ButtonStop, 3, 4, 0, 1);
   }
 }
 
@@ -430,9 +422,6 @@ emugtk_StopRunning( )
 #endif
     gtk_idle_remove( RunFuncTag );
     RunningState = 0;
-    //gtk_widget_hide( GTK_WIDGET( ButtonStop ) );
-    //gtk_widget_show( GTK_WIDGET( ButtonRun ) );
-    //    gtk_table_attach_defaults( GTK_TABLE( ButtonTable ), ButtonRun, 3, 4, 0, 1);
     regwin_Show();
     pgmwin_Disasm();
     memwin_DumpD( 0 );

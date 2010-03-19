@@ -36,121 +36,123 @@
 #include "common.h"
 #include "memory.h"
 
-
 /* Convert an ascii string to an hexadecimal number. */
-static unsigned int
+unsigned int
 Ascii2Hex( char *istring, int length )
 {
-  unsigned int result = 0;
-  int i, ascii_code;
+	unsigned int result = 0;
+	int i, ascii_code;
 
-  if ( !length || ( length > (int) strlen(istring) ) ) {
-    length = strlen(istring);
-  }
+	if ( !length || ( length > (int) strlen(istring) ) ) {
+		length = strlen(istring);
+	}
   
-  for ( i = 0; i < length; i++ ) {
-    ascii_code = istring[ i ];
-    if ( ascii_code > 0x39 ) {
-      ascii_code &= 0xDF;
-    }
-    if ( ( ascii_code >= 0x30 && ascii_code <= 0x39 ) ||
-	 ( ascii_code >= 0x41 && ascii_code <= 0x46 ) ) {
-      ascii_code -= 0x30;
-      if ( ascii_code > 9 ) {
-	ascii_code -= 7;
-      }
-      result <<= 4;
-      result += ascii_code;
-    }
-    else {
-      printf( "%s: In Ascii2Hex(), syntax error.\n", PACKAGE );
-    }
-  }
-  return result;
+	for ( i = 0; i < length; i++ ) {
+		ascii_code = istring[ i ];
+		if ( ascii_code > 0x39 ) {
+			ascii_code &= 0xDF;
+		}
+		if ( ( ascii_code >= 0x30 && ascii_code <= 0x39 ) ||
+		     ( ascii_code >= 0x41 && ascii_code <= 0x46 ) ) {
+			ascii_code -= 0x30;
+			if ( ascii_code > 9 ) {
+				ascii_code -= 7;
+			}
+			result <<= 4;
+			result += ascii_code;
+		}
+		else {
+			printf( "%s: In Ascii2Hex(), syntax error.\n", PACKAGE );
+		}
+	}
+	return result;
 }
 
 
 void
 LoadHexFile( const char *filename )
 {
-  int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
+	int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
   
 #define LINE_BUFFER_LEN 256
-  FILE *fp;
-  int status;
-  char line[LINE_BUFFER_LEN];
+	FILE *fp;
+	int status;
+	char line[LINE_BUFFER_LEN];
 
-  if( filename != NULL ) {
-    /* Trying to open the file. */
-    fp = fopen( filename, "r" );
-    if( fp == NULL ) {
-      perror( PACKAGE );
-      /*ErrorLocation( __FILE__, __LINE__ );*/
-      exit( EXIT_FAILURE );
-    }
-  }
-  
-  /* Reading one line of data from the configuration file. */
-  /* char *fgets(char *s, int size, FILE *stream);
-     Reading stops after an EOF or a newline.  If a newline is read, it is
-     stored into the buffer.  A '\0'  is  stored after the last character in
-     the buffer. */
-  while( fgets( line, LINE_BUFFER_LEN, fp ) != NULL ) {
-    i = 0;
-    Checksum = 0;
+	if (filename == NULL) {
+		printf("%s: No file specified\n", PACKAGE);
+		exit(EXIT_FAILURE);
+	}
 
-    if ( line[ i++ ] != ':' ) {
-      printf( "%s: line not beginning with \":\"\n", PACKAGE );
-      goto close_file;
-    }
+	/* Trying to open the file. */
+	fp = fopen( filename, "r" );
+	if( fp == NULL ) {
+		perror( PACKAGE );
+		/*ErrorLocation( __FILE__, __LINE__ );*/
+		exit( EXIT_FAILURE );
+	}
+    
+	/* Reading one line of data from the hex file. */
+	/* char *fgets(char *s, int size, FILE *stream);
+	   Reading stops after an EOF or a newline.  If a newline is read, it is
+	   stored into the buffer.  A '\0'  is  stored after the last character in
+	   the buffer. */
+	while( fgets( line, LINE_BUFFER_LEN, fp ) != NULL ) {
+		i = 0;
+		Checksum = 0;
+
+		if ( line[ i++ ] != ':' ) {
+			printf( "%s: line not beginning with \":\"\n", PACKAGE );
+			goto close_file;
+		}
       
-    RecLength = Ascii2Hex( &line[ i ], 2 );
-    i += 2;
-    Checksum += RecLength;
+		RecLength = Ascii2Hex( &line[ i ], 2 );
+		i += 2;
+		Checksum += RecLength;
       
-    LoadOffset = Ascii2Hex( &line[i], 4 );
-    Checksum += LoadOffset / 256;
-    Checksum += LoadOffset % 256;
-    i += 4;
+		LoadOffset = Ascii2Hex( &line[i], 4 );
+		Checksum += LoadOffset / 256;
+		Checksum += LoadOffset % 256;
+		i += 4;
     
-    RecType = Ascii2Hex( &line[i],2);
-    i += 2;
-    Checksum += RecType;
+		RecType = Ascii2Hex( &line[i],2);
+		i += 2;
+		Checksum += RecType;
     
-    if ( RecType == 1 ) {
-      Checksum += Ascii2Hex( &line[ i ], 2 );
-      if ( Checksum &= 0x000000FF ) {
-	/* Error. */
-	printf( "%s: Invalid format\n", PACKAGE );
-	goto close_file;
-      }
-      else {
-	/* OK */
-	goto close_file;
-      }
-    }   
+		if ( RecType == 1 ) {
+			Checksum += Ascii2Hex( &line[ i ], 2 );
+			if ( Checksum &= 0x000000FF ) {
+				/* Error. */
+				printf( "%s: Invalid format\n", PACKAGE );
+				goto close_file;
+			}
+			else {
+				/* OK */
+				goto close_file;
+			}
+		}   
     
-    for ( j = 0; j < RecLength; j++ ) {
-      Data = Ascii2Hex( &line[ i ], 2 );
-      memory_write8( PGM_MEM_ID, (unsigned int)(LoadOffset + j), (unsigned char)Data );
-      i += 2;
-      Checksum += Data;
-    }
+		for ( j = 0; j < RecLength; j++ ) {
+			Data = Ascii2Hex( &line[ i ], 2 );
+			memory_write8( PGM_MEM_ID, (unsigned int)(LoadOffset + j), (unsigned char)Data );
+			i += 2;
+			Checksum += Data;
+		}
     
-    RecType = Ascii2Hex( &line[ i ], 2 );
-    Checksum += RecType;      
+		RecType = Ascii2Hex( &line[ i ], 2 );
+		Checksum += RecType;      
     
-    if ( Checksum &= 0x000000FF ) {
-      printf( "%s: Invalid format\n", PACKAGE );
-      goto close_file;
-    }
-  }
+		if ( Checksum &= 0x000000FF ) {
+			printf( "%s: Invalid format\n", PACKAGE );
+			goto close_file;
+		}
+	}
   
- close_file:
-  status = fclose( fp );
-  if( status != EXIT_SUCCESS ) {
-    fprintf( stderr, "%s: Error closing configuration file.\n", PACKAGE );
-    /*ErrorLocation( __FILE__, __LINE__ );*/
-    exit( EXIT_FAILURE );
-  }
+close_file:
+	status = fclose( fp );
+	if( status != EXIT_SUCCESS ) {
+		fprintf( stderr, "%s: Error closing hex file.\n", PACKAGE );
+		/*ErrorLocation( __FILE__, __LINE__ );*/
+		exit( EXIT_FAILURE );
+	}
 }

@@ -28,12 +28,6 @@
 
 using namespace std;
 
-// Maximum number of BreakPoints
-#define MAXBP 32
-
-#define ENDLINE "\n"
-
-
 
 //////////////////////////////////////////////////////////////////////////////
 // EmuConsole
