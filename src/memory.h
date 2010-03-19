@@ -36,4 +36,7 @@ memory_write8( int memory_id, unsigned long address, u_int8_t value );
 u_int8_t
 memory_read8( int memory_id, unsigned long address );
 
+void
+DumpMem(char *buf, char *Address, int memory_id);
+
 #endif /* MEMORY_H */

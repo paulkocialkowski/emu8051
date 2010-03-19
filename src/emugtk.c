@@ -264,7 +264,7 @@ emugtk_UpdateDisplay( void )
 
   regwin_Show();
   pgmwin_Disasm();
-  memwin_DumpD( 0 );
+  memwin_DumpD("0x00");
 }
 
 
@@ -288,7 +288,7 @@ emugtk_Reset( void )
   cpu8051_Reset( );
   regwin_Show();
   pgmwin_Disasm();
-  memwin_DumpD( 0 );
+  memwin_DumpD("0x00");
 }
 
 
@@ -301,7 +301,7 @@ emugtk_Step( void )
   cpu8051_Exec();
   regwin_Show();
   pgmwin_Disasm();
-  memwin_DumpD( 0 );
+  memwin_DumpD("0x00");
 }
 
 
@@ -424,6 +424,6 @@ emugtk_StopRunning( )
     RunningState = 0;
     regwin_Show();
     pgmwin_Disasm();
-    memwin_DumpD( 0 );
+  memwin_DumpD("0x00");
   }
 }

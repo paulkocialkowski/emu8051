@@ -26,12 +26,12 @@
 #include <stdio.h>
 
 #include "common.h"
+#include "memory.h"
+#include "hexfile.h"
 #include "cpu8051.h"
 #include "memwin.h"
 
-
 static GtkWidget *memclist;
-
 
 GtkWidget *
 memwin_init( int width, int height )
@@ -89,12 +89,23 @@ memwin_init( int width, int height )
 
 /* Dump 16 rows of 16 bytes from Address in Memory (direct addressing) */
 void
-memwin_DumpD( unsigned int Address )
+memwin_DumpD(char *MemAddress)
 {
-  char TextTmp[255];
+  char TextTmp[1024];
   int row, column, TextLength;
+  unsigned int Address;
+
+  if (strlen(MemAddress) != 0) {
+	  if (STREQ(MemAddress, "PC"))
+		  Address = cpu8051.pc;
+	  else
+		  Address = Ascii2Hex(MemAddress, strlen(MemAddress));
+  } else {
+	  Address = 0;
+  }
 
   gtk_clist_freeze( GTK_CLIST( memclist ) );
+
   for ( row = 0; row < 16; row++ ) {
     sprintf( TextTmp, "%.4X", Address );
     gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
@@ -116,36 +127,5 @@ memwin_DumpD( unsigned int Address )
   }
 
   gtk_clist_select_row( GTK_CLIST( memclist ), 0, 0 );
-  gtk_clist_thaw( GTK_CLIST( memclist ) );
-}
-
-
-/* Dump 16 rows of 16 bytes from Address in Memory (indirect addressing) */
-void
-memwin_DumpI( unsigned int Address )
-{
-  char TextTmp[255];
-  int row, column, TextLength;
-  
-  gtk_clist_freeze( GTK_CLIST( memclist ) );
-  for ( row = 0; row < 16; row++ ) {
-    sprintf( TextTmp, "%.4X", Address );
-    gtk_clist_set_text( GTK_CLIST( memclist ), row, 0, TextTmp );
-    
-    for ( column = 0; column < 16; column++ ) {
-      sprintf( TextTmp, "%.2X", ( int ) cpu8051_ReadI( Address + column ) );
-      gtk_clist_set_text( GTK_CLIST( memclist ), row, column + 1, TextTmp );
-    }
-    
-    TextLength = 0;
-    for ( column = 0; column < 16; column++ ) {
-      if ( ( ( int ) cpu8051_ReadI( Address + column ) >= 32 ) && ( ( int ) cpu8051_ReadI( Address + column ) <= 126 ) )
-	TextLength += sprintf( &TextTmp[ TextLength ], "%c", cpu8051_ReadI( Address + column ) );
-      else TextLength += sprintf( &TextTmp[ TextLength ], "." );
-    }
-    gtk_clist_set_text( GTK_CLIST( memclist ), row, 17, TextTmp );
-    
-    Address += 16;
-  }
   gtk_clist_thaw( GTK_CLIST( memclist ) );
 }

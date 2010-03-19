@@ -1,3 +1,9 @@
+2010-03-19  Hugo Villeneuve  <hugo@hugovil.com>
+        Reintroduced the console mode if no GTK+ librairies are
+        detected. The default is to build the GUI if GTK+ is detected,
+	but the console mode can always be forced by using
+	"--enable-gui=no" as a configure option.
+
 2009-02-09  Hugo Villeneuve  <hugo@hugovil.com>
         * Updated Free Software Foundation address.
 

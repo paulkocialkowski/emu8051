@@ -20,7 +20,11 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
+#include "common.h"
+#include "cpu8051.h"
+#include "hexfile.h"
 #include "memory.h"
 
 #define PGM_MEM_SIZE 65536
@@ -104,5 +108,54 @@ memory_read8( int memory_id, unsigned long address )
 		/* Error. */
 		return 0;
 		break;
+	}
+}
+
+/* Dump memory */
+void
+DumpMem(char *buf, char *Address, int memory_id)
+{
+	unsigned int MemAddress;
+	int Offset, Column;
+	int size = 256;
+	int k = 0;
+
+	if (strlen(Address) != 0) {
+		if (STREQ(Address, "PC"))
+			MemAddress = cpu8051.pc;
+		else
+			MemAddress = Ascii2Hex(Address, strlen(Address));
+	} else {
+		MemAddress = 0;
+	}
+
+	for (Offset = 0; Offset < size; Offset += 16) {
+		unsigned char data[16];
+
+		sprintf(&buf[k], "%.4X ", MemAddress + Offset);
+		k = strlen(buf);
+
+		for (Column = 0; Column < 16; Column++) {
+			data[Column] = memory_read8(memory_id, MemAddress +
+						    Offset + Column);
+			sprintf(&buf[k], " %.2X", (int) data[Column]);
+			k = strlen(buf);
+		}
+		sprintf(&buf[k], "  ");
+		k = strlen(buf);
+
+		/* Display any ASCII characters */
+		for (Column = 0; Column < 16; Column++) {
+			if ((int) data[Column] >= 32 &&
+			    (int) data[Column] <= 126) {
+				sprintf(&buf[k], "%c", data[Column]);
+				k = strlen(buf);
+			} else {
+				sprintf(&buf[k], ".");
+				k = strlen(buf);
+			}
+		}
+		sprintf(&buf[k], "\n");
+		k = strlen(buf);
 	}
 }

@@ -36,8 +36,6 @@
 /* Maximum number of BreakPoints */
 #define MAXBP 32
 
-#define ENDLINE "\n"
-
 static int RunningState;
 static int NbBreakpoints;
 static unsigned int Breakpoints[MAXBP];
@@ -177,46 +175,6 @@ Disasm(char *Address, char *NumberInst)
 	DisasmN(MemAddress, NbInst);
 }
 
-/* Dump memory */
-static void
-DumpMem(char *Address, int memory_id)
-{
-	unsigned int MemAddress;
-	int Offset, Column;
-	int size = 256;
-
-	if (strlen(Address) != 0) {
-		if (STREQ(Address, "PC"))
-			MemAddress = cpu8051.pc;
-		else
-			MemAddress = Ascii2Hex(Address, strlen(Address));
-	} else {
-		MemAddress = 0;
-	}
-
-	for (Offset = 0; Offset < size; Offset += 16) {
-		unsigned char data[16];
-
-		printf("%.4X ", MemAddress + Offset);
-		for (Column = 0; Column < 16; Column++) {
-			data[Column] = memory_read8(memory_id, MemAddress +
-						    Offset + Column);
-			printf(" %.2X", (int) data[Column]);
-		}
-		printf("  ");
-
-		/* Display any ASCII characters */
-		for (Column = 0; Column < 16; Column++) {
-			if ((int) data[Column] >= 32 &&
-			    (int) data[Column] <= 126)
-				printf("%c", data[Column]);
-			else
-				printf(".");
-		}
-		printf("\n");
-	}
-}
-
 /* Set NewValue to Register */
 static void
 SetRegister(char *Register, char *NewValue)
@@ -230,7 +188,7 @@ SetRegister(char *Register, char *NewValue)
 	else if (STREQ(Register, "SP"))
 		cpu8051_WriteD(_SP_, Ascii2Hex(NewValue, 2));
 	else {
-		printf("%sInvalid register name!%s", ENDLINE, ENDLINE);
+		printf("\nInvalid register name!\n");
 		printf("Valid registers are A, B, PC and SP.\n");
 	}
 }
@@ -336,11 +294,11 @@ console_main(void)
 
 	Index = 0;
 	while (Title[Index] != 0)
-		printf("%s%s", Title[Index++], ENDLINE);
+		printf("%s\n", Title[Index++]);
 
 	Index = 0;
 	while (Menu[Index] != 0)
-		printf("%s%s", Menu[Index++], ENDLINE);
+		printf("%s\n", Menu[Index++]);
 
 	console_reset();
 
@@ -417,19 +375,24 @@ console_main(void)
 		}
 
 		switch (Command[0]) {
-		case 'D':
+		case 'D':		
 			if (strlen(Parameter2) == 0) {
+				char buf[1024];
+				
 				if (STREQ(Command, "DB") &&
 				    (strlen(Parameter1) == 0))
 					ShowBreakpoints();
-				else if (STREQ(Command, "DE"))
-					DumpMem(Parameter1, EXT_MEM_ID);
-				else if (STREQ(Command, "DI"))
-					DumpMem(Parameter1, INT_MEM_ID);
-				else if (STREQ(Command, "DP")) {
+				else if (STREQ(Command, "DE")) {
+					DumpMem(buf, Parameter1, EXT_MEM_ID);
+					printf(buf);
+				} else if (STREQ(Command, "DI")) {
+					DumpMem(buf, Parameter1, INT_MEM_ID);
+					printf(buf);
+				} else if (STREQ(Command, "DP")) {
 					if ((strlen(Parameter1) == 0))
 						strcpy(Parameter1, "PC");
-					DumpMem(Parameter1, PGM_MEM_ID);
+					DumpMem(buf, Parameter1, PGM_MEM_ID);
+					printf(buf);
 				} else if (STREQ(Command, "DR") &&
 					   (strlen(Parameter1) == 0))
 					console_show_registers();
