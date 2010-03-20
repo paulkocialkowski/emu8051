@@ -19,8 +19,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef _GTKSIZES_HPP_
-#define _GTKSIZES_HPP_
+#ifndef _GTKSIZES_H_
+#define _GTKSIZES_H_
 
 #define NUMBER_OF_BUTTONS  5
 #define BUTTON_WIDTH       60
@@ -42,4 +42,4 @@
 #define MAIN_WIN_WIDTH     (REG_WIN_WIDTH + PGM_WIN_WIDTH)
 #define MAIN_WIN_HEIGHT    (BUTTONS_BAR_HEIGHT + REG_WIN_HEIGHT + MEM_WIN_HEIGHT)
 
-#endif
+#endif /* _GTKSIZES_H_ */

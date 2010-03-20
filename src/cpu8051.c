@@ -389,7 +389,7 @@ cpu8051_Exec(void)
 }
 
 /*
- * Addressing modes defined in the order as they appear in disasm.hpp
+ * Addressing modes defined in the order as they appear in disasm.h
  * from table argstext[]
  */
 #define ADDR11 0

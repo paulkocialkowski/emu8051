@@ -59,8 +59,10 @@ Ascii2Hex(char *istring, int length)
 
 			result <<= 4;
 			result += ascii_code;
-		} else
+		} else {
 			printf("%s: In Ascii2Hex(), syntax error.\n", PACKAGE);
+			printf("  str=%s, length=%d\n", istring, length);
+		}
 	}
 	return result;
 }

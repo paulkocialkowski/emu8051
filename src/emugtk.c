@@ -41,8 +41,8 @@
 #include "pgmwin.h"
 #include "memwin.h"
 
-static int RunningState;
-static int RunFuncTag;
+static int running;
+static int running_function_tag;
 static GtkWidget *mainwin;
 
 /* Signal DestroyEvent */
@@ -54,6 +54,50 @@ WindowDestroyEvent(GtkWidget *widget, gpointer data)
 #endif
 
 	gtk_main_quit();
+}
+
+/* Step out of running state */
+static void
+emugtk_stop_running()
+{
+	if (running) {
+#ifdef EMU8051_DEBUG
+		printf("emugtk_StopRunning()\n");
+#endif
+		gtk_idle_remove(running_function_tag);
+		running = 0;
+		regwin_Show();
+		pgmwin_Disasm();
+		memwin_DumpD("00");
+	}
+}
+
+/* Running function called when idle from gtk_main */
+static gboolean
+emugtk_running(gpointer data)
+{
+	cpu8051_Exec();
+	if (IsBreakpoint(cpu8051.pc)) {
+#ifdef EMU8051_DEBUG
+		g_print("Breakpoint Hit, stopping!\n");
+#endif
+		emugtk_stop_running();
+	}
+
+	return TRUE;
+}
+
+/* Get in the running state */
+static void
+emugtk_start_running(void)
+{
+	if (!running) {
+#ifdef EMU8051_DEBUG
+		printf("emugtk_StartRunning()\n");
+#endif
+		running_function_tag = gtk_idle_add(emugtk_running, 0);
+		running = 1;
+	}
 }
 
 /* Taken from the Gxine source code. */
@@ -75,6 +119,71 @@ AddPixButton(GtkWidget *box, gchar **pixmap_array)
 	gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
 
 	return button;
+}
+
+/* CPU reset and Gtk UI update */
+static void
+emugtk_Reset(void)
+{
+	cpu8051_Reset();
+	regwin_Show();
+	pgmwin_Disasm();
+	memwin_DumpD("00");
+}
+
+/* Signal ResetEvent (ResetButton) */
+static void
+emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+#ifdef EMU8051_DEBUG
+	g_print("emugtk_ResetEvent(...)\n");
+#endif
+	emugtk_stop_running();
+	emugtk_Reset();
+}
+
+/* CPU Step and Gtk UI update */
+static void
+emugtk_Step(void)
+{
+	cpu8051_Exec();
+	regwin_Show();
+	pgmwin_Disasm();
+	memwin_DumpD("00");
+}
+
+/* Signal RunEvent (RunButton) */
+static void
+emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+#ifdef EMU8051_DEBUG
+	g_print("emugtk_RunEvent(...)\n");
+#endif
+	if (running)
+		emugtk_stop_running();
+	else
+		emugtk_start_running();
+}
+
+/* Signal StopEvent (StopButton) */
+static void
+emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+#ifdef EMU8051_DEBUG
+	g_print("emugtk_StopEvent(...)\n");
+#endif
+	emugtk_stop_running();
+}
+
+/* Signal StepEvent (StepButton) */
+static void
+emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+#ifdef EMU8051_DEBUG
+	g_print("emugtk_StepEvent(...)\n");
+#endif
+	emugtk_stop_running();
+	emugtk_Step();
 }
 
 /* Creates the Reset, Run, Stop and Step buttons. */
@@ -114,7 +223,7 @@ AddButtons(void)
 	return button_hbox;
 }
 
-GtkWidget *
+static GtkWidget *
 AddMenu(void)
 {
 	GtkWidget *menu_bar;
@@ -203,10 +312,22 @@ emugtk_window_init(void)
 	gtk_widget_show_all(mainwin);
 }
 
+static void
+emugtk_UpdateDisplay(void)
+{
+#ifdef EMU8051_DEBUG
+	g_print("emugtk_UpdateDisplay()\n");
+#endif
+
+	regwin_Show();
+	pgmwin_Disasm();
+	memwin_DumpD("00");
+}
+
 void
 emugtk_new_file(char *file)
 {
-	emugtk_StopRunning();
+	emugtk_stop_running();
 
 	LoadHexFile(file);
 
@@ -223,7 +344,7 @@ main(int argc, char **argv)
 
 	cpu8051_init();
 
-	RunningState = 0;
+	running = 0;
 
 	gtk_init(&argc, &argv);
 
@@ -248,132 +369,4 @@ AddMenuSeparator(GtkWidget *menu)
 
 	item = gtk_menu_item_new();
 	gtk_menu_append(GTK_MENU(menu), item);
-}
-
-void
-emugtk_UpdateDisplay(void)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_UpdateDisplay()\n");
-#endif
-
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD("0x00");
-}
-
-/* CPU reset and Gtk UI update */
-void
-emugtk_Reset(void)
-{
-	cpu8051_Reset();
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD("0x00");
-}
-
-/* CPU Step and Gtk UI update */
-void
-emugtk_Step(void)
-{
-	cpu8051_Exec();
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD("0x00");
-}
-
-/* Signal ResetEvent (ResetButton) */
-void
-emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_ResetEvent(...)\n");
-#endif
-	emugtk_StopRunning();
-	emugtk_Reset();
-}
-
-/* Signal RunEvent (RunButton) */
-void
-emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_RunEvent(...)\n");
-#endif
-	if (RunningState)
-		emugtk_StopRunning();
-	else
-		emugtk_StartRunning();
-}
-
-/* Signal StopEvent (StopButton) */
-void
-emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_StopEvent(...)\n");
-#endif
-	emugtk_StopRunning();
-}
-
-/* Signal StepEvent (StepButton) */
-void
-emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_StepEvent(...)\n");
-#endif
-	emugtk_StopRunning();
-	emugtk_Step();
-}
-
-/* Running called by RunningFunction() */
-void
-emugtk_Running()
-{
-	cpu8051_Exec();
-	if (IsBreakpoint(cpu8051.pc)) {
-#ifdef EMU8051_DEBUG
-		g_print("Breakpoint Hit, stopping!\n");
-#endif
-		emugtk_StopRunning();
-	}
-}
-
-/* RunningFunction called when idle from gtk_main */
-gboolean
-RunningFunction(gpointer data)
-{
-	emugtk_Running();
-	return TRUE;
-}
-
-/* Get in the RunningState */
-void
-emugtk_StartRunning(void)
-{
-	if (!RunningState) {
-#ifdef EMU8051_DEBUG
-		printf("emugtk_StartRunning()\n");
-#endif
-		RunFuncTag = gtk_idle_add(RunningFunction, 0);
-
-		RunningState = 1;
-	}
-}
-
-/* Step out of RunningState */
-void
-emugtk_StopRunning()
-{
-	if (RunningState) {
-#ifdef EMU8051_DEBUG
-		printf("emugtk_StopRunning()\n");
-#endif
-		gtk_idle_remove(RunFuncTag);
-		RunningState = 0;
-		regwin_Show();
-		pgmwin_Disasm();
-		memwin_DumpD("0x00");
-	}
 }

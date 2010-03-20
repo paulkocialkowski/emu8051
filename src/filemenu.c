@@ -101,7 +101,6 @@ FileQuitEvent(gchar *string)
 	g_print("%s\n", string);
 #endif
 
-	emugtk_StopRunning();
 	gtk_main_quit();
 }
 

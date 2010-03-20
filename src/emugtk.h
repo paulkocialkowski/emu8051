@@ -31,33 +31,4 @@ AddMenuSeparator(GtkWidget *menu);
 void
 emugtk_new_file(char *file);
 
-void
-emugtk_StopRunning(void);
-
-void
-emugtk_Reset(void);
-
-void
-emugtk_UpdateDisplay(void);
-
-void emugtk_Step(void);
-
-void
-emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
-
-void
-emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
-
-void
-emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
-
-void
-emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
-
-void
-emugtk_StartRunning(void);
-
-void
-emugtk_Running(void);
-
 #endif /* EMUGTK_H */
