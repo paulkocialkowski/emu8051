@@ -22,35 +22,42 @@
 #ifndef EMUGTK_H
 #define EMUGTK_H 1
 
-
 #include <gtk/gtk.h>
 #include "gtksizes.h"
 
+void
+AddMenuSeparator(GtkWidget *menu);
 
 void
-AddMenuSeparator( GtkWidget *menu );
+emugtk_new_file(char *file);
 
 void
-emugtk_new_file( char *file );
+emugtk_StopRunning(void);
 
 void
-emugtk_StopRunning( void );
+emugtk_Reset(void);
 
 void
-emugtk_Reset( void );
+emugtk_UpdateDisplay(void);
+
+void emugtk_Step(void);
 
 void
-emugtk_UpdateDisplay( void );
+emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
 
-void emugtk_Step( );
+void
+emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
 
-void emugtk_ResetEvent( GtkWidget *widget, GdkEvent *event, gpointer data );
-void emugtk_RunEvent( GtkWidget *widget, GdkEvent *event, gpointer data );
-void emugtk_StopEvent( GtkWidget *widget, GdkEvent *event, gpointer data );
-void emugtk_StepEvent( GtkWidget *widget, GdkEvent *event, gpointer data );
+void
+emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
 
-void emugtk_StartRunning( );
+void
+emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data);
 
-void emugtk_Running( );
+void
+emugtk_StartRunning(void);
+
+void
+emugtk_Running(void);
 
 #endif /* EMUGTK_H */

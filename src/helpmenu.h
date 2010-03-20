@@ -24,9 +24,7 @@
 
 #include <gtk/gtk.h>
 
-
 void
-HelpAddMenu( GtkWidget *menu_bar );
-
+HelpAddMenu(GtkWidget *menu_bar);
 
 #endif /* HELPMENU_H */

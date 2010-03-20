@@ -24,9 +24,7 @@
 
 #include <gtk/gtk.h>
 
-
 void
-ViewAddMenu( GtkWidget *menu_bar );
-
+ViewAddMenu(GtkWidget *menu_bar);
 
 #endif /* VIEWMENU_H */

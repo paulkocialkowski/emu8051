@@ -78,7 +78,7 @@ print DISASM_H " * along with this program; if not, write to the Free Software\n
 print DISASM_H " * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.\n";
 print DISASM_H "*/\n\n";
 print DISASM_H "#ifndef DISASM_H\n";
-print DISASM_H "#define DISASM_H 1\n\n\n";
+print DISASM_H "#define DISASM_H 1\n\n";
 
 $nbinst=0;
 $nbaddr=0;
@@ -136,9 +136,12 @@ while($ligne=<OPCODELST>) {
     $instnumb++;
 }
 # ------------------------------------------------------------------------------
-print DISASM_H "// For all 256 opcodes, the value in this table gives the instruction type\n";
-print DISASM_H "// ex.: MOV, INC, CLR, CPL,...\n";
-print DISASM_H "// To know what is the instruction type, use the number as an offset in the InstTextTbl[]\n";
+print DISASM_H "/*\n";
+print DISASM_H " * For all 256 opcodes, the value in this table gives the instruction type\n";
+print DISASM_H " * ex.: MOV, INC, CLR, CPL,...\n";
+print DISASM_H " * To know what is the instruction type, use\n";
+print DISASM_H " * the number as an offset in the InstTextTbl[]\n";
+print DISASM_H " */\n";
 print DISASM_H "static int InstTypesTbl[] = {\n";
 for($i=0;$i<256;$i++) {
     print DISASM_H " $insttype[$i]";
@@ -146,9 +149,9 @@ for($i=0;$i<256;$i++) {
     if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
 }
 print DISASM_H "};\n";
-print DISASM_H "\n\n";
+print DISASM_H "\n";
 # ------------------------------------------------------------------------------
-print DISASM_H "// Size(in bytes) of each instruction (offset in table is instruction opcode)\n";
+print DISASM_H "/* Size(in bytes) of each instruction (offset in table is instruction opcode) */\n";
 print DISASM_H "static int InstSizesTbl[] = {\n";
 for($i=0;$i<256;$i++) {
     print DISASM_H " $nbbytes[$i]";
@@ -156,9 +159,9 @@ for($i=0;$i<256;$i++) {
     if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
 }
 print DISASM_H "};\n";
-print DISASM_H "\n\n";
+print DISASM_H "\n";
 # ------------------------------------------------------------------------------
-print DISASM_H "// List of instructions types referenced by InstTypesTbl[]\n";
+print DISASM_H "/* List of instructions types referenced by InstTypesTbl[] */\n";
 $nbelement=@insttext;
 print DISASM_H "\#define InstTextTblLength $nbelement\n";
 $elementnb=0;
@@ -169,14 +172,16 @@ foreach $instruc (@insttext) {
     print DISASM_H "\n";
 }
 print DISASM_H "};\n";
-print DISASM_H "\n\n";
+print DISASM_H "\n";
 # ------------------------------------------------------------------------------
-print DISASM_H "// Table describing all arguments types of an instruction\n";
-print DISASM_H "// The table is indexed InstArgTbl[ opcode * 4]\n";
-print DISASM_H "// InstArgTbl[opcode*4 + 1] gives the number of arguments the instruction has\n";
-print DISASM_H "// InstArgTbl[opcode*4 + i] for i=1,2 and 3 give the type of each argument\n";
-print DISASM_H "// for most instructions, the 3rd argument isn't used\n";
-print DISASM_H "// the argument type is referecing to ArgsTextTbl[]\n";
+print DISASM_H "/*\n";
+print DISASM_H " * Table describing all arguments types of an instruction\n";
+print DISASM_H " * The table is indexed InstArgTbl[ opcode * 4]\n";
+print DISASM_H " * InstArgTbl[opcode*4 + 1] gives the number of arguments the instruction has\n";
+print DISASM_H " * InstArgTbl[opcode*4 + i] for i=1,2 and 3 give the type of each argument\n";
+print DISASM_H " * for most instructions, the 3rd argument isn't used\n";
+print DISASM_H " * the argument type is referecing to ArgsTextTbl[]\n";
+print DISASM_H " */\n";
 print DISASM_H "\#define InstArgTblLength 256\n";
 print DISASM_H "static int InstArgTbl[] = {\n";
 for($i=0;$i<1024;$i++) {
@@ -185,10 +190,12 @@ for($i=0;$i<1024;$i++) {
     if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
 }
 print DISASM_H "};\n";
-print DISASM_H "\n\n";
+print DISASM_H "\n";
 # ------------------------------------------------------------------------------
-print DISASM_H "// List all types of arguments available to instructions\n";
-print DISASM_H "// Referenced by InstArgsTbl[]\n";
+print DISASM_H "/*\n";
+print DISASM_H " * List all types of arguments available to instructions\n";
+print DISASM_H " * Referenced by InstArgsTbl[]\n";
+print DISASM_H " */\n";
 $nbelement=@argstypes;
 print DISASM_H "\#define ArgsTextTblLength $nbelement\n";
 $elementnb=0;
@@ -199,7 +206,7 @@ foreach $args (@argstypes) {
     print DISASM_H "\n";
 }
 print DISASM_H "};\n";
-print DISASM_H "\n\n";
+print DISASM_H "\n";
 
 # ------------------------------------------------------------------------------
 for ($i=0 ; $i< 256; $i++) {
@@ -207,7 +214,7 @@ for ($i=0 ; $i< 256; $i++) {
     print INST_IMP " * Instruction \"$a_instruction[$i]\" takes $a_cycles[$i] cycle(s) and $a_bytes[$i] byte(s).\n";
     print INST_IMP " ","*"x76,"/\n";
     print INST_IMP "int\n";
-    print INST_IMP "cpu8051_OP_$a_opcodehex[$i]( void )\n";
+    print INST_IMP "cpu8051_OP_$a_opcodehex[$i](void)\n";
 # TEST hugo new...
 #    print INST_DEF "int OP_$a_opcodehex[$i]( );\n";
     print INST_IMP "{\n";
@@ -841,11 +848,11 @@ print INST_DEF "*/\n\n";
 
 print INST_DEF "#ifndef INSTRUCTIONS_8051_H\n";
 print INST_DEF "#define INSTRUCTIONS_8051_H 1\n\n\n";
-print INST_DEF "#define BANKPSW ( cpu8051_ReadD( _PSW_ ) & 0x18 )\n\n";
-print INST_DEF "typedef int (*OPCODE_FP)( void );\n\n\n";
+print INST_DEF "#define BANKPSW (cpu8051_ReadD(_PSW_) & 0x18)\n\n";
+print INST_DEF "typedef int (*OPCODE_FP)(void);\n\n\n";
 for( $i=0; $i<256; $i++ ) {
     print INST_DEF "int\n";
-    print INST_DEF "cpu8051_OP_$a_opcodehex[$i]( void );\n\n";
+    print INST_DEF "cpu8051_OP_$a_opcodehex[$i](void);\n\n";
 }
 print INST_DEF "\n";
 print INST_DEF "/* Exported variables. */\n";
@@ -868,12 +875,7 @@ print INST_DEF "#endif\n\n\n";
 
 print INST_DEF "#endif /* INSTRUCTIONS_8051_H */\n";
 
-
-
-
-
-
-print DISASM_H "\n\n#endif /* DISASM_H */\n";
+print DISASM_H "#endif /* DISASM_H */\n";
 
 close DISASM_H;
 close OPCODELST;

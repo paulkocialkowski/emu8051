@@ -33,13 +33,6 @@
 #include "hexfile.h"
 #include "keyboard.h"
 
-/* Maximum number of BreakPoints */
-#define MAXBP 32
-
-static int RunningState;
-static int NbBreakpoints;
-static unsigned int Breakpoints[MAXBP];
-
 /* Capitalize all letters in buffer */
 static void
 Capitalize(char *buffer)
@@ -61,50 +54,6 @@ RemoveSpaces(char *buffer)
 
 	if (k != 0)
 		strcpy(buffer, &buffer[k]);
-}
-
-/* Is the a breakpoint at Address */
-static int
-IsBreakpoint(unsigned int Address)
-{
-	int Index = 0;
-	while (Index < NbBreakpoints && (Breakpoints[Index] != Address))
-		Index++;
-
-	return ((Breakpoints[Index] == Address) && (Index < NbBreakpoints));
-}
-
-/* Show Breakpoints list */
-static void
-ShowBreakpoints(void)
-{
-	int Index;
-
-	for (Index = 0; Index < NbBreakpoints ; Index++)
-		printf("Breakpoint at Address = %.4X\n", Breakpoints[Index]);
-}
-
-/* Clear Breakpoint at Address from list */
-static void
-ClearBreakpoint(unsigned int Address)
-{
-	int Index = 0;
-	while ((Index < NbBreakpoints) && (Breakpoints[Index] != Address))
-		Index++;
-	if (Breakpoints[Index] != Address)
-		return;
-	Breakpoints[Index] = Breakpoints[NbBreakpoints - 1];
-	NbBreakpoints--;
-}
-
-/* Set Breakpoint at Address from list */
-static void
-SetBreakpoint(unsigned int Address)
-{
-	if (IsBreakpoint(Address))
-		return;
-	if (NbBreakpoints < MAXBP)
-		Breakpoints[NbBreakpoints++] = Address;
 }
 
 /* CPU exec and Console UI update */
@@ -375,10 +324,10 @@ console_main(void)
 		}
 
 		switch (Command[0]) {
-		case 'D':		
+		case 'D':
 			if (strlen(Parameter2) == 0) {
 				char buf[1024];
-				
+
 				if (STREQ(Command, "DB") &&
 				    (strlen(Parameter1) == 0))
 					ShowBreakpoints();
@@ -517,9 +466,6 @@ main(int argc, char **argv)
 	ParseCommandLineOptions(argc, argv);
 
 	cpu8051_init();
-
-	RunningState = 0;
-	NbBreakpoints = 0;
 
 	hex_file = get_hex_filename();
 

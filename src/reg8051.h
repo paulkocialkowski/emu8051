@@ -22,7 +22,6 @@
 #ifndef REG8051_H
 #define REG8051_H 1
 
-
 /* SFR Registers ( $80 - $FF ) */
 #define _ACC_       0xE0
 #define _B_         0xF0
@@ -62,6 +61,5 @@
 #define _BANK1_     0x08
 #define _BANK2_     0x10
 #define _BANK3_     0x18
-
 
 #endif /* REG8051_H */

@@ -32,101 +32,105 @@
 #include "messagebox.h"
 #include "filemenu.h"
 
-
 #define FILENAME_DESCRIPTION "Open Intel Hex file"
 
-
 static void
-FileOpenDialog_OK( GtkWidget *widget, gpointer file_dialog )
+FileOpenDialog_OK(GtkWidget *widget, gpointer file_dialog)
 {
-  char *selected_file;
+	char *selected_file;
 
 #if defined(DEBUG)
-  g_print( "FileOpenDialog_OK()\n" );
+	g_print("FileOpenDialog_OK()\n");
 #endif
-  
-  /* The cast to (char *) is to remove a warning in GTK2, because the return value of the
-     gtk_file_selection_get_filename() function is 'G_CONST_RETURN gchar *'. */
-  selected_file =
-    (char *) gtk_file_selection_get_filename( GTK_FILE_SELECTION(file_dialog) );
 
-  g_print( "emugtk_File = %s\n", selected_file );
+	/*
+	 * The cast to (char *) is to remove a warning in GTK2, because the
+	 * return value of the gtk_file_selection_get_filename() function is
+	 * 'G_CONST_RETURN gchar *'.
+	 */
+	selected_file = (char *) gtk_file_selection_get_filename(
+		GTK_FILE_SELECTION(file_dialog));
 
-  emugtk_new_file( selected_file );
+	g_print("emugtk_File = %s\n", selected_file);
 
-  gtk_widget_destroy( GTK_WIDGET(file_dialog) );
+	emugtk_new_file(selected_file);
+
+	gtk_widget_destroy(GTK_WIDGET(file_dialog));
 }
-
 
 void
-FileOpenEvent( GtkObject *object, gpointer data )
+FileOpenEvent(GtkObject *object, gpointer data)
 {
-  GtkWidget *file_dialog;
+	GtkWidget *file_dialog;
 
 #if defined(DEBUG)
-  g_print( "FileOpenEvent()\n" );
+	g_print("FileOpenEvent()\n");
 #endif
 
-  /* Create a new file selection widget. */
-  file_dialog = gtk_file_selection_new( FILENAME_DESCRIPTION );
-  
-  /* Connect the file dialog's OK button up to a handler. */
-  gtk_signal_connect( GTK_OBJECT( GTK_FILE_SELECTION(file_dialog)->ok_button ), "clicked",
-		      GTK_SIGNAL_FUNC(FileOpenDialog_OK), file_dialog );
+	/* Create a new file selection widget. */
+	file_dialog = gtk_file_selection_new(FILENAME_DESCRIPTION);
 
-  /* Ensure that the file selection dialog box is destroyed when the user clicks CANCEL. */
-  gtk_signal_connect_object( GTK_OBJECT( GTK_FILE_SELECTION(file_dialog)->cancel_button),
-			     "clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-			     (gpointer) file_dialog );
+	/* Connect the file dialog's OK button up to a handler. */
+	gtk_signal_connect(
+		GTK_OBJECT(GTK_FILE_SELECTION(file_dialog)->ok_button),
+		"clicked", GTK_SIGNAL_FUNC(FileOpenDialog_OK), file_dialog);
 
-  /* Set the 'File Open dialog' to show only Intel HEX files (.hex). */
-  /* gtk_file_selection_complete( GTK_FILE_SELECTION( FileOpendialog ), "*.hex" ); */
+	/*
+	 * Ensure that the file selection dialog box is destroyed when the user
+	 * clicks CANCEL.
+	 */
+	gtk_signal_connect_object(
+		GTK_OBJECT(GTK_FILE_SELECTION(file_dialog)->cancel_button),
+		"clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
+		(gpointer) file_dialog);
 
-  /* Show the dialog. */
-  gtk_widget_show( GTK_WIDGET(file_dialog) );
-  
-  /* To have the main window of our application being unusable while using the dialog. */
-  gtk_window_set_modal( GTK_WINDOW(file_dialog), TRUE );
+	/* Show the dialog. */
+	gtk_widget_show(GTK_WIDGET(file_dialog));
+
+	/*
+	 * To have the main window of our application being unusable while
+	 * using the dialog.
+	 */
+	gtk_window_set_modal(GTK_WINDOW(file_dialog), TRUE);
 }
-
 
 static void
-FileQuitEvent( gchar *string )
+FileQuitEvent(gchar *string)
 {
 #if defined(DEBUG)
-  g_print( "%s\n", string );
+	g_print("%s\n", string);
 #endif
 
-  emugtk_StopRunning();
-  gtk_main_quit();
+	emugtk_StopRunning();
+	gtk_main_quit();
 }
 
-
 void
-FileAddMenu( GtkWidget *menu_bar )
+FileAddMenu(GtkWidget *menu_bar)
 {
-  GtkWidget *item;
-  GtkWidget *menu;
-  
-  menu = gtk_menu_new();
-  
-  /* Create the 'open' item. */
-  item = gtk_menu_item_new_with_label( FILENAME_DESCRIPTION );
-  gtk_menu_append( GTK_MENU(menu), item );
-  /* Attach the callback functions to the activate signal. */
-  gtk_signal_connect_object( GTK_OBJECT(item), "activate", GTK_SIGNAL_FUNC(FileOpenEvent),
-			     NULL );
+	GtkWidget *item;
+	GtkWidget *menu;
 
-  AddMenuSeparator(menu);
+	menu = gtk_menu_new();
 
-  item = gtk_menu_item_new_with_label("Exit");
-  gtk_menu_append( GTK_MENU(menu), item );
-  /* We can attach the Quit menu item to our exit function */
-  gtk_signal_connect_object( GTK_OBJECT(item), "activate", GTK_SIGNAL_FUNC(FileQuitEvent),
-			     (gpointer) "file.quit" );
-  
-  /* Adding submenu title. */
-  item = gtk_menu_item_new_with_label( "File" );
-  gtk_menu_item_set_submenu( GTK_MENU_ITEM(item), menu );
-  gtk_menu_bar_append( GTK_MENU_BAR( menu_bar ), item );
+	/* Create the 'open' item. */
+	item = gtk_menu_item_new_with_label(FILENAME_DESCRIPTION);
+	gtk_menu_append(GTK_MENU(menu), item);
+	/* Attach the callback functions to the activate signal. */
+	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
+				  GTK_SIGNAL_FUNC(FileOpenEvent), NULL);
+
+	AddMenuSeparator(menu);
+
+	item = gtk_menu_item_new_with_label("Exit");
+	gtk_menu_append(GTK_MENU(menu), item);
+	/* We can attach the Quit menu item to our exit function */
+	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
+				  GTK_SIGNAL_FUNC(FileQuitEvent),
+				  (gpointer) "file.quit");
+
+	/* Adding submenu title. */
+	item = gtk_menu_item_new_with_label("File");
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), menu);
+	gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), item);
 }

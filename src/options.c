@@ -50,37 +50,33 @@ get_hex_filename(void)
  * Display the help message and exit
  ******************************************************************************/
 static void
-DisplayUsage( void )
+DisplayUsage(void)
 {
-  printf( COMMAND_LINE_OPTIONS );
+	printf(COMMAND_LINE_OPTIONS);
 }
-
 
 /*******************************************************************************
  * Display version information and exit
  ******************************************************************************/
 static void
-DisplayVersion( void )
+DisplayVersion(void)
 {
-  printf( "\n" );
-  printf( "  %s, version %s\n", PACKAGE, VERSION );
-  printf( "  Written by Jonathan St-André, Pascal Fecteau and Hugo Villeneuve\n\n" );
+	printf("\n");
+	printf("  %s, version %s\n", PACKAGE, VERSION);
+	printf("  Written by Jonathan St-André, Pascal Fecteau and Hugo Villeneuve\n\n");
 }
 
-
 static void
-InvalidOption( const char *message, /*@null@*/ const char *string )
+InvalidOption(const char *message, /*@null@*/ const char *string)
 {
-  if( string == NULL ) {
-    fprintf(stderr, "%s: %s\n", PACKAGE, message );
-  }
-  else {
-    fprintf(stderr, "%s: %s %s\n", PACKAGE, message, string );
-  }
+	if (string == NULL)
+		fprintf(stderr, "%s: %s\n", PACKAGE, message);
+	else
+		fprintf(stderr, "%s: %s %s\n", PACKAGE, message, string);
 
-  fprintf(stderr, "Try `%s -h' for more information.\n", PACKAGE );
+	fprintf(stderr, "Try `%s -h' for more information.\n", PACKAGE);
 
-  exit( EXIT_FAILURE );
+	exit(EXIT_FAILURE);
 }
 
 
@@ -88,44 +84,41 @@ InvalidOption( const char *message, /*@null@*/ const char *string )
  * Initializes the different options passed as arguments on the command line.
  ******************************************************************************/
 void
-ParseCommandLineOptions( int argc, char *argv[] )
+ParseCommandLineOptions(int argc, char *argv[])
 {
-  int i;
-  char *token;
+	int i;
+	char *token;
 
-  for( i = 1; i < argc; i++ ) {
-    token = argv[i];
-    switch( token[0] ) {
-    case '-':
-      /* Processing options names */
-      switch( token[1] ) {
-      case 'h':
-	if( strlen( &token[1] ) == 1 ) {
-	  DisplayUsage();
-	  exit( EXIT_SUCCESS );
-	}
-	InvalidOption( "invalid option", token );
-	break;
-      case 'v' :
-	if( STREQ( "version", &token[1] ) ) {
-	  DisplayVersion();
-	  exit( EXIT_SUCCESS );
-	}
-	else {
-	  InvalidOption( "invalid option", token );
-	}
-	break;
-      default:
-	InvalidOption( "invalid option", token );
-	break;
-      } /* end switch( token[1] ) */
-      break;
-    default:
-      /* Processing options arguments */
-      /* Must be the filename... */
-      hex_file = token;
-      break;
-    } /* end switch( token[0] ) */
-  } /* end for */
-  
+	for (i = 1; i < argc; i++) {
+		token = argv[i];
+		switch (token[0]) {
+		case '-':
+			/* Processing options names */
+			switch (token[1]) {
+			case 'h':
+				if (strlen(&token[1]) == 1) {
+					DisplayUsage();
+					exit(EXIT_SUCCESS);
+				}
+				InvalidOption("invalid option", token);
+				break;
+			case 'v':
+				if (STREQ("version", &token[1])) {
+					DisplayVersion();
+					exit(EXIT_SUCCESS);
+				} else
+					InvalidOption("invalid option", token);
+				break;
+			default:
+				InvalidOption("invalid option", token);
+				break;
+			} /* end switch(token[1]) */
+			break;
+		default:
+			/* Processing options arguments */
+			/* Must be the filename... */
+			hex_file = token;
+			break;
+		} /* end switch(token[0]) */
+	} /* end for */
 }

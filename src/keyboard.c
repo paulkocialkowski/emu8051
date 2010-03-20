@@ -30,13 +30,14 @@ kbhit(void)
 {
 	char ch;
 	int nread;
-	if(peek != -1) return 1;
-	newtio.c_cc[VMIN]=0;
+	if (peek != -1)
+		return 1;
+	newtio.c_cc[VMIN] = 0;
 	tcsetattr(0, TCSANOW, &newtio);
-	nread = read(0,&ch,1);
-	newtio.c_cc[VMIN]=1;
+	nread = read(0, &ch, 1);
+	newtio.c_cc[VMIN] = 1;
 	tcsetattr(0, TCSANOW, &newtio);
-	if(nread == 1) {
+	if (nread == 1) {
 		peek = ch;
 		return 1;
 	}
@@ -47,12 +48,12 @@ int
 getch(void)
 {
 	char ch;
-	if(peek != -1) {
+	if (peek != -1) {
 		ch = peek;
 		peek = -1;
 		return ch;
 	}
-	read(0,&ch,1);
+	read(0, &ch, 1);
 	return ch;
 }
 
@@ -72,5 +73,5 @@ InitUnixKB(void)
 void
 ResetUnixKB(void)
 {
-	tcsetattr(0,TCSANOW, &orig);
+	tcsetattr(0, TCSANOW, &orig);
 }

@@ -22,12 +22,18 @@
 #ifndef CPU8051_H
 #define CPU8051_H 1
 
-typedef struct cpu8051_t
-{
-  unsigned int pc;
-  unsigned long clock;
-  int active_priority;
-} cpu8051_t;
+#include <stdint.h>
+
+/* Maximum number of BreakPoints */
+#define MAXBP 32
+
+struct cpu8051_t {
+	unsigned int pc; /* Program counter */
+	unsigned long clock;
+	int active_priority;
+	int bp_count;
+	unsigned int bp[MAXBP]; /* List of breakpoints */
+};
 
 /* Exported variables */
 #undef _SCOPE_
@@ -37,36 +43,51 @@ typedef struct cpu8051_t
 #  define _SCOPE_ extern
 #endif
 
-_SCOPE_ cpu8051_t cpu8051;
-
-void
-cpu8051_init( void );
-
-void
-cpu8051_Exec( void );
-
-void
-cpu8051_Reset( void );
-
-void
-cpu8051_WriteD( unsigned int Address, unsigned char Value );
-
-void
-cpu8051_WriteI( unsigned int Address, unsigned char Value );
-
-void
-cpu8051_WriteB( unsigned int BitAddress, unsigned char Value );
-
-unsigned char
-cpu8051_ReadD( unsigned int Address );
-
-unsigned char
-cpu8051_ReadI( unsigned int Address );
-
-unsigned char
-cpu8051_ReadB( unsigned int BitAddress );
+_SCOPE_ struct cpu8051_t cpu8051;
 
 int
-cpu8051_Disasm( unsigned int Address, char *Text );
+IsBreakpoint(unsigned int Address);
+
+void
+ShowBreakpoints(void);
+
+void
+SetBreakpoint(unsigned int Address);
+
+void
+ClearBreakpoint(unsigned int Address);
+
+void
+ToggleBreakpoint(unsigned int Address);
+
+void
+cpu8051_init(void);
+
+void
+cpu8051_Exec(void);
+
+void
+cpu8051_Reset(void);
+
+void
+cpu8051_WriteD(unsigned int Address, unsigned char Value);
+
+void
+cpu8051_WriteI(unsigned int Address, unsigned char Value);
+
+void
+cpu8051_WriteB(uint8_t bit_address, uint8_t value);
+
+unsigned char
+cpu8051_ReadD(unsigned int Address);
+
+unsigned char
+cpu8051_ReadI(unsigned int Address);
+
+unsigned char
+cpu8051_ReadB(uint8_t bit_address);
+
+int
+cpu8051_Disasm(unsigned int Address, char *Text);
 
 #endif /* CPU8051_H */

@@ -26,6 +26,6 @@ unsigned int
 Ascii2Hex(char *istring, int length);
 
 void
-LoadHexFile( const char *filename );
+LoadHexFile(const char *filename);
 
 #endif /* HEXFILE_H */
