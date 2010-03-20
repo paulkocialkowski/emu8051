@@ -63,7 +63,8 @@ DisplayVersion(void)
 {
 	printf("\n");
 	printf("  %s, version %s\n", PACKAGE, VERSION);
-	printf("  Written by Jonathan St-André, Pascal Fecteau and Hugo Villeneuve\n\n");
+	printf("  Written by Jonathan St-AndrÃ©, Pascal Fecteau"
+	       "and Hugo Villeneuve\n\n");
 }
 
 static void

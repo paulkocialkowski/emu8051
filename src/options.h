@@ -33,7 +33,7 @@
   "\n" \
   "Written by\n" \
   "Hugo Villeneuve\n" \
-  "Jonathan St-André\n" \
+  "Jonathan St-AndrÃ©\n" \
   "Pascal Fecteau"
 
 void

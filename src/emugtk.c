@@ -56,7 +56,6 @@ WindowDestroyEvent(GtkWidget *widget, gpointer data)
 	gtk_main_quit();
 }
 
-
 /* Taken from the Gxine source code. */
 static GtkWidget *
 AddPixButton(GtkWidget *box, gchar **pixmap_array)
@@ -77,7 +76,6 @@ AddPixButton(GtkWidget *box, gchar **pixmap_array)
 
 	return button;
 }
-
 
 /* Creates the Reset, Run, Stop and Step buttons. */
 static GtkWidget *
@@ -116,7 +114,6 @@ AddButtons(void)
 	return button_hbox;
 }
 
-
 GtkWidget *
 AddMenu(void)
 {
@@ -138,7 +135,6 @@ AddMenu(void)
 
 	return menu_bar;
 }
-
 
 static void
 emugtk_window_init(void)
