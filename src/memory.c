@@ -42,21 +42,24 @@ memory_write8(int memory_id, unsigned long address, u_int8_t value)
 	switch (memory_id) {
 	case PGM_MEM_ID:
 		if (address >= PGM_MEM_SIZE) {
-			printf("Address is greater than PGM_MEM_SIZE\n");
+			printf("Address (%lu) is greater than PGM_MEM_SIZE\n",
+			       address);
 			return;
 		} else
 			pgm_mem[address] = value;
 		break;
 	case INT_MEM_ID:
 		if (address >= INT_MEM_SIZE) {
-			printf("Address is greater than INT_MEM_SIZE\n");
+			printf("Address (%lu) is greater than INT_MEM_SIZE\n",
+			       address);
 			return;
 		} else
 			int_mem[address] = value;
 		break;
 	case EXT_MEM_ID:
 		if (address >= EXT_MEM_SIZE) {
-			printf("Address is greater than EXT_MEM_SIZE\n");
+			printf("Address (%lu) is greater than EXT_MEM_SIZE\n",
+			       address);
 			return;
 		} else
 			ext_mem[address] = value;
@@ -75,7 +78,8 @@ memory_read8(int memory_id, unsigned long address)
 		if (address < PGM_MEM_SIZE)
 			return pgm_mem[address];
 		else {
-			printf("Address is greater than PGM_MEM_SIZE\n");
+			printf("Address (%lu) is greater than PGM_MEM_SIZE\n",
+				address);
 			return 0;
 		}
 		break;
@@ -83,7 +87,8 @@ memory_read8(int memory_id, unsigned long address)
 		if (address < INT_MEM_SIZE)
 			return int_mem[address];
 		else {
-			printf("Address is greater than INT_MEM_SIZE\n");
+			printf("Address (%lu) is greater than INT_MEM_SIZE\n",
+			       address);
 			return 0;
 		}
 		break;
@@ -91,7 +96,8 @@ memory_read8(int memory_id, unsigned long address)
 		if (address < EXT_MEM_SIZE)
 			return ext_mem[address];
 		else {
-			printf("Address is greater than EXT_MEM_SIZE\n");
+			printf("Address (%lu) is greater than EXT_MEM_SIZE\n",
+			       address);
 			return 0;
 		}
 		break;
