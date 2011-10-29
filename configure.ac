@@ -13,11 +13,6 @@ dnl Testing the C compiler.
 AM_PROG_CC_C_O
 AC_LANG_C
 
-dnl Checking for header files.
-AC_HEADER_STDC
-AC_HEADER_SYS_WAIT
-AC_CHECK_HEADERS(strings.h unistd.h)
-
 dnl Checking for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_PID_T

@@ -325,6 +325,15 @@ emugtk_UpdateDisplay(void)
 }
 
 void
+AddMenuSeparator(GtkWidget *menu)
+{
+	GtkWidget *item;
+
+	item = gtk_menu_item_new();
+	gtk_menu_append(GTK_MENU(menu), item);
+}
+
+void
 emugtk_new_file(char *file)
 {
 	emugtk_stop_running();
@@ -357,16 +366,9 @@ main(int argc, char **argv)
 
 	gtk_main();
 
+#ifdef EMU8051_DEBUG
 	printf("End of program.\n");
+#endif
 
 	return EXIT_SUCCESS;
-}
-
-void
-AddMenuSeparator(GtkWidget *menu)
-{
-	GtkWidget *item;
-
-	item = gtk_menu_item_new();
-	gtk_menu_append(GTK_MENU(menu), item);
 }
