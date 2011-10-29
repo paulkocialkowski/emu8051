@@ -282,7 +282,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    }
 	    if ($op_destination == 15) { # reladdr
 		print INST_IMP "cpu8051.pc++;\n";
-		print INST_IMP "unsigned int destination = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) + cpu8051.pc ) & 0xFF ) + ( cpu8051.pc & 0xFF00 );\n";
+		print INST_IMP "unsigned int destination = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;\n";
 	    }
 	    if ($op_destination == 16) { # #data
 		print INST_IMP "unsigned char destination = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
@@ -367,7 +367,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    }
 	    if ($op_source == 15) { # reladdr
 		print INST_IMP "(cpu8051.pc)++;\n";
-		print INST_IMP "unsigned int source = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) + cpu8051.pc ) & 0xFF ) + ( cpu8051.pc & 0xFF00 );\n";
+		print INST_IMP "unsigned int source = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;\n";
 	    }
 	    if ($op_source == 16) { # #data
 		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
@@ -609,7 +609,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# CJNE
 	if ($insttype[$i] == 34) {
-	    print INST_IMP "unsigned int reladdr = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc ) + ( ( cpu8051.pc + 1 ) & 0x00FF ) ) & 0x00FF ) + ( ( cpu8051.pc + 1 ) & 0xFF00 );\n";
+	    print INST_IMP "unsigned int reladdr = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);\n";
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) );\n";
 	    print INST_IMP "if ( destination < source ) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
 	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr;\n";
