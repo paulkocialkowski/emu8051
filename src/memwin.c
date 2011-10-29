@@ -29,6 +29,7 @@
 #include "memory.h"
 #include "hexfile.h"
 #include "cpu8051.h"
+#include "gtksizes.h"
 #include "memwin.h"
 
 static GtkWidget *memclist;
@@ -56,13 +57,15 @@ memwin_init(int width, int height)
 			GTK_CLIST(memclist), i, GTK_JUSTIFY_LEFT);
 	}
 
-	gtk_clist_set_column_width(GTK_CLIST(memclist), 0, 5*8);
+	gtk_clist_set_column_width(GTK_CLIST(memclist), 0,
+				   5 * FIXED_FONT_SYMBOL_WIDTH);
 
 	for (i = 1; i < 17; i++)
-		gtk_clist_set_column_width(GTK_CLIST(memclist), i, 2 * 8);
+		gtk_clist_set_column_width(GTK_CLIST(memclist), i,
+					   2 * FIXED_FONT_SYMBOL_WIDTH);
 
-	gtk_clist_set_column_width(GTK_CLIST(memclist), 17, 16 * 8);
-
+	gtk_clist_set_column_width(GTK_CLIST(memclist), 17,
+				   16 * FIXED_FONT_SYMBOL_WIDTH);
 
 	pango_font = pango_font_description_from_string(FIXED_FONT);
 	gtk_widget_modify_font(memclist, pango_font);

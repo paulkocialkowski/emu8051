@@ -22,24 +22,31 @@
 #ifndef _GTKSIZES_H_
 #define _GTKSIZES_H_
 
+/* Width, in pixels, of a fixed font symbol. */
+#define FIXED_FONT_SYMBOL_WIDTH 10
+
+/* Height, in pixels, of a fixed font symbol. */
+#define FIXED_FONT_SYMBOL_HEIGHT 22
+
 #define NUMBER_OF_BUTTONS  5
 #define BUTTON_WIDTH       60
 #define BUTTON_HEIGHT      60
 #define BUTTONS_BAR_WIDTH  (NUMBER_OF_BUTTONS * BUTTON_WIDTH)
 #define BUTTONS_BAR_HEIGHT BUTTON_HEIGHT
 
-#define REG_WIN_WIDTH      100
-#define REG_WIN_HEIGHT     390
+/* 12 symbols + border. */
+#define REG_WIN_WIDTH      (FIXED_FONT_SYMBOL_WIDTH * 13)
+#define REG_WIN_HEIGHT     (FIXED_FONT_SYMBOL_HEIGHT * 24)
 
-#define PGM_WIN_WIDTH      480
-#define PGM_WIN_HEIGHT     390
+#define MEM_WIN_WIDTH      (FIXED_FONT_SYMBOL_WIDTH * 68) /* 68 symbols. */
+#define MEM_WIN_HEIGHT     (FIXED_FONT_SYMBOL_HEIGHT * 17)
 
-#define MEM_WIN_WIDTH      590
-#define MEM_WIN_HEIGHT     280
+#define PGM_WIN_WIDTH      (MEM_WIN_WIDTH - REG_WIN_WIDTH)
+#define PGM_WIN_HEIGHT     REG_WIN_HEIGHT
 
 #define MENU_BAR_HEIGHT    0
 
-#define MAIN_WIN_WIDTH     (REG_WIN_WIDTH + PGM_WIN_WIDTH)
+#define MAIN_WIN_WIDTH     MEM_WIN_WIDTH
 #define MAIN_WIN_HEIGHT    (BUTTONS_BAR_HEIGHT + REG_WIN_HEIGHT + MEM_WIN_HEIGHT)
 
 #endif /* _GTKSIZES_H_ */
