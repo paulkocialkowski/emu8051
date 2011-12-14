@@ -224,9 +224,9 @@ console_main(void)
 		"  Set Breakpoint.............. SB [address]",
 		"  Remove Breakpoint........... RB [address]",
 		"  Display Breakpoint(s)....... DB",
-		"  Dump External Data Memory... DE [address]",
-		"  Dump Internal Data Memory... DI [address]",
-		"  Dump Program Memory......... DP [address]",
+		"  Dump External Data Memory... DE [address] [size]",
+		"  Dump Internal Data Memory... DI [address] [size]",
+		"  Dump Program Memory......... DP [address] [size]",
 		"  Display Registers content... DR",
 		"  Execute..................... EM [address"
 		" [number of instructions]]",
@@ -325,29 +325,21 @@ console_main(void)
 
 		switch (Command[0]) {
 		case 'D':
-			if (strlen(Parameter2) == 0) {
-				char buf[1024];
-
-				if (STREQ(Command, "DB") &&
-				    (strlen(Parameter1) == 0))
-					ShowBreakpoints();
-				else if (STREQ(Command, "DE")) {
-					DumpMem(buf, Parameter1, EXT_MEM_ID);
-					printf(buf);
-				} else if (STREQ(Command, "DI")) {
-					DumpMem(buf, Parameter1, INT_MEM_ID);
-					printf(buf);
-				} else if (STREQ(Command, "DP")) {
-					if ((strlen(Parameter1) == 0))
-						strcpy(Parameter1, "PC");
-					DumpMem(buf, Parameter1, PGM_MEM_ID);
-					printf(buf);
-				} else if (STREQ(Command, "DR") &&
-					   (strlen(Parameter1) == 0))
-					console_show_registers();
-				else
-					goto syntax_error;
-			} else
+			if (STREQ(Command, "DB") &&
+			    (strlen(Parameter1) == 0))
+				ShowBreakpoints();
+			else if (STREQ(Command, "DE"))
+				DumpMem(Parameter1, Parameter2, EXT_MEM_ID);
+			else if (STREQ(Command, "DI"))
+				DumpMem(Parameter1, Parameter2, INT_MEM_ID);
+			else if (STREQ(Command, "DP")) {
+				if ((strlen(Parameter1) == 0))
+					strcpy(Parameter1, "PC");
+				DumpMem(Parameter1, Parameter2, PGM_MEM_ID);
+			} else if (STREQ(Command, "DR") &&
+				   (strlen(Parameter1) == 0))
+				console_show_registers();
+			else
 				goto syntax_error;
 			break;
 		case 'E':
@@ -473,7 +465,10 @@ main(int argc, char **argv)
 		LoadHexFile(hex_file);
 
 	console_main();
+
+#ifdef EMU8051_DEBUG
 	printf("End of program.\n");
+#endif
 
 	return 0;
 }

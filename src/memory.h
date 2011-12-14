@@ -37,6 +37,6 @@ u_int8_t
 memory_read8(int memory_id, unsigned long address);
 
 void
-DumpMem(char *buf, char *Address, int memory_id);
+DumpMem(char *Address, char *Asize, int memory_id);
 
 #endif /* MEMORY_H */

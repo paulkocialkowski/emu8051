@@ -1,3 +1,13 @@
+2011-12-11: emu8051-1.1.1 has been released (from emu8051-1.1.1-rc2).
+
+2011-11-20: emu8051-1.1.1-rc2 has been released.
+        Added optional size parameter when dumping memory.
+        Created two separate executables, emu8051-cli (default)
+          and optional emu8051-gtk if Gtk+ is detected.
+        See the file 'ChangeLog' for further details.
+
+2011-10-29: emu8051-1.1.1-rc1 has been released.
+        Fixed SJMP error and improved columns and rows sizing
 
 2010-03-19: emu8051-1.1.0 has been released.
         Reintroduced the console mode if no GTK+ librairies are

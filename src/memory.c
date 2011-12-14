@@ -110,12 +110,11 @@ memory_read8(int memory_id, unsigned long address)
 
 /* Dump memory */
 void
-DumpMem(char *buf, char *Address, int memory_id)
+DumpMem(char *Address, char *Asize, int memory_id)
 {
 	unsigned int MemAddress;
+	int size;
 	int Offset, Column;
-	int size = 256;
-	int k = 0;
 
 	if (strlen(Address) != 0) {
 		if (STREQ(Address, "PC"))
@@ -126,33 +125,32 @@ DumpMem(char *buf, char *Address, int memory_id)
 		MemAddress = 0;
 	}
 
+	if (strlen(Asize) != 0) {
+		size = Ascii2Hex(Asize, strlen(Asize));
+	} else {
+		size = 256; /* Default size if not specified. */
+	}
+
 	for (Offset = 0; Offset < size; Offset += 16) {
 		unsigned char data[16];
 
-		sprintf(&buf[k], "%.4X ", MemAddress + Offset);
-		k = strlen(buf);
+		printf("%.4X ", MemAddress + Offset);
 
 		for (Column = 0; Column < 16; Column++) {
 			data[Column] = memory_read8(memory_id, MemAddress +
 						    Offset + Column);
-			sprintf(&buf[k], " %.2X", (int) data[Column]);
-			k = strlen(buf);
+			printf(" %.2X", (int) data[Column]);
 		}
-		sprintf(&buf[k], "  ");
-		k = strlen(buf);
+		printf("  ");
 
 		/* Display any ASCII characters */
 		for (Column = 0; Column < 16; Column++) {
 			if ((int) data[Column] >= 32 &&
 			    (int) data[Column] <= 126) {
-				sprintf(&buf[k], "%c", data[Column]);
-				k = strlen(buf);
-			} else {
-				sprintf(&buf[k], ".");
-				k = strlen(buf);
-			}
+				printf("%c", data[Column]);
+			} else
+				printf(".");
 		}
-		sprintf(&buf[k], "\n");
-		k = strlen(buf);
+		printf("\n");
 	}
 }
