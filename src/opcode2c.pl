@@ -215,8 +215,6 @@ for ($i=0 ; $i< 256; $i++) {
     print INST_IMP " ","*"x76,"/\n";
     print INST_IMP "int\n";
     print INST_IMP "cpu8051_OP_$a_opcodehex[$i](void)\n";
-# TEST hugo new...
-#    print INST_DEF "int OP_$a_opcodehex[$i]( );\n";
     print INST_IMP "{\n";
 
     if( $i == 0x85 ) {
