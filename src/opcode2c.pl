@@ -610,7 +610,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    print INST_IMP "unsigned int reladdr = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);\n";
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) );\n";
 	    print INST_IMP "if ( destination < source ) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
-	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr;\n";
+	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++; \n";
 	}
 
 	# PUSH
