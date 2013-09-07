@@ -116,7 +116,7 @@ while($ligne=<OPCODELST>) {
 	    $instargs[($instnumb << 2) + $i + 1]=$argstypes{$argslist[$i]};
 	}
     }
-	
+
     if (not exists $insttext{$wordlist[2]}) {
 	$insttext[$nbinst]=$wordlist[2];
 	$insttext{$wordlist[2]}=$nbinst++;
@@ -251,7 +251,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($op_destination == 5) { # @R1
 		print INST_IMP "unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );\n";
 	    }
-	    
+
 	    if ($op_destination == 6) { # R0
 		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R0_ );\n";
 	    }
