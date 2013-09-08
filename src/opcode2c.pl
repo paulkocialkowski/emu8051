@@ -230,7 +230,8 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
 	    if ($op_destination == 0) { # addr11
-		print INST_IMP "  unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
+		print INST_IMP "  unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, cpu8051.pc );\n";
+		print INST_IMP "  cpu8051.pc++;\n";
 	    }
 	    if ($op_destination == 1) { # addr16
 		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, cpu8051.pc++ ) << 8 );\n";
