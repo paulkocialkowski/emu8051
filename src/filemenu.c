@@ -38,6 +38,7 @@ void
 FileOpenEvent(GtkObject *object, gpointer data)
 {
 	GtkWidget *file_dialog;
+	char *cwd;
 
 #if defined(DEBUG)
 	g_print("FileOpenEvent()\n");
@@ -48,6 +49,11 @@ FileOpenEvent(GtkObject *object, gpointer data)
 		FILENAME_DESCRIPTION, NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
+
+	/* Opening file chooser to current working directory. */
+	cwd = g_get_current_dir();
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_dialog), cwd);
+	g_free (cwd);
 
 	if (gtk_dialog_run(GTK_DIALOG(file_dialog)) == GTK_RESPONSE_ACCEPT) {
 		char *selected_file;
