@@ -255,7 +255,6 @@ console_main(void)
 	while (!QuitRequest) {
 		int slen;
 		size_t len = 0;
-		ssize_t bytes_read;
 		char Command[256];
 		char Args[256];
 		char Parameter1[256];
@@ -265,7 +264,7 @@ console_main(void)
 		Parameter2[0] = '\0';
 
 		printf(prompt);
-		bytes_read = getline(&line, &len, stdin);
+		(void) getline(&line, &len, stdin);
 		Capitalize(line);
 		RemoveSpaces(line);
 
