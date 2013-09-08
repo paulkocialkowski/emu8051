@@ -34,30 +34,6 @@
 
 #define FILENAME_DESCRIPTION "Open Intel Hex file"
 
-static void
-FileOpenDialog_OK(GtkWidget *widget, gpointer file_dialog)
-{
-	char *selected_file;
-
-#if defined(DEBUG)
-	g_print("FileOpenDialog_OK()\n");
-#endif
-
-	/*
-	 * The cast to (char *) is to remove a warning in GTK2, because the
-	 * return value of the gtk_file_selection_get_filename() function is
-	 * 'G_CONST_RETURN gchar *'.
-	 */
-	selected_file = (char *) gtk_file_selection_get_filename(
-		GTK_FILE_SELECTION(file_dialog));
-
-	g_print("emugtk_File = %s\n", selected_file);
-
-	emugtk_new_file(selected_file);
-
-	gtk_widget_destroy(GTK_WIDGET(file_dialog));
-}
-
 void
 FileOpenEvent(GtkObject *object, gpointer data)
 {
@@ -68,30 +44,28 @@ FileOpenEvent(GtkObject *object, gpointer data)
 #endif
 
 	/* Create a new file selection widget. */
-	file_dialog = gtk_file_selection_new(FILENAME_DESCRIPTION);
+	file_dialog = gtk_file_chooser_dialog_new(
+		FILENAME_DESCRIPTION, NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
+		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
-	/* Connect the file dialog's OK button up to a handler. */
-	gtk_signal_connect(
-		GTK_OBJECT(GTK_FILE_SELECTION(file_dialog)->ok_button),
-		"clicked", GTK_SIGNAL_FUNC(FileOpenDialog_OK), file_dialog);
+	if (gtk_dialog_run(GTK_DIALOG(file_dialog)) == GTK_RESPONSE_ACCEPT) {
+		char *selected_file;
 
-	/*
-	 * Ensure that the file selection dialog box is destroyed when the user
-	 * clicks CANCEL.
-	 */
-	gtk_signal_connect_object(
-		GTK_OBJECT(GTK_FILE_SELECTION(file_dialog)->cancel_button),
-		"clicked", GTK_SIGNAL_FUNC(gtk_widget_destroy),
-		(gpointer) file_dialog);
+		selected_file = gtk_file_chooser_get_filename(
+			GTK_FILE_CHOOSER(file_dialog));
 
-	/* Show the dialog. */
-	gtk_widget_show(GTK_WIDGET(file_dialog));
+		if (selected_file != NULL) {
+#if defined(DEBUG)
+			g_print("emugtk_File = %s\n", selected_file);
+#endif
 
-	/*
-	 * To have the main window of our application being unusable while
-	 * using the dialog.
-	 */
-	gtk_window_set_modal(GTK_WINDOW(file_dialog), TRUE);
+			emugtk_new_file(selected_file);
+			g_free(selected_file);
+		}
+	}
+
+	gtk_widget_destroy(file_dialog);
 }
 
 static void
