@@ -34,11 +34,37 @@
 
 #define FILENAME_DESCRIPTION "Open Intel Hex file"
 
+static char previous_folder[MAX_FILENAME_LENGTH + 1];
+
+static void
+remember_current_folder(GtkFileChooser *chooser)
+{
+	char *folder;
+
+	folder = gtk_file_chooser_get_current_folder(chooser);
+
+	if (folder != NULL) {
+		if (strlen(folder) >= MAX_FILENAME_LENGTH) {
+			/* Non-critical error */
+			g_print("current folder name too long for buffer\n");
+		} else {
+#if defined(DEBUG)
+			g_print("current folder = %s\n", folder);
+#endif
+
+			strncpy(previous_folder, folder, MAX_FILENAME_LENGTH);
+		}
+
+		g_free(folder);
+	}
+}
+
 void
 FileOpenEvent(GtkObject *object, gpointer data)
 {
 	GtkWidget *file_dialog;
-	char *cwd;
+	char *dir;
+	char *cwd = NULL;
 
 #if defined(DEBUG)
 	g_print("FileOpenEvent()\n");
@@ -50,10 +76,19 @@ FileOpenEvent(GtkObject *object, gpointer data)
 		GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 		GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL);
 
-	/* Opening file chooser to current working directory. */
-	cwd = g_get_current_dir();
-	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_dialog), cwd);
-	g_free (cwd);
+	if (strlen(previous_folder) == 0) {
+		/* Opening file chooser to current working directory. */
+		cwd = g_get_current_dir();
+		dir = cwd;
+	} else {
+		/* Opening file chooser to previous opened directory. */
+		dir = previous_folder;
+	}
+
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(file_dialog), dir);
+
+	if (cwd)
+		g_free(cwd);
 
 	if (gtk_dialog_run(GTK_DIALOG(file_dialog)) == GTK_RESPONSE_ACCEPT) {
 		char *selected_file;
@@ -65,6 +100,8 @@ FileOpenEvent(GtkObject *object, gpointer data)
 #if defined(DEBUG)
 			g_print("emugtk_File = %s\n", selected_file);
 #endif
+
+			remember_current_folder(GTK_FILE_CHOOSER(file_dialog));
 
 			emugtk_new_file(selected_file);
 			g_free(selected_file);

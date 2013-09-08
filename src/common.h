@@ -37,6 +37,8 @@
 
 #define FIXED_FONT "monospace 12"
 
+#define MAX_FILENAME_LENGTH 1024
+
 /* Common constants. */
 #ifndef EXIT_SUCCESS
 #  define EXIT_SUCCESS 0
