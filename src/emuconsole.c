@@ -60,7 +60,6 @@ RemoveSpaces(char *buffer)
 static void
 console_exec(char *Address, char *NumberInst)
 {
-	char dummy;
 	int NbInst = -1; /* -1 is infinity */
 	if (strlen(Address) == 0) {
 		printf("Invalid address\n");
@@ -83,7 +82,7 @@ console_exec(char *Address, char *NumberInst)
 			NbInst--;
 	} while (!IsBreakpoint(cpu8051.pc) && (NbInst != 0) && !kbhit());
 	if (kbhit()) {
-		dummy = getch(); /* Flush key */
+		(void) getch(); /* Flush key */
 		printf("Caught break signal!\n");
 	}
 	if (NbInst == 0)
