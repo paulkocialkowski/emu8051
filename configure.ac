@@ -1,7 +1,7 @@
 # configure.ac -- Process this file with autoconf to produce configure
 
 dnl Initialization stuff.
-AC_INIT(emu8051, 1.1.1)
+AC_INIT(emu8051, 1.1.2)
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_SRCDIR(src/cpu8051.c)
 AM_CONFIG_HEADER(config.h:config-h.in)

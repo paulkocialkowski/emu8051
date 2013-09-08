@@ -1,3 +1,6 @@
+2013-09-07: emu8051-1.1.2 has been released
+        Fix error with CJNE instruction.
+
 2011-12-11: emu8051-1.1.1 has been released (from emu8051-1.1.1-rc2).
 
 2011-11-20: emu8051-1.1.1-rc2 has been released.

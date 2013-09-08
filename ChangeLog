@@ -1,18 +1,24 @@
+2013-09-07  Hugo Villeneuve  <hugo@hugovil.com>
+	* Fix compiler warnings
+        * Fix error with CJNE instruction.
+	  Error report and patch submission by Tobias Diedrich
+	  (ranma at tdiedrich.de).
+
 2011-12-11  Hugo Villeneuve  <hugo@hugovil.com>
-        Added optional size parameter when dumping memory.
-        Created two separate executables, emu8051-cli (default)
+        * Added optional size parameter when dumping memory.
+        * Created two separate executables, emu8051-cli (default)
           and optional emu8051-gtk if Gtk+ is detected.
 
 2011-10-29  Hugo Villeneuve  <hugo@hugovil.com>
-        Fixed SJMP error and improved columns and rows sizing.
-	Error reported and patch submitted by Pierre Ferrari
-	(piferr4ri at gmail.com).
+        * Fixed SJMP error and improved columns and rows sizing.
+	  Error reported and patch submitted by Pierre Ferrari
+	  (piferr4ri at gmail.com).
 
 2010-03-19  Hugo Villeneuve  <hugo@hugovil.com>
-        Reintroduced the console mode if no GTK+ librairies are
-        detected. The default is to build the GUI if GTK+ is detected,
-	but the console mode can always be forced by using
-	"--enable-gui=no" as a configure option.
+        * Reintroduced the console mode if no GTK+ librairies are
+          detected. The default is to build the GUI if GTK+ is detected,
+	  but the console mode can always be forced by using
+	  "--enable-gui=no" as a configure option.
 
 2009-02-09  Hugo Villeneuve  <hugo@hugovil.com>
         * Updated Free Software Foundation address.
