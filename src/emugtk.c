@@ -64,7 +64,7 @@ emugtk_stop_running()
 #ifdef EMU8051_DEBUG
 		printf("emugtk_StopRunning()\n");
 #endif
-		gtk_idle_remove(running_function_tag);
+		g_source_remove(running_function_tag);
 		running = 0;
 		regwin_Show();
 		pgmwin_Disasm();
@@ -95,7 +95,7 @@ emugtk_start_running(void)
 #ifdef EMU8051_DEBUG
 		printf("emugtk_StartRunning()\n");
 #endif
-		running_function_tag = gtk_idle_add(emugtk_running, 0);
+		running_function_tag = g_idle_add(emugtk_running, 0);
 		running = 1;
 	}
 }
