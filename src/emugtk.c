@@ -200,27 +200,27 @@ AddButtons(void)
 
 	/* Creating the RESET button. */
 	button = button_add_pix(button_hbox, reset_xpm);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			   GTK_SIGNAL_FUNC(emugtk_ResetEvent),
-			   NULL);
+	g_signal_connect(button, "clicked",
+			 G_CALLBACK(emugtk_ResetEvent),
+			 NULL);
 
 	/* Creating the RUN button. */
 	button = button_add_pix(button_hbox, run_xpm);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			   GTK_SIGNAL_FUNC(emugtk_RunEvent),
-			   NULL);
+	g_signal_connect(button, "clicked",
+			 G_CALLBACK(emugtk_RunEvent),
+			 NULL);
 
 	/* Creating STOP button. */
 	button = button_add_pix(button_hbox, stop_xpm);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			   GTK_SIGNAL_FUNC(emugtk_StopEvent),
-			   NULL);
+	g_signal_connect(GTK_OBJECT(button), "clicked",
+			 G_CALLBACK(emugtk_StopEvent),
+			 NULL);
 
 	/* Creating STEP button. */
 	button = button_add_pix(button_hbox, step_xpm);
-	gtk_signal_connect(GTK_OBJECT(button), "clicked",
-			   GTK_SIGNAL_FUNC(emugtk_StepEvent),
-			   NULL);
+	g_signal_connect(GTK_OBJECT(button), "clicked",
+			 G_CALLBACK(emugtk_StepEvent),
+			 NULL);
 
 	return button_hbox;
 }
@@ -263,8 +263,8 @@ emugtk_window_init(void)
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);
 
 	/* Window DESTROY event. */
-	gtk_signal_connect(GTK_OBJECT(mainwin), "destroy",
-			   GTK_SIGNAL_FUNC(WindowDestroyEvent), NULL);
+	g_signal_connect(mainwin, "destroy",
+			 G_CALLBACK(WindowDestroyEvent), NULL);
 
 	/*
 	 * Setting main window geometry based on command line options
