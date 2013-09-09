@@ -36,7 +36,9 @@ AC_ARG_ENABLE(gui,
 AC_MSG_CHECKING([whether to build GUI])
 if test x$ac_cv_enable_gui = xyes; then
 	AC_MSG_RESULT(yes)
-        PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, :, ac_cv_enable_gui=no)
+        PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.0, CFLAGS="${CFLAGS} -DGDK_PIXBUF_DISABLE_DEPRECATED -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED", dnl
+        ac_cv_enable_gui=no)
+
 	if test x$ac_cv_enable_gui = xyes; then
 	    AC_DEFINE([HAVE_GTK],1,[Set to 1 to enable GTK+ support for building GUI.])
             AC_SUBST(GTK_CFLAGS)
