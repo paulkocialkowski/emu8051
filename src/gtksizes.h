@@ -28,10 +28,7 @@
 /* Height, in pixels, of a fixed font symbol. */
 #define FIXED_FONT_SYMBOL_HEIGHT 22
 
-#define NUMBER_OF_BUTTONS  5
-#define BUTTON_WIDTH       60
 #define BUTTON_HEIGHT      60
-#define BUTTONS_BAR_WIDTH  (NUMBER_OF_BUTTONS * BUTTON_WIDTH)
 #define BUTTONS_BAR_HEIGHT BUTTON_HEIGHT
 
 /* 12 symbols + border. */

@@ -22,6 +22,9 @@
 #include <stdio.h>
 #include "config.h"
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 
 #include "common.h"
@@ -102,18 +105,15 @@ emugtk_start_running(void)
 
 /* Taken from the Gxine source code. */
 static GtkWidget *
-AddPixButton(GtkWidget *box, gchar **pixmap_array)
+button_add_pix(GtkWidget *box, char **xpm)
 {
 	GtkWidget *button, *icon;
-	GdkPixmap *image;
-	GdkBitmap *transparent;
 
 	button = gtk_button_new();
 	gtk_button_set_relief(GTK_BUTTON(button), GTK_RELIEF_NORMAL);
-	image = gdk_pixmap_colormap_create_from_xpm_d(
-		NULL, gdk_colormap_get_system(),
-		&transparent, NULL, pixmap_array);
-	icon = gtk_pixmap_new(image, transparent);
+
+	icon = gtk_image_new_from_pixbuf(
+		gdk_pixbuf_new_from_xpm_data((const char **) xpm));
 	gtk_container_add(GTK_CONTAINER(button), icon);
 
 	gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
@@ -197,25 +197,25 @@ AddButtons(void)
 	button_hbox = gtk_hbox_new(FALSE, 0);
 
 	/* Creating the RESET button. */
-	button = AddPixButton(button_hbox, reset_xpm);
+	button = button_add_pix(button_hbox, reset_xpm);
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(emugtk_ResetEvent),
 			   NULL);
 
 	/* Creating the RUN button. */
-	button = AddPixButton(button_hbox, run_xpm);
+	button = button_add_pix(button_hbox, run_xpm);
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(emugtk_RunEvent),
 			   NULL);
 
 	/* Creating STOP button. */
-	button = AddPixButton(button_hbox, stop_xpm);
+	button = button_add_pix(button_hbox, stop_xpm);
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(emugtk_StopEvent),
 			   NULL);
 
 	/* Creating STEP button. */
-	button = AddPixButton(button_hbox, step_xpm);
+	button = button_add_pix(button_hbox, step_xpm);
 	gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			   GTK_SIGNAL_FUNC(emugtk_StepEvent),
 			   NULL);
