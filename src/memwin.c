@@ -46,11 +46,11 @@ memwin_init(int width, int height)
 	fixed_frame = gtk_frame_new(0);
 	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame),
 				  GTK_SHADOW_ETCHED_OUT);
-	gtk_widget_set_usize(GTK_WIDGET(fixed_frame), width, height);
+	gtk_widget_set_size_request(GTK_WIDGET(fixed_frame), width, height);
 
 	memclist = gtk_clist_new(18);
 	gtk_clist_set_selection_mode(GTK_CLIST(memclist), GTK_SELECTION_SINGLE);
-	gtk_widget_set_usize(GTK_WIDGET(memclist), 620, 250);
+	gtk_widget_set_size_request(GTK_WIDGET(memclist), 620, 250);
 
 	for (i = 0; i < 18; i++) {
 		gtk_clist_set_column_justification(

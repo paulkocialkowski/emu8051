@@ -258,8 +258,8 @@ emugtk_window_init(void)
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
-	gtk_widget_set_usize(GTK_WIDGET(mainwin),
-			     MAIN_WIN_WIDTH, MAIN_WIN_HEIGHT);
+	gtk_window_set_default_size(GTK_WINDOW(mainwin),
+				    MAIN_WIN_WIDTH, MAIN_WIN_HEIGHT);
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);
 
 	/* Window DESTROY event. */
@@ -290,8 +290,8 @@ emugtk_window_init(void)
 
 	/* Emulator fixed window. */
 	emufixed = gtk_fixed_new();
-	gtk_widget_set_usize(GTK_WIDGET(emufixed), MAIN_WIN_WIDTH,
-			     REG_WIN_HEIGHT + MEM_WIN_HEIGHT + 10);
+	gtk_window_set_default_size(GTK_WINDOW(emufixed), MAIN_WIN_WIDTH,
+				    REG_WIN_HEIGHT + MEM_WIN_HEIGHT + 10);
 
 	/* 8051 registers frame. */
 	fixed_frame = regwin_init(REG_WIN_WIDTH, REG_WIN_HEIGHT);

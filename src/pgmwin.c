@@ -88,11 +88,11 @@ pgmwin_init(int width, int height)
 	fixed_frame = gtk_frame_new(0);
 	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame),
 				  GTK_SHADOW_ETCHED_OUT);
-	gtk_widget_set_usize(GTK_WIDGET(fixed_frame), width, height);
+	gtk_widget_set_size_request(GTK_WIDGET(fixed_frame), width, height);
 
 	pgmclist = gtk_clist_new(1);
 	gtk_clist_set_selection_mode(GTK_CLIST(pgmclist), GTK_SELECTION_SINGLE);
-	gtk_widget_set_usize(GTK_WIDGET(pgmclist), width, height);
+	gtk_widget_set_size_request(GTK_WIDGET(pgmclist), width, height);
 	gtk_clist_set_column_justification(GTK_CLIST(pgmclist), 0,
 					   GTK_JUSTIFY_LEFT);
 	gtk_clist_set_column_width(GTK_CLIST(pgmclist), 0, width-10);
