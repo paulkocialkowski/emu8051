@@ -54,7 +54,7 @@ ViewAddMenu(GtkWidget *menu_bar)
 
 	/* Create the 'Viewmenu External Memory Dump' item. */
 	item = gtk_menu_item_new_with_label("External Memory Dump");
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(ViewMenuExternalDump),
@@ -64,7 +64,7 @@ ViewAddMenu(GtkWidget *menu_bar)
 
 	/* Create the 'Viewmenu Internal Memory Dump' item. */
 	item = gtk_menu_item_new_with_label("Internal Memory Dump");
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(ViewMenuInternalDump),

@@ -131,7 +131,7 @@ FileAddMenu(GtkWidget *menu_bar)
 
 	/* Create the 'open' item. */
 	item = gtk_menu_item_new_with_label(FILENAME_DESCRIPTION);
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(FileOpenEvent), NULL);
@@ -139,7 +139,7 @@ FileAddMenu(GtkWidget *menu_bar)
 	AddMenuSeparator(menu);
 
 	item = gtk_menu_item_new_with_label("Exit");
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* We can attach the Quit menu item to our exit function */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(FileQuitEvent),

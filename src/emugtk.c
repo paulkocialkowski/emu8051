@@ -332,7 +332,7 @@ AddMenuSeparator(GtkWidget *menu)
 	GtkWidget *item;
 
 	item = gtk_menu_item_new();
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 }
 
 void

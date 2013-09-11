@@ -61,7 +61,7 @@ HelpAddMenu(GtkWidget *menu_bar)
 
 	/* Create the 'Help Command Line Options' item. */
 	item = gtk_menu_item_new_with_label("Command Line Options");
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(HelpCommandsEvent),
@@ -71,7 +71,7 @@ HelpAddMenu(GtkWidget *menu_bar)
 
 	/* Create the 'Help About' item. */
 	item = gtk_menu_item_new_with_label("About " PACKAGE);
-	gtk_menu_append(GTK_MENU(menu), item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
 				  GTK_SIGNAL_FUNC(HelpAboutEvent),
