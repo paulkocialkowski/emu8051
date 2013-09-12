@@ -38,15 +38,21 @@ GtkWidget *
 memwin_init(int width, int height)
 {
 	int i;
-	GtkWidget *fixed_frame;
+	GtkWidget *scrollwin;
 	PangoFontDescription *pango_font;
 	char *memdummy[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0,
 			     0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-	fixed_frame = gtk_frame_new(0);
-	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame),
-				  GTK_SHADOW_ETCHED_OUT);
-	gtk_widget_set_size_request(GTK_WIDGET(fixed_frame), width, height);
+	scrollwin = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
+					    GTK_SHADOW_ETCHED_OUT);
+
+	/* Automatically add scrollbars when necessary. */
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin),
+				       GTK_POLICY_AUTOMATIC,
+				       GTK_POLICY_AUTOMATIC);
+
+	gtk_widget_set_size_request(GTK_WIDGET(scrollwin), width, height);
 
 	memclist = gtk_clist_new(18);
 	gtk_clist_set_selection_mode(GTK_CLIST(memclist), GTK_SELECTION_SINGLE);
@@ -73,9 +79,9 @@ memwin_init(int width, int height)
 	for (i = 0; i < 16; i++)
 		gtk_clist_append(GTK_CLIST(memclist), memdummy);
 
-	gtk_container_add(GTK_CONTAINER(fixed_frame), memclist);
+	gtk_container_add(GTK_CONTAINER(scrollwin), memclist);
 
-	return fixed_frame;
+	return scrollwin;
 }
 
 /* Dump 16 rows of 16 bytes from Address in Memory (direct addressing) */

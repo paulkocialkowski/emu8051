@@ -83,12 +83,18 @@ GtkWidget *
 pgmwin_init(int width, int height)
 {
 	int i;
-	GtkWidget *fixed_frame;
+	GtkWidget *scrollwin;
 
-	fixed_frame = gtk_frame_new(0);
-	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame),
-				  GTK_SHADOW_ETCHED_OUT);
-	gtk_widget_set_size_request(GTK_WIDGET(fixed_frame), width, height);
+	scrollwin = gtk_scrolled_window_new(NULL, NULL);
+	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
+					    GTK_SHADOW_ETCHED_OUT);
+
+	/* Automatically add scrollbars when necessary. */
+	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrollwin),
+				       GTK_POLICY_AUTOMATIC,
+				       GTK_POLICY_AUTOMATIC);
+
+	gtk_widget_set_size_request(GTK_WIDGET(scrollwin), width, height);
 
 	pgmclist = gtk_clist_new(1);
 	gtk_clist_set_selection_mode(GTK_CLIST(pgmclist), GTK_SELECTION_SINGLE);
@@ -105,10 +111,10 @@ pgmwin_init(int width, int height)
 	for (i = 0; i < 24; i++)
 		gtk_clist_append(GTK_CLIST(pgmclist), pgmdummy);
 
-	gtk_container_add(GTK_CONTAINER(fixed_frame), pgmclist);
+	gtk_container_add(GTK_CONTAINER(scrollwin), pgmclist);
 
 	gtk_signal_connect(GTK_OBJECT(pgmclist), "button-press-event",
 			   GTK_SIGNAL_FUNC(pgmwin_ButtonPressEvent), NULL);
 
-	return fixed_frame;
+	return scrollwin;
 }
