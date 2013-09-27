@@ -293,19 +293,19 @@ emugtk_window_init(void)
 
 	/* 8051 registers frame. */
 	fixed_frame = regwin_init(REG_WIN_WIDTH, REG_WIN_HEIGHT);
-	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
 
 	/* Program disassembly frame. */
 	fixed_frame = pgmwin_init(PGM_WIN_WIDTH, PGM_WIN_HEIGHT);
-	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
 
 	/* Adding hbox window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), hbox, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(main_vbox), hbox, true, true, 1);
 
 	/* Memory dump frame. */
 	fixed_frame = memwin_init(MEM_WIN_WIDTH, MEM_WIN_HEIGHT);
 	/* Adding memory dump window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), fixed_frame, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(main_vbox), fixed_frame, true, true, 1);
 
 	/* Adding the main_vbox to the main window. */
 	gtk_container_add(GTK_CONTAINER(mainwin), main_vbox);
