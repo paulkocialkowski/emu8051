@@ -253,8 +253,8 @@ emugtk_window_init(void)
 	GtkWidget *main_vbox;
 	GtkWidget *menu_bar;
 	GtkWidget *buttons_bar;
-	GtkWidget *emufixed;
 	GtkWidget *fixed_frame;
+	GtkWidget *hbox;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
@@ -288,25 +288,24 @@ emugtk_window_init(void)
 	/* Adding buttons bar to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), buttons_bar, FALSE, FALSE, 1);
 
-	/* Emulator fixed window. */
-	emufixed = gtk_fixed_new();
-	gtk_window_set_default_size(GTK_WINDOW(emufixed), MAIN_WIN_WIDTH,
-				    REG_WIN_HEIGHT + MEM_WIN_HEIGHT + 10);
+	/* hbox will contain registers and disassembly windows. */
+	hbox = gtk_hbox_new(FALSE, 1);
 
 	/* 8051 registers frame. */
 	fixed_frame = regwin_init(REG_WIN_WIDTH, REG_WIN_HEIGHT);
-	gtk_fixed_put(GTK_FIXED(emufixed), fixed_frame, 0, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, FALSE, FALSE, 1);
 
 	/* Program disassembly frame. */
 	fixed_frame = pgmwin_init(PGM_WIN_WIDTH, PGM_WIN_HEIGHT);
-	gtk_fixed_put(GTK_FIXED(emufixed), fixed_frame, REG_WIN_WIDTH + 10, 0);
+	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, FALSE, FALSE, 1);
+
+	/* Adding hbox window to main_vbox */
+	gtk_box_pack_start(GTK_BOX(main_vbox), hbox, FALSE, FALSE, 1);
 
 	/* Memory dump frame. */
 	fixed_frame = memwin_init(MEM_WIN_WIDTH, MEM_WIN_HEIGHT);
-	gtk_fixed_put(GTK_FIXED(emufixed), fixed_frame, 0, REG_WIN_HEIGHT);
-
-	/* Adding fixed window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), emufixed, FALSE, FALSE, 1);
+	/* Adding memory dump window to main_vbox */
+	gtk_box_pack_start(GTK_BOX(main_vbox), fixed_frame, FALSE, FALSE, 1);
 
 	/* Adding the main_vbox to the main window. */
 	gtk_container_add(GTK_CONTAINER(mainwin), main_vbox);
