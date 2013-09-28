@@ -254,7 +254,7 @@ emugtk_window_init(void)
 	GtkWidget *menu_bar;
 	GtkWidget *buttons_bar;
 	GtkWidget *fixed_frame;
-	GtkWidget *hbox;
+	GtkWidget *hpaned;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
@@ -280,19 +280,21 @@ emugtk_window_init(void)
 	/* Adding buttons bar to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), buttons_bar, FALSE, FALSE, 1);
 
-	/* hbox will contain registers and disassembly windows. */
-	hbox = gtk_hbox_new(FALSE, 1);
+	/* hpaned will contain registers and disassembly windows. */
+	hpaned = gtk_hpaned_new();
 
 	/* 8051 registers frame. */
 	fixed_frame = regwin_init();
-	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
+	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame), GTK_SHADOW_IN);
+	gtk_paned_pack1(GTK_PANED(hpaned), fixed_frame, FALSE, FALSE);
 
 	/* Program disassembly frame. */
 	fixed_frame = pgmwin_init();
-	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
+	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame), GTK_SHADOW_IN);
+	gtk_paned_pack2(GTK_PANED(hpaned), fixed_frame, TRUE, FALSE);
 
-	/* Adding hbox window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), hbox, true, true, 1);
+	/* Adding hpaned window to main_vbox */
+	gtk_box_pack_start(GTK_BOX(main_vbox), hpaned, true, true, 1);
 
 	/* Memory dump frame. */
 	fixed_frame = memwin_init();
