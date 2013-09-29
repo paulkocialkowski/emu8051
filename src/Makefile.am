@@ -3,7 +3,10 @@
 INCLUDES = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/pixmaps \
+	$(GLIB_CFLAGS) \
 	$(GTK_CFLAGS)
+
+LDADD = $(GLIB_LIBS)
 
 bin_PROGRAMS = emu8051-cli
 
@@ -14,6 +17,7 @@ common_SOURCES = \
 	instructions_8051.c \
 	options.c \
 	options.h \
+	app-config.c app-config.h \
 	hexfile.c \
 	hexfile.h \
 	cpu8051.c \

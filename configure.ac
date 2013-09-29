@@ -29,6 +29,10 @@ dnl -g is for GDB debugging
   CFLAGS="${CFLAGS} -g -gdwarf-2 -g3"
 fi
 
+PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.26.0])
+AC_SUBST(GLIB_CFLAGS)
+AC_SUBST(GLIB_LIBS)
+
 dnl Checks for Gtk+-2.0
 AC_ARG_ENABLE(gui,
 	[  --enable-gui     Enable building the GUI (default=yes)],
