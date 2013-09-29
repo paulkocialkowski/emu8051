@@ -2,7 +2,7 @@
 
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = src doc
+SUBDIRS = src data doc
 
 ## We want these in the dist tarball
 EXTRA_DIST = autogen.sh \

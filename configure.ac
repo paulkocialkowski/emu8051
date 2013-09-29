@@ -59,7 +59,7 @@ AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 
 dnl Creating output file(s)
-AC_OUTPUT(Makefile src/Makefile doc/Makefile)
+AC_OUTPUT(Makefile src/Makefile data/Makefile doc/Makefile)
 
 echo \
 "---------------------------------------------------------------------------
