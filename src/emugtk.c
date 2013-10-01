@@ -255,6 +255,7 @@ emugtk_window_init(void)
 	GtkWidget *buttons_bar;
 	GtkWidget *fixed_frame;
 	GtkWidget *hpaned;
+	GtkWidget *vpaned;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
@@ -280,26 +281,32 @@ emugtk_window_init(void)
 	/* Adding buttons bar to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), buttons_bar, FALSE, FALSE, 1);
 
+	/*
+	 * vpaned will contain:
+	 *   Top:    registers and disassembly windows.
+	 *   Bottom: memory window
+	 */
+	vpaned = gtk_vpaned_new();
+
 	/* hpaned will contain registers and disassembly windows. */
 	hpaned = gtk_hpaned_new();
 
 	/* 8051 registers frame. */
 	fixed_frame = regwin_init();
-	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame), GTK_SHADOW_IN);
 	gtk_paned_pack1(GTK_PANED(hpaned), fixed_frame, FALSE, FALSE);
 
 	/* Program disassembly frame. */
 	fixed_frame = pgmwin_init();
-	gtk_frame_set_shadow_type(GTK_FRAME(fixed_frame), GTK_SHADOW_IN);
 	gtk_paned_pack2(GTK_PANED(hpaned), fixed_frame, TRUE, FALSE);
 
-	/* Adding hpaned window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), hpaned, true, true, 1);
+	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
 	/* Memory dump frame. */
 	fixed_frame = memwin_init();
-	/* Adding memory dump window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), fixed_frame, true, true, 1);
+	gtk_paned_pack2(GTK_PANED(vpaned), fixed_frame, TRUE, FALSE);
+
+	/* Adding vpaned window to main_vbox */
+	gtk_box_pack_start(GTK_BOX(main_vbox), vpaned, true, true, 1);
 
 	/* Adding the main_vbox to the main window. */
 	gtk_container_add(GTK_CONTAINER(mainwin), main_vbox);
