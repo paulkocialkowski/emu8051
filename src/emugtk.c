@@ -44,6 +44,8 @@
 #include "pgmwin.h"
 #include "memwin.h"
 
+#define BUTTONS_BORDER 2
+
 static int running;
 static int running_function_tag;
 static GtkWidget *mainwin;
@@ -116,7 +118,7 @@ button_add_pix(GtkWidget *box, char **xpm)
 		gdk_pixbuf_new_from_xpm_data((const char **) xpm));
 	gtk_container_add(GTK_CONTAINER(button), icon);
 
-	gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(box), button, FALSE, FALSE, BUTTONS_BORDER);
 
 	return button;
 }
