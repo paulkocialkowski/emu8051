@@ -253,7 +253,7 @@ emugtk_window_init(void)
 	GtkWidget *main_vbox;
 	GtkWidget *menu_bar;
 	GtkWidget *buttons_bar;
-	GtkWidget *fixed_frame;
+	GtkWidget *scrollwin;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
 
@@ -292,18 +292,18 @@ emugtk_window_init(void)
 	hpaned = gtk_hpaned_new();
 
 	/* 8051 registers frame. */
-	fixed_frame = regwin_init();
-	gtk_paned_pack1(GTK_PANED(hpaned), fixed_frame, FALSE, FALSE);
+	scrollwin = regwin_init();
+	gtk_paned_pack1(GTK_PANED(hpaned), scrollwin, FALSE, FALSE);
 
 	/* Program disassembly frame. */
-	fixed_frame = pgmwin_init();
-	gtk_paned_pack2(GTK_PANED(hpaned), fixed_frame, TRUE, FALSE);
+	scrollwin = pgmwin_init();
+	gtk_paned_pack2(GTK_PANED(hpaned), scrollwin, TRUE, FALSE);
 
 	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
 	/* Memory dump frame. */
-	fixed_frame = memwin_init();
-	gtk_paned_pack2(GTK_PANED(vpaned), fixed_frame, TRUE, FALSE);
+	scrollwin = memwin_init();
+	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
 
 	/* Adding vpaned window to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), vpaned, true, true, 1);
