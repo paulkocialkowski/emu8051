@@ -25,7 +25,7 @@
 #include <gtk/gtk.h>
 
 GtkWidget *
-memwin_init(int width, int height);
+memwin_init(void);
 
 void
 memwin_DumpD(char *Address);

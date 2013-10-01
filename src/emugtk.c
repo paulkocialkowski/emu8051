@@ -258,19 +258,11 @@ emugtk_window_init(void)
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
-	gtk_window_set_default_size(GTK_WINDOW(mainwin),
-				    MAIN_WIN_WIDTH, MAIN_WIN_HEIGHT);
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);
 
 	/* Window DESTROY event. */
 	g_signal_connect(mainwin, "destroy",
 			 G_CALLBACK(WindowDestroyEvent), NULL);
-
-	/*
-	 * Setting main window geometry based on command line options
-	 * (if specified).
-	*/
-	/*MainWindowSetGeometry();*/
 
 	/*
 	 * main_vbox contains the menu bar and body_vbox (for all remaining
@@ -292,18 +284,18 @@ emugtk_window_init(void)
 	hbox = gtk_hbox_new(FALSE, 1);
 
 	/* 8051 registers frame. */
-	fixed_frame = regwin_init(REG_WIN_WIDTH, REG_WIN_HEIGHT);
+	fixed_frame = regwin_init();
 	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
 
 	/* Program disassembly frame. */
-	fixed_frame = pgmwin_init(PGM_WIN_WIDTH, PGM_WIN_HEIGHT);
+	fixed_frame = pgmwin_init();
 	gtk_box_pack_start(GTK_BOX(hbox), fixed_frame, true, true, 1);
 
 	/* Adding hbox window to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), hbox, true, true, 1);
 
 	/* Memory dump frame. */
-	fixed_frame = memwin_init(MEM_WIN_WIDTH, MEM_WIN_HEIGHT);
+	fixed_frame = memwin_init();
 	/* Adding memory dump window to main_vbox */
 	gtk_box_pack_start(GTK_BOX(main_vbox), fixed_frame, true, true, 1);
 

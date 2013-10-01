@@ -26,7 +26,7 @@
 #include "gtksizes.h"
 
 GtkWidget *
-regwin_init(int width, int height);
+regwin_init(void);
 
 void
 regwin_Show(void);

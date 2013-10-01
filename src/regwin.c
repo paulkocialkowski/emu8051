@@ -33,7 +33,7 @@
 static GtkWidget *regclist;
 
 GtkWidget *
-regwin_init(int width, int height)
+regwin_init(void)
 {
 	int i;
 	GtkWidget *scrollwin;
@@ -49,15 +49,10 @@ regwin_init(int width, int height)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
-	gtk_widget_set_size_request(GTK_WIDGET(scrollwin), width, height);
-
 	regclist = gtk_clist_new(1);
 	gtk_clist_set_selection_mode(GTK_CLIST(regclist), GTK_SELECTION_SINGLE);
-	gtk_widget_set_size_request(GTK_WIDGET(regclist), width, height);
 	gtk_clist_set_column_justification(GTK_CLIST(regclist), 0,
 					   GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_width(GTK_CLIST(regclist), 0, width);
-
 
 	pango_font = pango_font_description_from_string(FIXED_FONT);
 	gtk_widget_modify_font(regclist, pango_font);

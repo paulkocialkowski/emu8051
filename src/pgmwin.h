@@ -26,7 +26,7 @@
 #include "gtksizes.h"
 
 GtkWidget *
-pgmwin_init(int width, int height);
+pgmwin_init(void);
 
 void
 pgmwin_Disasm(void);

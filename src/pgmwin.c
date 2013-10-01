@@ -80,7 +80,7 @@ pgmwin_ButtonPressEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 
 GtkWidget *
-pgmwin_init(int width, int height)
+pgmwin_init(void)
 {
 	int i;
 	GtkWidget *scrollwin;
@@ -94,14 +94,10 @@ pgmwin_init(int width, int height)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
-	gtk_widget_set_size_request(GTK_WIDGET(scrollwin), width, height);
-
 	pgmclist = gtk_clist_new(1);
 	gtk_clist_set_selection_mode(GTK_CLIST(pgmclist), GTK_SELECTION_SINGLE);
-	gtk_widget_set_size_request(GTK_WIDGET(pgmclist), width, height);
 	gtk_clist_set_column_justification(GTK_CLIST(pgmclist), 0,
 					   GTK_JUSTIFY_LEFT);
-	gtk_clist_set_column_width(GTK_CLIST(pgmclist), 0, width-10);
 
 	PangoFontDescription *pango_font;
 	pango_font = pango_font_description_from_string(FIXED_FONT);
