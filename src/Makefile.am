@@ -43,8 +43,8 @@ if USE_GTK
 	helpmenu.c \
 	helpmenu.h \
 	messagebox.c \
-	messagebox.h \
-	gtksizes.h
+	messagebox.h
+
   emu8051_gtk_LDADD = $(GTK_LIBS)
 endif
 

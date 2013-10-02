@@ -23,7 +23,6 @@
 #define REGWIN_H 1
 
 #include <gtk/gtk.h>
-#include "gtksizes.h"
 
 GtkWidget *
 regwin_init(void);

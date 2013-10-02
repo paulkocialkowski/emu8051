@@ -29,7 +29,6 @@
 #include "memory.h"
 #include "hexfile.h"
 #include "cpu8051.h"
-#include "gtksizes.h"
 #include "memwin.h"
 
 static GtkWidget *memclist;

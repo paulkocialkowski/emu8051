@@ -23,7 +23,6 @@
 #define PGMWIN_H 1
 
 #include <gtk/gtk.h>
-#include "gtksizes.h"
 
 GtkWidget *
 pgmwin_init(void);

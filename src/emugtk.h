@@ -23,7 +23,6 @@
 #define EMUGTK_H 1
 
 #include <gtk/gtk.h>
-#include "gtksizes.h"
 
 void
 AddMenuSeparator(GtkWidget *menu);
