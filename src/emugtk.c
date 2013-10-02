@@ -43,12 +43,15 @@
 #include "regwin.h"
 #include "pgmwin.h"
 #include "memwin.h"
+#include "app-config.h"
 
 #define BUTTONS_BORDER 2
 
 static int running;
 static int running_function_tag;
 static GtkWidget *mainwin;
+
+extern struct app_config_t *cfg;
 
 /* Signal DestroyEvent */
 static void
@@ -248,6 +251,31 @@ AddMenu(void)
 }
 
 static void
+mainwin_configure_event(GtkWindow *window, GdkEvent *event, gpointer data)
+{
+	//event->configure.x;
+	//event->configure.y;
+	cfg->win_width = event->configure.width;
+	cfg->win_height = event->configure.height;
+}
+
+static void
+hpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
+{
+	GtkWidget *hpaned = data;
+
+	cfg->hpane_pos = gtk_paned_get_position(GTK_PANED(hpaned));
+}
+
+static void
+vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
+{
+	GtkWidget *vpaned = data;
+
+	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(vpaned));
+}
+
+static void
 emugtk_window_init(void)
 {
 	GtkWidget *main_vbox;
@@ -259,11 +287,16 @@ emugtk_window_init(void)
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
+	gtk_window_set_default_size(GTK_WINDOW(mainwin),
+				    cfg->win_width, cfg->win_height);
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);
 
 	/* Window DESTROY event. */
 	g_signal_connect(mainwin, "destroy",
 			 G_CALLBACK(WindowDestroyEvent), NULL);
+
+	g_signal_connect(G_OBJECT(mainwin), "configure-event",
+			 G_CALLBACK(mainwin_configure_event), NULL);
 
 	/*
 	 * main_vbox contains the menu bar and body_vbox (for all remaining
@@ -287,9 +320,15 @@ emugtk_window_init(void)
 	 *   Bottom: memory window
 	 */
 	vpaned = gtk_vpaned_new();
+	gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
+	g_signal_connect(G_OBJECT(vpaned), "notify::position",
+			 G_CALLBACK(vpaned_notify_event), vpaned);
 
 	/* hpaned will contain registers and disassembly windows. */
 	hpaned = gtk_hpaned_new();
+	gtk_paned_set_position(GTK_PANED(hpaned), cfg->hpane_pos);
+	g_signal_connect(G_OBJECT(hpaned), "notify::position",
+			 G_CALLBACK(hpaned_notify_event), hpaned);
 
 	/* 8051 registers frame. */
 	scrollwin = regwin_init();
@@ -353,6 +392,8 @@ main(int argc, char **argv)
 
 	ParseCommandLineOptions(argc, argv);
 
+	app_config_load();
+
 	cpu8051_init();
 
 	running = 0;
@@ -371,6 +412,8 @@ main(int argc, char **argv)
 #ifdef EMU8051_DEBUG
 	printf("End of program.\n");
 #endif
+
+	app_config_save();
 
 	return EXIT_SUCCESS;
 }
