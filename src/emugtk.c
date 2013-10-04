@@ -275,10 +275,59 @@ vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(vpaned));
 }
 
+/*
+ *  mainwin
+ * +---------------------------------------------------------------------+
+ * |                                                                     |
+ * |  vbox                                                               |
+ * |  +---------------------------------------------------------------+  |
+ * |  |                                                               |  |
+ * |  |  menu_bar                                                     |  |
+ * |  |  +----------------------+                                     |  |
+ * |  |  | File  View  Help     |                                     |  |
+ * |  |  +----------------------+                                     |  |
+ * |  |                                                               |  |
+ * |  |---------------------------------------------------------------|  |
+ * |  |                                                               |  |
+ * |  |  buttons_bar                                                  |  |
+ * |  |  +-----------------------+                                    |  |
+ * |  |  | RST  RUN  STOP  STEP  |                                    |  |
+ * |  |  +-----------------------+                                    |  |
+ * |  |                                                               |  |
+ * |  |---------------------------------------------------------------|  |
+ * |  |                                                               |  |
+ * |  |  vpaned                                                       |  |
+ * |  |  +---------------------------------------------------------+  |  |
+ * |  |  |                                                         |  |  |
+ * |  |  |  hpaned                                                 |  |  |
+ * |  |  |  +---------------------------------------------------+  |  |  |
+ * |  |  |  |                        |                          |  |  |  |
+ * |  |  |  |  scrollwin             |  scrollwin               |  |  |  |
+ * |  |  |  |  +------------------+  *  +--------------------+  |  |  |  |
+ * |  |  |  |  | REGISTERS window |  *  | Disassembly window |  |  |  |  |
+ * |  |  |  |  +------------------+  |  +--------------------+  |  |  |  |
+ * |  |  |  |                        |                          |  |  |  |
+ * |  |  |  +---------------------------------------------------+  |  |  |
+ * |  |  |                                                         |  |  |
+ * |  |  |--------------------------***-----------------------------  |  |
+ * |  |  |                                                         |  |  |
+ * |  |  |  scrollwin                                              |  |  |
+ * |  |  |  +---------------------------------------------------+  |  |  |
+ * |  |  |  | Memory window                                     |  |  |  |
+ * |  |  |  +---------------------------------------------------+  |  |  |
+ * |  |  |                                                         |  |  |
+ * |  |  +---------------------------------------------------------+  |  |
+ * |  |                                                               |  |
+ * |  |                                                               |  |
+ * |  +---------------------------------------------------------------+  |
+ * |                                                                     |
+ * |                                                                     |
+ * +---------------------------------------------------------------------+
+ */
 static void
 emugtk_window_init(void)
 {
-	GtkWidget *main_vbox;
+	GtkWidget *vbox;
 	GtkWidget *menu_bar;
 	GtkWidget *buttons_bar;
 	GtkWidget *scrollwin;
@@ -299,20 +348,20 @@ emugtk_window_init(void)
 			 G_CALLBACK(mainwin_configure_event), NULL);
 
 	/*
-	 * main_vbox contains the menu bar and body_vbox (for all remaining
+	 * vbox contains the menu bar and body_vbox (for all remaining
 	 * items).
 	 */
-	main_vbox = gtk_vbox_new(FALSE, 1);
+	vbox = gtk_vbox_new(FALSE, 1);
 
 	/* Creating the menu bar. */
 	menu_bar = AddMenu();
-	/* Adding menu bar to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), menu_bar, FALSE, FALSE, 1);
+	/* Adding menu bar to vbox */
+	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 1);
 
 	/* Creating the buttons bar. */
 	buttons_bar = AddButtons();
-	/* Adding buttons bar to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), buttons_bar, FALSE, FALSE, 1);
+	/* Adding buttons bar to vbox */
+	gtk_box_pack_start(GTK_BOX(vbox), buttons_bar, FALSE, FALSE, 1);
 
 	/*
 	 * vpaned will contain:
@@ -344,11 +393,11 @@ emugtk_window_init(void)
 	scrollwin = memwin_init();
 	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
 
-	/* Adding vpaned window to main_vbox */
-	gtk_box_pack_start(GTK_BOX(main_vbox), vpaned, true, true, 1);
+	/* Adding vpaned window to vbox */
+	gtk_box_pack_start(GTK_BOX(vbox), vpaned, true, true, 1);
 
-	/* Adding the main_vbox to the main window. */
-	gtk_container_add(GTK_CONTAINER(mainwin), main_vbox);
+	/* Adding the vbox to the main window. */
+	gtk_container_add(GTK_CONTAINER(mainwin), vbox);
 
 	gtk_widget_show_all(mainwin);
 }
