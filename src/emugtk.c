@@ -250,13 +250,20 @@ AddMenu(void)
 	return menu_bar;
 }
 
-static void
+static int
 mainwin_configure_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
 	//event->configure.x;
 	//event->configure.y;
 	cfg->win_width = event->configure.width;
 	cfg->win_height = event->configure.height;
+
+	/*
+	 * Important:
+	 * Returning false allows event to propagate to children. If not, they
+	 * will not be resized when we resize the main window.
+	 */
+	return FALSE;
 }
 
 static void
