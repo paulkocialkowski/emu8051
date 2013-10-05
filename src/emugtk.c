@@ -234,8 +234,6 @@ AddMenu(void)
 	/* Adding the 'Help' submenu */
 	HelpAddMenu(menu_bar);
 
-	gtk_widget_show_all(GTK_WIDGET(menu_bar));
-
 	return menu_bar;
 }
 
