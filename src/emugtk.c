@@ -53,17 +53,6 @@ static GtkWidget *mainwin;
 
 extern struct app_config_t *cfg;
 
-/* Signal DestroyEvent */
-static void
-WindowDestroyEvent(GtkWidget *widget, gpointer data)
-{
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_DestroyEvent(...)\n");
-#endif
-
-	gtk_main_quit();
-}
-
 /* Step out of running state */
 static void
 emugtk_stop_running()
@@ -349,7 +338,7 @@ emugtk_window_init(void)
 
 	/* Window DESTROY event. */
 	g_signal_connect(mainwin, "destroy",
-			 G_CALLBACK(WindowDestroyEvent), NULL);
+			 G_CALLBACK(gtk_main_quit), NULL);
 
 	g_signal_connect(G_OBJECT(mainwin), "configure-event",
 			 G_CALLBACK(mainwin_configure_event), NULL);
