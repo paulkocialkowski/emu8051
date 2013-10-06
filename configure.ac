@@ -21,14 +21,6 @@ AC_TYPE_SIZE_T
 dnl Basic CFLAGS values
 CFLAGS="${CFLAGS} -Wall"
 
-dnl Checks for '--enable-debug' option
-HV_CHECK_FOR_DEBUG
-
-if test x"${debug_messages}" = x1; then
-dnl -g is for GDB debugging
-  CFLAGS="${CFLAGS} -g -gdwarf-2 -g3"
-fi
-
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.26.0])
 AC_SUBST(GLIB_CFLAGS)
 AC_SUBST(GLIB_LIBS)
@@ -72,13 +64,6 @@ Configuration:
 
 echo -n "  Build GUI:           "
 if test x"${ac_cv_enable_gui}" = xyes; then
-  echo "yes"
-else
-  echo "no"
-fi
-
-echo -n "  Debugging messages:  "
-if test x"${debug_messages}" = x1; then
   echo "yes"
 else
   echo "no"
