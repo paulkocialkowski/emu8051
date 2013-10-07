@@ -27,11 +27,6 @@
 #include "hexfile.h"
 #include "memory.h"
 
-#define PGM_MEM_SIZE 65536
-#define INT_MEM_SIZE 256 /* IRAM = Direct addresses $00 to $7F
-			  * SFR  = Direct addresses $80 to $FF */
-#define EXT_MEM_SIZE 65536
-
 static u_int8_t pgm_mem[PGM_MEM_SIZE];
 static u_int8_t int_mem[INT_MEM_SIZE];
 static u_int8_t ext_mem[EXT_MEM_SIZE];

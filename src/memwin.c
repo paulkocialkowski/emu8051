@@ -33,23 +33,77 @@
 
 static GtkWidget *memlist;
 
+#define DATA_COLS 16 /* Must be a power of 2 */
+#define DATA_ROWS (INT_MEM_SIZE / DATA_COLS)
+
 enum
 {
 	COL_ADDRESS = 0,
-	COL_ASCII = 17,
+	COL_ASCII = DATA_COLS + 1,
 	N_COLUMNS,
 };
+
+/* Creating a model */
+static GtkListStore *
+memwin_init_store(void)
+{
+	GtkTreeIter iter;
+	int rows;
+	int col;
+	GtkListStore *store;
+	GType col_types[N_COLUMNS];
+
+	for (col = 0; col < N_COLUMNS; col++) {
+		col_types[col] = G_TYPE_STRING;
+	}
+
+	store = gtk_list_store_newv(N_COLUMNS, col_types);
+
+	/* Initialize with rows of dummy data... */
+	for (rows = 0; rows < DATA_ROWS; rows++) {
+		/* Add new row. */
+		gtk_list_store_append(store, &iter);
+	}
+
+	return store;
+}
+
+static void
+memwin_init_columns(void)
+{
+	int i;
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *column;
+
+	/* Columns and cell renderers */
+	renderer = gtk_cell_renderer_text_new();
+
+	/* Add address column */
+	column = gtk_tree_view_column_new_with_attributes(
+		"Address", renderer, "text", COL_ADDRESS, NULL);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+
+	for (i = 1; i < (DATA_COLS + 1); i++) {
+		column = gtk_tree_view_column_new_with_attributes(
+			"Val", renderer, "text", i, NULL);
+		gtk_tree_view_column_set_sizing(column,
+						GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+		gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+	}
+
+	/* Add ASCII column */
+	column = gtk_tree_view_column_new_with_attributes(
+		"ASCII", renderer, "text", COL_ASCII, NULL);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+}
 
 GtkWidget *
 memwin_init(void)
 {
-	int i;
-	int rows;
 	GtkWidget *scrollwin;
-	GtkCellRenderer *renderer;
-	GtkTreeViewColumn *column;
 	GtkListStore *store;
-	GtkTreeIter iter;
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
@@ -61,65 +115,28 @@ memwin_init(void)
 				       GTK_POLICY_AUTOMATIC);
 
 	/* Creating a model */
-	store = gtk_list_store_new(N_COLUMNS,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING,
-				   G_TYPE_STRING);
+	store = memwin_init_store();
+
+
 
 	/* Creating the view component */
 	memlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(memlist), TRUE);
-
 	gtk_container_add(GTK_CONTAINER(scrollwin), memlist);
 
+	memwin_init_columns();
+
+	/*
+	 * The tree view has acquired its own reference to the model, so we can
+	 * drop ours. That way the model will be freed automatically when the
+	 * tree view is destroyed.
+	 */
 	g_object_unref(store);
-
-
-	/* Columns and cell renderers */
-	renderer = gtk_cell_renderer_text_new();
-
-	/* Add address column */
-	column = gtk_tree_view_column_new_with_attributes(
-		"Address", renderer, "text", COL_ADDRESS, NULL);
-	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
-
-	for (i = 1; i < 17; i++) {
-		column = gtk_tree_view_column_new_with_attributes(
-			"Val", renderer, "text", i, NULL);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
-	}
-
-	column = gtk_tree_view_column_new_with_attributes(
-		"ASCII", renderer, "text", COL_ASCII, NULL);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
-
-	/* Initialize with 16 rows of dummy data... */
-	for (rows = 0; rows < 16; rows++) {
-		/* Add new row. */
-		gtk_list_store_append(store, &iter);
-		gtk_list_store_set(store, &iter, COL_ADDRESS, "0x0000", -1);
-	}
 
 	return scrollwin;
 }
 
-/* Dump 16 rows of 16 bytes from Address in Memory (direct addressing) */
+/* Dump up to 256 bytes from Address in Memory (direct addressing) */
 void
 memwin_DumpD(char *MemAddress)
 {
@@ -142,7 +159,7 @@ memwin_DumpD(char *MemAddress)
 
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
 
-	for (row = 0; row < 16; row++) {
+	for (row = 0; row < DATA_ROWS; row++) {
 		int valid;
 		GtkTreeIter iter;
 		char TextTmp[1024];
@@ -165,7 +182,7 @@ memwin_DumpD(char *MemAddress)
 		sprintf(TextTmp, "%.4X", Address);
 		gtk_list_store_set(store, &iter, COL_ADDRESS, TextTmp, -1);
 
-		for (column = 0; column < 16; column++) {
+		for (column = 0; column < DATA_COLS; column++) {
 			sprintf(TextTmp, "%.2X",
 				(int) cpu8051_ReadD(Address + column));
 
@@ -174,7 +191,7 @@ memwin_DumpD(char *MemAddress)
 		}
 
 		TextLength = 0;
-		for (column = 0; column < 16; column++) {
+		for (column = 0; column < DATA_COLS; column++) {
 			if (((int) cpu8051_ReadD(Address + column) >= 32) &&
 			    ((int) cpu8051_ReadD(Address + column) <= 126))
 				TextLength += sprintf(
@@ -185,8 +202,8 @@ memwin_DumpD(char *MemAddress)
 					sprintf(&TextTmp[TextLength], ".");
 		}
 
-		gtk_list_store_set(store, &iter, 17, TextTmp, -1);
+		gtk_list_store_set(store, &iter, COL_ASCII, TextTmp, -1);
 
-		Address += 16;
+		Address += DATA_COLS;
 	}
 }
