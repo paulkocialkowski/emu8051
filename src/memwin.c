@@ -103,8 +103,11 @@ memwin_init_columns(void)
 GtkWidget *
 memwin_init(void)
 {
+	GtkWidget *frame;
 	GtkWidget *scrollwin;
 	GtkListStore *store;
+
+	frame = gtk_frame_new("Internal memory");
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
@@ -115,10 +118,10 @@ memwin_init(void)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
+	gtk_container_add(GTK_CONTAINER(frame), scrollwin);
+
 	/* Creating a model */
 	store = memwin_init_store();
-
-
 
 	/* Creating the view component */
 	memlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
@@ -134,7 +137,7 @@ memwin_init(void)
 	 */
 	g_object_unref(store);
 
-	return scrollwin;
+	return frame;
 }
 
 /* Dump up to 256 bytes from Address in Memory (direct addressing) */
