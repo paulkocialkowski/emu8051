@@ -24,6 +24,7 @@
 #endif
 
 #include <stdio.h>
+#include <ctype.h> /* For isprint */
 
 #include "common.h"
 #include "memory.h"
@@ -162,8 +163,9 @@ memwin_DumpD(char *MemAddress)
 	for (row = 0; row < DATA_ROWS; row++) {
 		int valid;
 		GtkTreeIter iter;
-		char TextTmp[1024];
-		int column, TextLength;
+		char str[4 + 2]; /* Maximum str len is for address column (4 digits) */
+		char ascii_str[DATA_COLS];
+		int col;
 
 		if (row == 0) {
 			/* Get first row in list store */
@@ -171,7 +173,8 @@ memwin_DumpD(char *MemAddress)
 				GTK_TREE_MODEL(store), &iter);
 		} else {
 			/* Get next row in list store */
-			valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
+			valid = gtk_tree_model_iter_next(
+				GTK_TREE_MODEL(store), &iter);
 		}
 
 		if (!valid) {
@@ -179,30 +182,27 @@ memwin_DumpD(char *MemAddress)
 			return;
 		}
 
-		sprintf(TextTmp, "%.4X", Address);
-		gtk_list_store_set(store, &iter, COL_ADDRESS, TextTmp, -1);
+		/* Display base address. */
+		sprintf(str, "%.4X", Address);
+		gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
 
-		for (column = 0; column < DATA_COLS; column++) {
-			sprintf(TextTmp, "%.2X",
-				(int) cpu8051_ReadD(Address + column));
+		for (col = 0; col < DATA_COLS; col++) {
+			u_int8_t data;
 
-			gtk_list_store_set(store, &iter, column + 1, TextTmp,
-					   -1);
+			data = cpu8051_ReadD(Address + col);
+
+			/* Display hex data */
+			sprintf(str, "%.2X", (u_int8_t) data);
+			gtk_list_store_set(store, &iter, col + 1, str, -1);
+
+			/* Append to ASCII string (if applicable). */
+			if (!isprint(data))
+				data = '.';
+			sprintf(&ascii_str[col], "%c", data);
 		}
 
-		TextLength = 0;
-		for (column = 0; column < DATA_COLS; column++) {
-			if (((int) cpu8051_ReadD(Address + column) >= 32) &&
-			    ((int) cpu8051_ReadD(Address + column) <= 126))
-				TextLength += sprintf(
-					&TextTmp[TextLength],
-					"%c", cpu8051_ReadD(Address + column));
-			else
-				TextLength +=
-					sprintf(&TextTmp[TextLength], ".");
-		}
-
-		gtk_list_store_set(store, &iter, COL_ASCII, TextTmp, -1);
+		/* Display ASCII characters. */
+		gtk_list_store_set(store, &iter, COL_ASCII, ascii_str, -1);
 
 		Address += DATA_COLS;
 	}
