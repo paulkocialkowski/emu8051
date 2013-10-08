@@ -30,15 +30,268 @@
 #include "cpu8051.h"
 #include "regwin.h"
 
-static GtkWidget *regclist;
+static GtkWidget *reglist;
+
+#define DATA_ROWS 24
+
+enum
+{
+	COL_NAME = 0,
+	COL_VAL,
+	N_COLUMNS,
+};
+
+#define HEX_DIGITS_2 2
+#define HEX_DIGITS_4 4
+
+struct regwin_read_t {
+	char *name; /* Register name */
+	int w; /* Number of hex digits to display */
+	unsigned int (*read_func)(int addr); /* Function pointer to read value */
+	int param; /* Optional parameter to pass to read function. */
+};
+
+/* Generic read function */
+static unsigned int
+regwin_read_8(int addr)
+{
+	return cpu8051_ReadD(addr);
+}
+
+/* Specific read functions for special registers. */
+
+static unsigned int
+regwin_read_pc(int dummy)
+{
+	return cpu8051.pc;
+}
+
+static unsigned int
+regwin_read_dptr(int dummy)
+{
+	return (cpu8051_ReadD(_DPTRHIGH_) << 8) +
+		cpu8051_ReadD(_DPTRLOW_);
+}
+
+static unsigned int
+regwin_read_bank(int dummy)
+{
+	return cpu8051_ReadD(_PSW_) & 0x18;
+}
+
+/* Read R0 - R7 in current bank. */
+static unsigned int
+regwin_read_rx(int addr)
+{
+	int rbank = regwin_read_bank(0); /* dummy */
+
+	return cpu8051_ReadD(addr + rbank);
+}
+
+/* This array defines how to read value for each register. */
+static struct regwin_read_t regwin_read[DATA_ROWS] = {
+	{
+		"PC",
+		HEX_DIGITS_4,
+		regwin_read_pc,
+		0, /* Dummy */
+	},
+	{
+		"SP",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_SP_,
+	},
+	{
+		"A",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_ACC_,
+	},
+	{
+		"B",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_B_,
+	},
+	{
+		"DPTR",
+		HEX_DIGITS_4,
+		regwin_read_dptr,
+		0, /* Dummy */
+	},
+	{
+		"PSW",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_PSW_,
+	},
+	{
+		"P0",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_P0_,
+	},
+	{
+		"P1",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_P1_,
+	},
+	{
+		"P2",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_P2_,
+	},
+	{
+		"P3",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_P3_,
+	},
+	{
+		"TCON",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_TCON_,
+	},
+	{
+		"TMOD",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_TMOD_,
+	},
+	{
+		"SCON",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_SCON_,
+	},
+	{
+		"IE",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_IE_,
+	},
+	{
+		"IP",
+		HEX_DIGITS_2,
+		regwin_read_8,
+		_IP_,
+	},
+	{
+		"BANK",
+		HEX_DIGITS_2,
+		regwin_read_bank,
+		0, /* Dummy */
+	},
+	/* R0-R7 Registers in current Bank */
+	{
+		"R0",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R0_,
+	},
+	{
+		"R1",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R1_,
+	},
+	{
+		"R2",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R2_,
+	},
+	{
+		"R3",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R3_,
+	},
+	{
+		"R4",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R4_,
+	},
+	{
+		"R5",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R5_,
+	},
+	{
+		"R6",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R6_,
+	},
+	{
+		"R7",
+		HEX_DIGITS_2,
+		regwin_read_rx,
+		_R7_,
+	},
+};
+
+/* Creating a model */
+static GtkListStore *
+regwin_init_store(void)
+{
+	GtkTreeIter iter;
+	int rows;
+	int col;
+	GtkListStore *store;
+	GType col_types[N_COLUMNS];
+
+	for (col = 0; col < N_COLUMNS; col++) {
+		col_types[col] = G_TYPE_STRING;
+	}
+
+	store = gtk_list_store_newv(N_COLUMNS, col_types);
+
+	/* Initialize with rows of dummy data... */
+	for (rows = 0; rows < DATA_ROWS; rows++) {
+		/* Add new row. */
+		gtk_list_store_append(store, &iter);
+	}
+
+	return store;
+}
+
+static void
+regwin_init_columns(void)
+{
+	GtkCellRenderer *renderer;
+	GtkTreeViewColumn *column;
+
+	/* Columns and cell renderers */
+	renderer = gtk_cell_renderer_text_new();
+
+	/* Add Register column */
+	column = gtk_tree_view_column_new_with_attributes(
+		"Name", renderer, "text", COL_NAME, NULL);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(reglist), column);
+
+	/* Add Value column */
+	column = gtk_tree_view_column_new_with_attributes(
+		"Value", renderer, "text", COL_VAL, NULL);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(reglist), column);
+}
 
 GtkWidget *
 regwin_init(void)
 {
-	int i;
+	GtkWidget *frame;
 	GtkWidget *scrollwin;
-	PangoFontDescription *pango_font;
-	char *regdummy[] = { 0 };
+	GtkListStore *store;
+
+	frame = gtk_frame_new("Registers");
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
@@ -49,94 +302,70 @@ regwin_init(void)
 				       GTK_POLICY_AUTOMATIC,
 				       GTK_POLICY_AUTOMATIC);
 
-	regclist = gtk_clist_new(1);
-	gtk_clist_set_selection_mode(GTK_CLIST(regclist), GTK_SELECTION_SINGLE);
-	gtk_clist_set_column_justification(GTK_CLIST(regclist), 0,
-					   GTK_JUSTIFY_LEFT);
+	gtk_container_add(GTK_CONTAINER(frame), scrollwin);
 
-	pango_font = pango_font_description_from_string(FIXED_FONT);
-	gtk_widget_modify_font(regclist, pango_font);
+	/* Creating a model */
+	store = regwin_init_store();
 
-	for (i = 0; i < 24; i++)
-		gtk_clist_append(GTK_CLIST(regclist), regdummy);
+	/* Creating the view component */
+	reglist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(reglist), TRUE);
+	gtk_container_add(GTK_CONTAINER(scrollwin), reglist);
 
-	gtk_container_add(GTK_CONTAINER(scrollwin), regclist);
+	regwin_init_columns();
 
-	return scrollwin;
+	/*
+	 * The tree view has acquired its own reference to the model, so we can
+	 * drop ours. That way the model will be freed automatically when the
+	 * tree view is destroyed.
+	 */
+	g_object_unref(store);
+
+	return frame;
 }
-
 
 /* Show registers. */
 void
 regwin_Show(void)
 {
-	char TextTmp[255];
-	int row = 0;
-	unsigned char PSW = cpu8051_ReadD(_PSW_);
-	unsigned char Rbank;
+	int row;
+	GtkListStore *store;
 
-	gtk_clist_freeze(GTK_CLIST(regclist));
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(reglist)));
 
-	/* Main registers */
-	sprintf(TextTmp , "PC   = %.4X", cpu8051.pc);
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "SP   =   %.2X", cpu8051_ReadD(_SP_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "A    =   %.2X", cpu8051_ReadD(_ACC_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "B    =   %.2X", cpu8051_ReadD(_B_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "DPTR = %.4X", (cpu8051_ReadD(_DPTRHIGH_) << 8) +
-		cpu8051_ReadD(_DPTRLOW_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
+	for (row = 0; row < DATA_ROWS; row++) {
+		int valid;
+		GtkTreeIter iter;
+		int val;
+		char str[8];
 
-	/* Program Status Word */
-	sprintf(TextTmp, "PSW  =   %.2X", PSW);
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
+		if (row == 0) {
+			/* Get first row in list store */
+			valid = gtk_tree_model_get_iter_first(
+				GTK_TREE_MODEL(store), &iter);
+		} else {
+			/* Get next row in list store */
+			valid = gtk_tree_model_iter_next(
+				GTK_TREE_MODEL(store), &iter);
+		}
 
-	/* Ports registers */
-	sprintf(TextTmp , "P0   =   %.2X", cpu8051_ReadD(_P0_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "P1   =   %.2X", cpu8051_ReadD(_P1_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "P2   =   %.2X", cpu8051_ReadD(_P2_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "P3   =   %.2X", cpu8051_ReadD(_P3_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
+		if (!valid) {
+			printf("Invalid iter...\n");
+			return;
+		}
 
-	/* Misc Registers */
-	sprintf(TextTmp , "TCON =   %.2X", cpu8051_ReadD(_TCON_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "TMOD =   %.2X", cpu8051_ReadD(_TMOD_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "SCON =   %.2X", cpu8051_ReadD(_SCON_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "IE   =   %.2X", cpu8051_ReadD(_IE_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "IP   =   %.2X", cpu8051_ReadD(_IP_));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
+		/* Read register value using function pointer. */
+		val = regwin_read[row].read_func(regwin_read[row].param);
 
-	/* R0-R7 Registers in current Bank */
-	Rbank = cpu8051_ReadD(_PSW_) & 0x18;
-	sprintf(TextTmp , "Bank =   %.2X", Rbank);
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R0   =   %.2X", cpu8051_ReadD(_R0_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R1   =   %.2X", cpu8051_ReadD(_R1_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R2   =   %.2X", cpu8051_ReadD(_R2_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R3   =   %.2X", cpu8051_ReadD(_R3_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R4   =   %.2X", cpu8051_ReadD(_R4_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R5   =   %.2X", cpu8051_ReadD(_R5_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R6   =   %.2X", cpu8051_ReadD(_R6_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
-	sprintf(TextTmp , "R7   =   %.2X", cpu8051_ReadD(_R7_ + Rbank));
-	gtk_clist_set_text(GTK_CLIST(regclist), row++, 0, TextTmp);
+		/* Convert to specified number of hex digits. */
+		if (regwin_read[row].w == 2)
+			sprintf(str , "%.2X", (u_int8_t) val);
+		else if (regwin_read[row].w == 4)
+			sprintf(str , "%.4X", (u_int16_t) val);
 
-	gtk_clist_select_row(GTK_CLIST(regclist), 0, 0);
-	gtk_clist_thaw(GTK_CLIST(regclist));
+		gtk_list_store_set(store, &iter,
+				   COL_NAME, regwin_read[row].name,
+				   COL_VAL, str,
+				   -1);
+	}
 }
