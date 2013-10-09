@@ -472,6 +472,123 @@ cpu8051_IntMemBitInfo(uint8_t bit_address, char *text)
 	sprintf(&text[len], ".%X", bit_address);
 }
 
+/* Get instruction size from opcode */
+int
+cpu8051_get_instruction_size(unsigned char opcode)
+{
+	return InstSizesTbl[opcode];
+}
+
+/* Display instruction menmonic. */
+void
+cpu8051_disasm_mnemonic(unsigned char OpCode, char *buf)
+{
+	sprintf(buf, "%s", InstTextTbl[InstTypesTbl[OpCode]]);
+}
+
+/* Disasm instruction arguments starting at address into a text string */
+void
+cpu8051_disasm_args(unsigned int address, char *buf)
+{
+	int len = 0;
+	char TextTmp[20];
+	unsigned char OpCode;
+	int ArgTblOfs;
+	int i;
+
+	OpCode = memory_read8(PGM_MEM_ID, address);
+	ArgTblOfs = OpCode << 2;
+	address++;
+
+	/*
+	 * MOV direct, direct (OpCode 85h) is peculiar, the operands
+	 * are inverted
+	 */
+	if (OpCode == 0x85) {
+		cpu8051_SFRMemInfo(memory_read8(PGM_MEM_ID, address + 1),
+				   TextTmp);
+		len += sprintf(&buf[len], "%s,", TextTmp);
+		cpu8051_SFRMemInfo(memory_read8(PGM_MEM_ID, address),
+				   TextTmp);
+		len += sprintf(&buf[len], "%s", TextTmp);
+		address += 2;
+		return;
+	}
+
+	for (i = 1; i <= InstArgTbl[ArgTblOfs]; i++) {
+		switch (InstArgTbl[ArgTblOfs + i]) {
+		case ADDR11: {
+			len += sprintf(&buf[len],
+				       "%.4XH", ((OpCode << 3) & 0xF00) +
+				       (memory_read8(PGM_MEM_ID, address)));
+			address++;
+			break;
+		}
+		case ADDR16: {
+			len += sprintf(
+				&buf[len], "%.4XH",
+				((memory_read8(PGM_MEM_ID, address) << 8) +
+				 memory_read8(PGM_MEM_ID, address + 1)));
+			address += 2;
+			break;
+		}
+		case DIRECT: {
+			cpu8051_SFRMemInfo(memory_read8(PGM_MEM_ID, address),
+					   TextTmp);
+			len += sprintf(&buf[len], "%s", TextTmp);
+			address++;
+			break;
+		}
+		case BITADDR: {
+			cpu8051_IntMemBitInfo(
+				(memory_read8(PGM_MEM_ID, address) & 0xF8),
+				TextTmp);
+			len += sprintf(&buf[len], "%s.%X" , TextTmp,
+				       (memory_read8(PGM_MEM_ID, address) & 7));
+			address++;
+			break;
+		}
+		case RELADDR: {
+			address++;
+			len += sprintf(&buf[len], "%.4XH", (address & 0xFF00) +
+				       (((address & 0xFF) +
+					 memory_read8(PGM_MEM_ID,
+						      address - 1)) & 0xFF));
+			break;
+		}
+		case DATAIMM: {
+			len += sprintf(&buf[len], "#%.2XH",
+				       memory_read8(PGM_MEM_ID, address));
+			address++;
+			break;
+		}
+		case DATA16: {
+			len += sprintf(&buf[len], "#%.4XH",
+				       ((memory_read8(PGM_MEM_ID,
+						      address) << 8) +
+					memory_read8(PGM_MEM_ID, address+1)));
+			address += 2;
+			break;
+		}
+		case CBITADDR: {
+			cpu8051_IntMemBitInfo((memory_read8(PGM_MEM_ID,
+							    address) & 0xF8),
+					      TextTmp);
+			len += sprintf(&buf[len], "/%s.%X", TextTmp,
+				       (memory_read8(PGM_MEM_ID, address) & 7));
+			address++;
+			break;
+		}
+		default: {
+			len += sprintf(&buf[len], "%s",
+				       ArgsTextTbl[InstArgTbl[ArgTblOfs + i]]);
+		}
+		}
+		if (i < InstArgTbl[ArgTblOfs])
+			len += sprintf(&buf[len], ",");
+	}
+}
+
 /* Disasm one instruction at Address into a Text string */
 int
 cpu8051_Disasm(unsigned int Address, char *Text)
@@ -483,26 +600,33 @@ cpu8051_Disasm(unsigned int Address, char *Text)
 	int InstSize;
 	int i;
 
+	/* Display address. */
+	len += sprintf(Text, " %.4X ", Address);
+
 	OpCode = memory_read8(PGM_MEM_ID, Address);
 	InstSize = InstSizesTbl[OpCode];
 
-	len += sprintf(Text, " %.4X ", Address);
-
+	/* Display hex bytes. */
 	for (i = 0; i < InstSize; i++)
 		len += sprintf(&Text[len], " %.2X",
 				      memory_read8(PGM_MEM_ID, Address + i));
 
 	Address++;
 
+	/* Padd remaining area with spaces. */
 	for (; len < 17;)
 		len += sprintf(&Text[len], " ");
 
+	/* Display instruction menmonic. */
 	len += sprintf(&Text[len], "%s ",
 			      InstTextTbl[InstTypesTbl[OpCode]]);
 	ArgTblOfs = OpCode << 2;
 
+	/* Padd remaining area with spaces. */
 	for (; len < 25;)
 		len += sprintf(&Text[len], " ");
+
+	/* Display instruction arguments. */
 
 	/*
 	 * MOV direct, direct (OpCode 85h) is peculiar, the operands

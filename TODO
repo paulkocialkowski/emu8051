@@ -1,11 +1,11 @@
 	THINGS TO DO
 	------------
 
+-Gtk tree view: Switch from G_TYPE_STRING to G_TYPE_UINT for numbers, and
+ create custom renderer to display as hex numbers.
+
 -Compile only one program for both graphical and console modes, or
  support only the graphical mode.
-- Some fine tuning around the classes
-- Make MemWin, RegWin be able to make a standalone
-  window if parentwin=0.
 - Connect File->Open, View->... and Help->License menus.
 - Make the RegWin and MemWin react when mouse clicked. (modify register or
   memory)

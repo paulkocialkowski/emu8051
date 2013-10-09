@@ -88,6 +88,15 @@ unsigned char
 cpu8051_ReadB(uint8_t bit_address);
 
 int
+cpu8051_get_instruction_size(unsigned char opcode);
+
+void
+cpu8051_disasm_mnemonic(unsigned char OpCode, char *buf);
+
+void
+cpu8051_disasm_args(unsigned int address, char *buf);
+
+int
 cpu8051_Disasm(unsigned int Address, char *Text);
 
 #endif /* CPU8051_H */
