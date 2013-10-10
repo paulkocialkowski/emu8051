@@ -448,6 +448,8 @@ main(int argc, char **argv)
 
 	if (hex_file != NULL)
 		emugtk_new_file(hex_file);
+	else
+		emugtk_Reset();
 
 	gtk_main();
 
