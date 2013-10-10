@@ -33,6 +33,8 @@
 #include "hexfile.h"
 #include "keyboard.h"
 
+extern struct options_t options;
+
 /* Capitalize all letters in buffer */
 static void
 Capitalize(char *buffer)
@@ -451,16 +453,12 @@ TooMuchParameters:
 int
 main(int argc, char **argv)
 {
-	char *hex_file;
-
-	ParseCommandLineOptions(argc, argv);
+	parse_command_line_options(argc, argv);
 
 	cpu8051_init();
 
-	hex_file = get_hex_filename();
-
-	if (hex_file != NULL)
-		LoadHexFile(hex_file);
+	if (options.filename != NULL)
+		LoadHexFile(options.filename);
 
 	console_main();
 

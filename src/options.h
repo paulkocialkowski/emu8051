@@ -27,11 +27,12 @@
   "  -h                    display this help and exit\n" \
   "  -version              display version information and exit\n"
 
-void
-ParseCommandLineOptions(int argc, char *argv[]);
+struct options_t {
+	char *filename;
+} options_t;
 
-char *
-get_hex_filename(void);
+void
+parse_command_line_options(int argc, char *argv[]);
 
 const char *
 get_package_description(void);

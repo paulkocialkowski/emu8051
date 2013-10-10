@@ -53,6 +53,7 @@ static int running_function_tag;
 GtkWidget *mainwin;
 
 extern struct app_config_t *cfg;
+extern struct options_t options;
 
 /* Step out of running state */
 static void
@@ -430,10 +431,7 @@ emugtk_new_file(char *file)
 int
 main(int argc, char **argv)
 {
-	char *hex_file;
-
-	ParseCommandLineOptions(argc, argv);
-
+	parse_command_line_options(argc, argv);
 	app_config_load();
 
 	cpu8051_init();
@@ -444,10 +442,8 @@ main(int argc, char **argv)
 
 	emugtk_window_init();
 
-	hex_file = get_hex_filename();
-
-	if (hex_file != NULL)
-		emugtk_new_file(hex_file);
+	if (options.filename != NULL)
+		emugtk_new_file(options.filename);
 	else
 		emugtk_Reset();
 
