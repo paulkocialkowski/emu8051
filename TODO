@@ -1,15 +1,16 @@
-	THINGS TO DO
-	------------
+	TODO
+	----
+
+-Add visual indication when emulated program is running
 
 -Gtk tree view: Switch from G_TYPE_STRING to G_TYPE_UINT for numbers, and
  create custom renderer to display as hex numbers.
 
--Compile only one program for both graphical and console modes, or
- support only the graphical mode.
-- Connect File->Open, View->... and Help->License menus.
-- Make the RegWin and MemWin react when mouse clicked. (modify register or
-  memory)
-- Enlever les fonctions ReadI, WriteI, dumpI etc... et plutot utiliser les
-  fonctions ReadInt, WriteInt, DumpInt, DumpExt, etc.
-- Lors d'un DumpInt, verifier a ne pas afficher plus haut que la taille
-  reelle de la memoire interne. (Detail)
+-Compile only one program for both graphical and console modes.
+
+-Add new breakpoint menu:
+   ->show breakpoints
+   ->remove all breakpoints
+
+-Create config menu:
+   -> Do not reset emulator on hex file load enable/disable
