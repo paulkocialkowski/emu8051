@@ -17,6 +17,7 @@ common_SOURCES = \
 	instructions_8051.c \
 	options.c \
 	options.h \
+	log.c log.h \
 	app-config.c app-config.h \
 	hexfile.c \
 	hexfile.h \

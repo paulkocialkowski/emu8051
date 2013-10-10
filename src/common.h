@@ -35,6 +35,8 @@
 #  include <strings.h>
 #endif
 
+#include "log.h"
+
 #define FIXED_FONT "monospace 12"
 
 #define MAX_FILENAME_LENGTH 1024
