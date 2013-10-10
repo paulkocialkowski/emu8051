@@ -49,7 +49,8 @@
 
 static int running;
 static int running_function_tag;
-static GtkWidget *mainwin;
+
+GtkWidget *mainwin;
 
 extern struct app_config_t *cfg;
 

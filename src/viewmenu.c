@@ -56,9 +56,8 @@ ViewAddMenu(GtkWidget *menu_bar)
 	item = gtk_menu_item_new_with_label("External Memory Dump");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
-	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
-				  GTK_SIGNAL_FUNC(ViewMenuExternalDump),
-				  NULL);
+	g_signal_connect(item, "activate", G_CALLBACK(ViewMenuExternalDump),
+			 NULL);
 
 	AddMenuSeparator(menu);
 
@@ -66,12 +65,11 @@ ViewAddMenu(GtkWidget *menu_bar)
 	item = gtk_menu_item_new_with_label("Internal Memory Dump");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
-	gtk_signal_connect_object(GTK_OBJECT(item), "activate",
-				  GTK_SIGNAL_FUNC(ViewMenuInternalDump),
-				  NULL);
+	g_signal_connect(item, "activate", G_CALLBACK(ViewMenuInternalDump),
+			 NULL);
 
 	/* Adding submenu title. */
 	item = gtk_menu_item_new_with_label("View");
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), menu);
-	gtk_menu_bar_append(GTK_MENU_BAR(menu_bar), item);
+	gtk_menu_shell_append((GtkMenuShell *) menu_bar, item);
 }
