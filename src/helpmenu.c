@@ -23,6 +23,8 @@
 #  include "config.h"
 #endif
 
+#include <stdbool.h>
+
 #if STDC_HEADERS
 #  include <string.h>
 #elif HAVE_STRINGS_H
@@ -37,6 +39,8 @@
 #include "messagebox.h"
 #include "helpmenu.h"
 
+#define PACKAGE_COPYRIGHT "(c) Hugo Villeneuve"
+
 static void
 HelpCommandsEvent(gchar *string)
 {
@@ -45,10 +49,45 @@ HelpCommandsEvent(gchar *string)
 }
 
 static void
-HelpAboutEvent(gchar *string)
+HelpAboutEvent(GtkWidget *widget, gpointer data)
 {
-	ShowMessage("About", VERSION_STRING, GTK_JUSTIFY_CENTER,
-		    MESSAGE_DIALOG_NORMAL_FONT);
+	const char *authors[] = {
+		"Hugo Villeneuve <hugo@hugovil.com>",
+		"Jonathan St-André",
+		"Pascal Fecteau",
+		"Jimmy Ringuette",
+		NULL,
+	};
+
+	const char *license =
+		"This program is free software; you can redistribute it"
+		" and/or"
+		" modify it under the terms of the GNU General Public License"
+		" as published by the Free Software Foundation; either"
+		" version 2 of the License, or (at your option) any later"
+		" version.\n\n"
+		"This program is distributed in the hope that it will be"
+		" useful, but WITHOUT ANY WARRANTY; without even the implied"
+		" warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR"
+		" PURPOSE.  See the GNU General Public License for more"
+		" details.\n\n"
+		"You should have received a copy of the GNU General Public"
+		" License along with this program. If not, see\n"
+		"   <http://www.gnu.org/licenses/>";
+
+	gtk_show_about_dialog(
+		NULL,
+		"name", PACKAGE_NAME,
+		"title", "About Dialog",
+		"version", PACKAGE_VERSION,
+		"logo-icon-name", PACKAGE_TARNAME,
+		"comments", get_package_description(),
+		"authors", authors,
+		"website", PACKAGE_URL,
+		"copyright", PACKAGE_COPYRIGHT,
+		"license", license,
+		"wrap-license", true,
+		NULL);
 }
 
 void

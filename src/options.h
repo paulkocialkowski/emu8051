@@ -27,19 +27,13 @@
   "  -h                    display this help and exit\n" \
   "  -version              display version information and exit\n"
 
-#define VERSION_STRING \
-  PACKAGE "\n" \
-  "Version " VERSION "\n" \
-  "\n" \
-  "Written by\n" \
-  "Hugo Villeneuve\n" \
-  "Jonathan St-André\n" \
-  "Pascal Fecteau"
-
 void
 ParseCommandLineOptions(int argc, char *argv[]);
 
 char *
 get_hex_filename(void);
+
+const char *
+get_package_description(void);
 
 #endif /* OPTIONS_H */

@@ -55,6 +55,12 @@ DisplayUsage(void)
 	printf(COMMAND_LINE_OPTIONS);
 }
 
+const char *
+get_package_description(void)
+{
+	return "Emulator for 8051 family microcontrollers";
+}
+
 /*******************************************************************************
  * Display version information and exit
  ******************************************************************************/
