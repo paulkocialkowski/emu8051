@@ -148,9 +148,7 @@ memwin_DumpD(char *MemAddress)
 	unsigned int Address;
 	GtkListStore *store;
 
-#ifdef EMU8051_DEBUG
-	printf("memwin_DumpD, address = %s\n", MemAddress);
-#endif
+	log_info("memwin_DumpD, address = %s", MemAddress);
 
 	if (strlen(MemAddress) != 0) {
 		if (STREQ(MemAddress, "PC"))

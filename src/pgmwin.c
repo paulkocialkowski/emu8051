@@ -107,9 +107,7 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	GtkTreeModel     *model;
 	GtkTreeIter       iter;
 
-#ifdef EMU8051_DEBUG
-	printf("pgmwin_sel_changed_event()\n");
-#endif
+	log_debug("pgmwin_sel_changed_event()");
 
 	/* This will only work in single or browse selection mode! */
 	selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(pgmlist));
@@ -123,18 +121,14 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 		/* Convert hex address in ASCII to integer. */
 		sscanf(str_addr, "%x", &val);
 
-#ifdef EMU8051_DEBUG
-		printf("  row address is: $%04X\n", val);
-#endif
+		log_debug("  row address is: $%04X", val);
 
 		ToggleBreakpoint(val);
 		pgmwin_Disasm();
 
 		g_free(str_addr);
 	} else {
-#ifdef EMU8051_DEBUG
-		printf("  no row selected.\n");
-#endif
+		log_debug("  no row selected");
 	}
 
 	return FALSE;

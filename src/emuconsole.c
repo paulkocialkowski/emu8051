@@ -462,9 +462,7 @@ main(int argc, char **argv)
 
 	console_main();
 
-#ifdef EMU8051_DEBUG
-	printf("End of program.\n");
-#endif
+	log_info("Terminate");
 
 	return 0;
 }

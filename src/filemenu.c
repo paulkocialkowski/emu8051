@@ -46,12 +46,9 @@ remember_current_folder(GtkFileChooser *chooser)
 	if (folder != NULL) {
 		if (strlen(folder) >= MAX_FILENAME_LENGTH) {
 			/* Non-critical error */
-			g_print("current folder name too long for buffer\n");
+			log_warn("current folder name too long for buffer");
 		} else {
-#if defined(DEBUG)
-			g_print("current folder = %s\n", folder);
-#endif
-
+			log_info("current folder = %s", folder);
 			strncpy(previous_folder, folder, MAX_FILENAME_LENGTH);
 		}
 
@@ -66,9 +63,7 @@ FileOpenEvent(GtkObject *object, gpointer data)
 	char *dir;
 	char *cwd = NULL;
 
-#if defined(DEBUG)
-	g_print("FileOpenEvent()\n");
-#endif
+	log_info("FileOpenEvent()");
 
 	/* Create a new file selection widget. */
 	file_dialog = gtk_file_chooser_dialog_new(
@@ -97,9 +92,7 @@ FileOpenEvent(GtkObject *object, gpointer data)
 			GTK_FILE_CHOOSER(file_dialog));
 
 		if (selected_file != NULL) {
-#if defined(DEBUG)
-			g_print("emugtk_File = %s\n", selected_file);
-#endif
+			log_info("emugtk_File = %s", selected_file);
 
 			remember_current_folder(GTK_FILE_CHOOSER(file_dialog));
 
@@ -114,10 +107,6 @@ FileOpenEvent(GtkObject *object, gpointer data)
 static void
 FileQuitEvent(gchar *string)
 {
-#if defined(DEBUG)
-	g_print("%s\n", string);
-#endif
-
 	gtk_main_quit();
 }
 

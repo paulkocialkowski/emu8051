@@ -60,9 +60,7 @@ static void
 emugtk_stop_running()
 {
 	if (running) {
-#ifdef EMU8051_DEBUG
-		printf("emugtk_StopRunning()\n");
-#endif
+		log_info("StopRunning()");
 		g_source_remove(running_function_tag);
 		running = 0;
 		regwin_Show();
@@ -77,9 +75,7 @@ emugtk_running(gpointer data)
 {
 	cpu8051_Exec();
 	if (IsBreakpoint(cpu8051.pc)) {
-#ifdef EMU8051_DEBUG
-		g_print("Breakpoint Hit, stopping!\n");
-#endif
+		log_info("Breakpoint Hit");
 		emugtk_stop_running();
 	}
 
@@ -91,9 +87,7 @@ static void
 emugtk_start_running(void)
 {
 	if (!running) {
-#ifdef EMU8051_DEBUG
-		printf("emugtk_StartRunning()\n");
-#endif
+		log_info("StartRunning()");
 		running_function_tag = g_idle_add(emugtk_running, 0);
 		running = 1;
 	}
@@ -131,9 +125,7 @@ emugtk_Reset(void)
 static void
 emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_ResetEvent(...)\n");
-#endif
+	log_info("ResetEvent()");
 	emugtk_stop_running();
 	emugtk_Reset();
 }
@@ -152,9 +144,8 @@ emugtk_Step(void)
 static void
 emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_RunEvent(...)\n");
-#endif
+	log_info("RunEvent()");
+
 	if (running)
 		emugtk_stop_running();
 	else
@@ -165,9 +156,7 @@ emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_StopEvent(...)\n");
-#endif
+	log_info("StopEvent()");
 	emugtk_stop_running();
 }
 
@@ -175,9 +164,7 @@ emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_StepEvent(...)\n");
-#endif
+	log_info("StepEvent()");
 	emugtk_stop_running();
 	emugtk_Step();
 }
@@ -399,10 +386,7 @@ emugtk_window_init(void)
 static void
 emugtk_UpdateDisplay(void)
 {
-#ifdef EMU8051_DEBUG
-	g_print("emugtk_UpdateDisplay()\n");
-#endif
-
+	log_debug("UpdateDisplay()");
 	regwin_Show();
 	pgmwin_Disasm();
 	memwin_DumpD("00");
@@ -449,9 +433,7 @@ main(int argc, char **argv)
 
 	gtk_main();
 
-#ifdef EMU8051_DEBUG
-	printf("End of program.\n");
-#endif
+	log_info("Terminate");
 
 	app_config_save();
 

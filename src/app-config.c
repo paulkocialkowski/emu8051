@@ -62,17 +62,11 @@ app_config_key_file_get_int(GKeyFile *kf, const char *grp, const char *key, int 
 {
     char *str = g_key_file_get_value(kf, grp, key, NULL);
 
-#ifdef EMU8051_DEBUG
-    printf("key: %s\n", key);
-#endif
+    log_debug("key: %s", key);
 
     if (G_LIKELY(str)) {
 	    *value = atoi(str);
-
-#ifdef EMU8051_DEBUG
-	    printf("  value = %d\n", *value);
-#endif
-
+	    log_debug("  value = %d", *value);
 	    g_free(str);
     }
 
@@ -117,9 +111,7 @@ app_config_get_file_path(void)
 
 	file_path = g_build_filename(dir_path, file, NULL);
 
-#ifdef EMU8051_DEBUG
-	printf("app. config file = %s\n", file_path);
-#endif
+	log_info("app. config file = %s", file_path);
 
 	g_free(dir_path);
 

@@ -22,9 +22,6 @@
 #ifndef COMMON_H
 #define COMMON_H 1
 
-/* Define this to have debugging output. */
-/* #define EMU8051_DEBUG 1 */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
