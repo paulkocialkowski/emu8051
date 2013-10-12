@@ -40,6 +40,7 @@ static GtkWidget *memlist;
 enum
 {
 	COL_ADDRESS = 0,
+	COL_DATA0,
 	COL_ASCII = DATA_COLS + 1,
 	N_COLUMNS,
 };
@@ -70,6 +71,60 @@ memwin_init_store(void)
 }
 
 static void
+memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
+	    gchar *new_str, gpointer model)
+{
+	guint column;
+	gpointer columnptr;
+	GtkTreeIter iter;
+	int address;
+	u_int8_t old;
+	int new;
+	char *str;
+
+	if (!model) {
+		g_error("Unable to get model from cell renderer");
+	}
+
+	/* Column number is passed as renderer object data */
+        columnptr = g_object_get_data(G_OBJECT(cell), "column");
+        column = GPOINTER_TO_UINT(columnptr);
+
+	/* Get the iterator */
+        gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+
+	/* Get base address. */
+	gtk_tree_model_get(model, &iter, COL_ADDRESS, &str, -1);
+	sscanf(str, "%x", &address);
+
+	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
+	address += (column - COL_DATA0);
+	old = cpu8051_ReadD(address);
+
+	log_info("Address: $%02X", address);
+	log_info("  old value: $%02X", old);
+
+	/* Convert new value (asciihex) to integer. */
+	sscanf(new_str, "%x", &new);
+
+	if ((new < 0) || (new > 255)) {
+		log_info("  new value: out of range");
+		new = old; /* Put back old value... */
+	} else {
+		log_info("  new value: $%02X", new);
+	}
+
+	/* Store new value in emulator memory. */
+	cpu8051_WriteD(address, new);
+
+	/* Convert to text. */
+	sprintf(str, "%.2X", new);
+
+	/* Store new value in gtk model. */
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, str, -1);
+};
+
+static void
 memwin_init_columns(void)
 {
 	int i;
@@ -85,7 +140,21 @@ memwin_init_columns(void)
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
 
-	for (i = 1; i < (DATA_COLS + 1); i++) {
+	for (i = COL_DATA0; i < (COL_DATA0 + DATA_COLS); i++) {
+		/* Create new renderer for each editable cell. */
+		renderer = gtk_cell_renderer_text_new();
+
+		/* Allow edition, align to right side. */
+		g_object_set(renderer, "editable", TRUE, "xalign", 1.0, NULL);
+
+		g_signal_connect(renderer, "edited",
+				 G_CALLBACK(memwin_cell_edited),
+				 gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
+
+		/* Add column index, used when editing the cell. */
+		g_object_set_data(G_OBJECT(renderer), "column",
+				  GUINT_TO_POINTER(i));
+
 		column = gtk_tree_view_column_new_with_attributes(
 			"Val", renderer, "text", i, NULL);
 		gtk_tree_view_column_set_sizing(column,
