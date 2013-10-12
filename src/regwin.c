@@ -29,6 +29,8 @@
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "regwin.h"
+#include "memwin.h"
+#include "instructions_8051.h"
 
 static GtkWidget *reglist;
 
@@ -44,21 +46,40 @@ enum
 #define HEX_DIGITS_2 2
 #define HEX_DIGITS_4 4
 
-struct regwin_read_t {
+struct regwin_infos_t {
 	char *name; /* Register name */
 	int w; /* Number of hex digits to display */
-	unsigned int (*read_func)(int addr); /* Function pointer to read value */
+	unsigned int (*read_func)(int addr); /* Function to read value */
+	void (*write_func)(int param, int val); /* Function to write value */
 	int param; /* Optional parameter to pass to read function. */
 };
 
-/* Generic read function */
+/* Generic read/write functions */
 static unsigned int
-regwin_read_8(int addr)
+regwin_read(int addr, int width)
 {
-	return cpu8051_ReadD(addr);
+	if (width == 2)
+		return cpu8051_ReadD(addr);
+	else if (width == 4) {
+		/* Address is low address. */
+		return (cpu8051_ReadD(addr + 1) << 8) +
+			cpu8051_ReadD(addr);
+	}
 }
 
-/* Specific read functions for special registers. */
+static void
+regwin_write(int addr, int val, int width)
+{
+	if (width == 2)
+		cpu8051_WriteD(addr, (u_int8_t) val);
+	else if (width == 4) {
+		/* Address is low address. */
+		cpu8051_WriteD(addr + 1, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+		cpu8051_WriteD(addr, (u_int8_t) val);
+	}
+};
+
+/* Specific read/write functions for special registers. */
 
 static unsigned int
 regwin_read_pc(int dummy)
@@ -66,173 +87,189 @@ regwin_read_pc(int dummy)
 	return cpu8051.pc;
 }
 
-static unsigned int
-regwin_read_dptr(int dummy)
+static void
+regwin_write_pc(int param, int val)
 {
-	return (cpu8051_ReadD(_DPTRHIGH_) << 8) +
-		cpu8051_ReadD(_DPTRLOW_);
+	cpu8051.pc = (u_int16_t) val;
 }
 
 static unsigned int
 regwin_read_bank(int dummy)
 {
-	return cpu8051_ReadD(_PSW_) & 0x18;
+	return BANKPSW >> 3;
+}
+
+static void
+regwin_write_bank(int param, int bank_number)
+{
+	u_int8_t psw = cpu8051_ReadD(_PSW_);
+
+	if ((bank_number < 0) || (bank_number > 3)) {
+		log_info("Error: invalid bank number: %d", bank_number);
+		bank_number = 0;
+	}
+
+	cpu8051_WriteD(_PSW_, (psw & ~0x18) | (bank_number << 3));
 }
 
 /* Read R0 - R7 in current bank. */
 static unsigned int
-regwin_read_rx(int addr)
+regwin_read_rx(int offset)
 {
-	int rbank = regwin_read_bank(0); /* dummy */
+	return cpu8051_ReadD(BANKPSW + offset);
+}
 
-	return cpu8051_ReadD(addr + rbank);
+static void
+regwin_write_rx(int offset, int val)
+{
+	cpu8051_WriteD(BANKPSW + offset, (u_int8_t) val);
 }
 
 /* This array defines how to read value for each register. */
-static struct regwin_read_t regwin_read[DATA_ROWS] = {
+static struct regwin_infos_t regwin_infos[DATA_ROWS] = {
 	{
 		"PC",
 		HEX_DIGITS_4,
-		regwin_read_pc,
+		regwin_read_pc, regwin_write_pc,
 		0, /* Dummy */
 	},
 	{
 		"SP",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_SP_,
 	},
 	{
 		"A",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_ACC_,
 	},
 	{
 		"B",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_B_,
 	},
 	{
 		"DPTR",
 		HEX_DIGITS_4,
-		regwin_read_dptr,
-		0, /* Dummy */
+		NULL, NULL,
+		_DPL_,
 	},
 	{
 		"PSW",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_PSW_,
 	},
 	{
 		"P0",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_P0_,
 	},
 	{
 		"P1",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_P1_,
 	},
 	{
 		"P2",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_P2_,
 	},
 	{
 		"P3",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_P3_,
 	},
 	{
 		"TCON",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_TCON_,
 	},
 	{
 		"TMOD",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_TMOD_,
 	},
 	{
 		"SCON",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_SCON_,
 	},
 	{
 		"IE",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_IE_,
 	},
 	{
 		"IP",
 		HEX_DIGITS_2,
-		regwin_read_8,
+		NULL, NULL,
 		_IP_,
 	},
 	{
 		"BANK",
 		HEX_DIGITS_2,
-		regwin_read_bank,
+		regwin_read_bank, regwin_write_bank,
 		0, /* Dummy */
 	},
 	/* R0-R7 Registers in current Bank */
 	{
 		"R0",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R0_,
 	},
 	{
 		"R1",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R1_,
 	},
 	{
 		"R2",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R2_,
 	},
 	{
 		"R3",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R3_,
 	},
 	{
 		"R4",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R4_,
 	},
 	{
 		"R5",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R5_,
 	},
 	{
 		"R6",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R6_,
 	},
 	{
 		"R7",
 		HEX_DIGITS_2,
-		regwin_read_rx,
+		regwin_read_rx, regwin_write_rx,
 		_R7_,
 	},
 };
@@ -262,6 +299,102 @@ regwin_init_store(void)
 	return store;
 }
 
+static int
+regwin_find_row(const char *regname)
+{
+	int row;
+
+	for (row = 0; row < DATA_ROWS; row++) {
+		if (strcmp(regwin_infos[row].name, regname) == 0)
+			return row;
+	}
+
+	return -1; /* Programming error. */
+}
+
+static void
+regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
+		   gchar *new_str, gpointer model)
+{
+	GtkTreeIter iter;
+	int old;
+	int new;
+	char *str;
+	int row;
+
+	if (!model) {
+		g_error("Unable to get model from cell renderer");
+	}
+
+	/* Get the iterator */
+        gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+
+	/* Get register name. */
+	gtk_tree_model_get(model, &iter, COL_NAME, &str, -1);
+
+	log_info("Register: %s", str);
+	row = regwin_find_row(str);
+	log_info("  row = %d", row);
+
+	/* Read current (old) value. */
+	gtk_tree_model_get(model, &iter, COL_VAL, &str, -1);
+
+	/* Convert old value (asciihex) to integer. */
+	sscanf(str, "%x", &old);
+
+	if (regwin_infos[row].w == 2)
+		log_info("  old value: $%02X", old);
+	else if (regwin_infos[row].w == 4)
+		log_info("  old value: $%04X", old);
+
+	/* Convert new value (asciihex) to integer. */
+	sscanf(new_str, "%x", &new);
+
+	if (regwin_infos[row].w == 2) {
+		if ((new < 0) || (new > 0xFF)) {
+			log_info("  new value: out of range");
+			new = old; /* Put back old value... */
+		} else {
+			log_info("  new value: $%02X", new);
+		}
+	} else if (regwin_infos[row].w == 4) {
+		if ((new < 0) || (new > 0xFFFF)) {
+			log_info("  new value: out of range");
+			new = old; /* Put back old value... */
+		} else {
+			log_info("  new value: $%04X", new);
+		}
+	}
+
+	/* Convert new value to text. */
+	if (regwin_infos[row].w == 2)
+		sprintf(str, "%02X", new);
+	else if (regwin_infos[row].w == 4)
+		sprintf(str, "%04X", new);
+
+	/* Store new value in emulator register. */
+	if (regwin_infos[row].write_func == NULL) {
+		/*
+		 * Write register value using generic 8 or 16 bits write
+		 * function, depending on width.
+		 */
+		regwin_write(regwin_infos[row].param, new, regwin_infos[row].w);
+	} else {
+		/* Write register value using custom function pointer. */
+		regwin_infos[row].write_func(regwin_infos[row].param, new);
+	}
+
+	/* Store new value in gtk model. */
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VAL, str, -1);
+
+	/*
+	 * Make sure to update all windows.
+	 * For example, R0-R7 values depends on internal memory values.
+	 */
+	regwin_Show();
+	memwin_DumpD("0");
+};
+
 static void
 regwin_init_columns(void)
 {
@@ -278,6 +411,17 @@ regwin_init_columns(void)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(reglist), column);
 
 	/* Add Value column */
+
+	/* Create new renderer for value column (editable). */
+	renderer = gtk_cell_renderer_text_new();
+
+	/* Allow edition, align to right side. */
+	g_object_set(renderer, "editable", TRUE, "xalign", 1.0, NULL);
+
+	g_signal_connect(renderer, "edited",
+			 G_CALLBACK(regwin_cell_edited),
+			 gtk_tree_view_get_model(GTK_TREE_VIEW(reglist)));
+
 	column = gtk_tree_view_column_new_with_attributes(
 		"Value", renderer, "text", COL_VAL, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
@@ -354,17 +498,26 @@ regwin_Show(void)
 			return;
 		}
 
-		/* Read register value using function pointer. */
-		val = regwin_read[row].read_func(regwin_read[row].param);
+		if (regwin_infos[row].read_func == NULL) {
+			/*
+			 * Read register value using generic 8 or 16 bits read
+			 * function, depending on width.
+			 */
+			val = regwin_read(regwin_infos[row].param,
+					  regwin_infos[row].w);
+		} else {
+			/* Read register value using custom function pointer. */
+			val = regwin_infos[row].read_func(regwin_infos[row].param);
+		}
 
 		/* Convert to specified number of hex digits. */
-		if (regwin_read[row].w == 2)
+		if (regwin_infos[row].w == 2)
 			sprintf(str , "%.2X", (u_int8_t) val);
-		else if (regwin_read[row].w == 4)
+		else if (regwin_infos[row].w == 4)
 			sprintf(str , "%.4X", (u_int16_t) val);
 
 		gtk_list_store_set(store, &iter,
-				   COL_NAME, regwin_read[row].name,
+				   COL_NAME, regwin_infos[row].name,
 				   COL_VAL, str,
 				   -1);
 	}
