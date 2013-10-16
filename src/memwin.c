@@ -30,6 +30,7 @@
 #include "memory.h"
 #include "hexfile.h"
 #include "cpu8051.h"
+#include "regwin.h"
 #include "memwin.h"
 
 static GtkWidget *memlist;
@@ -122,6 +123,12 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Store new value in gtk model. */
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, str, -1);
+
+	/*
+	 * Make sure to update all registers and memory.
+	 * For example, BANKed registers depends on internal memory.
+	 */
+	regwin_Show();
 };
 
 static void
