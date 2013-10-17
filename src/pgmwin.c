@@ -44,6 +44,7 @@ enum
 	COL_B2,
 	COL_INST,
 	COL_ARGS,
+	COL_COLOR,
 	N_COLUMNS,
 };
 
@@ -55,6 +56,7 @@ char *col_names[N_COLUMNS] = {
 	"B2",
 	"Mnemonic",
 	"Arguments",
+	"COLOR", /* Not displayed, used to set foreground color of cell. */
 };
 
 /* Creating a model */
@@ -67,14 +69,22 @@ pgmwin_init_store(void)
 	GtkListStore *store;
 	GType col_types[N_COLUMNS];
 
+	/* No need for static array, all our columns are of the same type. */
 	for (col = 0; col < N_COLUMNS; col++)
 		col_types[col] = G_TYPE_STRING;
 
 	store = gtk_list_store_newv(N_COLUMNS, col_types);
 
 	/* Initialize with rows of dummy data... */
-	for (rows = 0; rows < DATA_ROWS; rows++)
+	for (rows = 0; rows < DATA_ROWS; rows++) {
 		gtk_list_store_append(store, &iter);
+		if (rows == 0) {
+			/* Color first row in red (current instruction). */
+			gtk_list_store_set(store, &iter, COL_COLOR, "red", -1);
+		} else {
+			gtk_list_store_set(store, &iter, COL_COLOR, "black", -1);
+		}
+	}
 
 	return store;
 }
@@ -85,18 +95,27 @@ pgmwin_init_columns(void)
 	int k;
 	GtkCellRenderer *renderer;
 
-	/* Columns and cell renderers */
+	/* Create renderer */
 	renderer = gtk_cell_renderer_text_new();
 
-	/* Add columns */
-	for (k = 0; k < N_COLUMNS; k++) {
+	/* Add columns, except for last one (COL_COLOR). */
+	for (k = 0; k < COL_COLOR; k++) {
 		GtkTreeViewColumn *col;
 
-		col = gtk_tree_view_column_new_with_attributes(
-			col_names[k], renderer, "text", k, NULL);
+		/* Create tree view column */
+		col = gtk_tree_view_column_new();
+		gtk_tree_view_column_set_title(col, col_names[k]);
 		gtk_tree_view_column_set_sizing(col,
 						GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column(GTK_TREE_VIEW(pgmlist), col);
+
+		/* Pack cell renderer into column */
+		gtk_tree_view_column_pack_start(col, renderer, TRUE);
+
+		/* Establish connection between cell renderer and data store. */
+		gtk_tree_view_column_set_attributes(col, renderer, "text", k,
+						    "foreground", COL_COLOR,
+						    NULL);
 	}
 }
 
