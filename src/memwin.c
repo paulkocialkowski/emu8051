@@ -217,22 +217,15 @@ memwin_init(void)
 
 /* Dump up to 256 bytes from Address in Memory (direct addressing) */
 void
-memwin_DumpD(char *MemAddress)
+memwin_DumpD(void)
 {
 	int row;
 	unsigned int Address;
 	GtkListStore *store;
 
-	log_info("memwin_DumpD, address = %s", MemAddress);
+	log_info("memwin_DumpD()");
 
-	if (strlen(MemAddress) != 0) {
-		if (STREQ(MemAddress, "PC"))
-			Address = cpu8051.pc;
-		else
-			Address = Ascii2Hex(MemAddress, strlen(MemAddress));
-	} else {
-		Address = 0;
-	}
+	Address = 0;
 
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
 

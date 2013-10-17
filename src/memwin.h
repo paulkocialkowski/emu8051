@@ -28,6 +28,6 @@ GtkWidget *
 memwin_init(void);
 
 void
-memwin_DumpD(char *Address);
+memwin_DumpD(void);
 
 #endif /* MEMWIN_H */

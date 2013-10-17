@@ -389,7 +389,7 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	 * For example, R0-R7 values depends on internal memory values.
 	 */
 	regwin_Show();
-	memwin_DumpD("0");
+	memwin_DumpD();
 };
 
 static void
