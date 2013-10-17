@@ -29,6 +29,7 @@
 #include "memory.h"
 #include "cpu8051.h"
 #include "pgmwin.h"
+#include "hexfile.h"
 
 static GtkWidget *pgmlist;
 
@@ -119,7 +120,7 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 		gtk_tree_model_get(model, &iter, COL_ADDR, &str_addr, -1);
 
 		/* Convert hex address in ASCII to integer. */
-		sscanf(str_addr, "%x", &val);
+		val = asciihex2int(str_addr);
 
 		log_debug("  row address is: $%04X", val);
 
@@ -228,7 +229,8 @@ pgmwin_Disasm(void)
 		gtk_list_store_set(store, &iter, COL_BREAKPT, str, -1);
 
 		/* Display base address. */
-		sprintf(str, "%.4X", Address);
+		int2asciihex(Address, str, 4);
+
 		gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
 
 		OpCode = memory_read8(PGM_MEM_ID, Address);
@@ -236,8 +238,8 @@ pgmwin_Disasm(void)
 
 		/* Display instruction hex bytes. */
 		for (k = 0, col_id = COL_B0; k < InstSize; k++, col_id++) {
-			sprintf(str, "%.2X", memory_read8(PGM_MEM_ID,
-							  Address + k));
+			int2asciihex(memory_read8(PGM_MEM_ID, Address + k),
+				     str, 2);
 			gtk_list_store_set(store, &iter, col_id, str, -1);
 		}
 

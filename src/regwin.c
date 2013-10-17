@@ -31,6 +31,7 @@
 #include "regwin.h"
 #include "memwin.h"
 #include "instructions_8051.h"
+#include "hexfile.h"
 
 static GtkWidget *reglist;
 
@@ -64,7 +65,8 @@ regwin_read(int addr, int width)
 		/* Address is low address. */
 		return (cpu8051_ReadD(addr + 1) << 8) +
 			cpu8051_ReadD(addr);
-	}
+	} else
+		return 0xFFFFFFFF;
 }
 
 static void
@@ -339,16 +341,14 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	/* Read current (old) value. */
 	gtk_tree_model_get(model, &iter, COL_VAL, &str, -1);
 
-	/* Convert old value (asciihex) to integer. */
-	sscanf(str, "%x", &old);
+	old = asciihex2int(str);
 
 	if (regwin_infos[row].w == 2)
 		log_info("  old value: $%02X", old);
 	else if (regwin_infos[row].w == 4)
 		log_info("  old value: $%04X", old);
 
-	/* Convert new value (asciihex) to integer. */
-	sscanf(new_str, "%x", &new);
+	new = asciihex2int(new_str);
 
 	if (regwin_infos[row].w == 2) {
 		if ((new < 0) || (new > 0xFF)) {
@@ -367,10 +367,7 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	}
 
 	/* Convert new value to text. */
-	if (regwin_infos[row].w == 2)
-		sprintf(str, "%02X", new);
-	else if (regwin_infos[row].w == 4)
-		sprintf(str, "%04X", new);
+	int2asciihex(new, str, regwin_infos[row].w);
 
 	/* Store new value in emulator register. */
 	if (regwin_infos[row].write_func == NULL) {
@@ -507,14 +504,12 @@ regwin_Show(void)
 					  regwin_infos[row].w);
 		} else {
 			/* Read register value using custom function pointer. */
-			val = regwin_infos[row].read_func(regwin_infos[row].param);
+			val = regwin_infos[row].read_func(
+				regwin_infos[row].param);
 		}
 
 		/* Convert to specified number of hex digits. */
-		if (regwin_infos[row].w == 2)
-			sprintf(str , "%.2X", (u_int8_t) val);
-		else if (regwin_infos[row].w == 4)
-			sprintf(str , "%.4X", (u_int16_t) val);
+		int2asciihex(val, str, regwin_infos[row].w);
 
 		gtk_list_store_set(store, &iter,
 				   COL_NAME, regwin_infos[row].name,

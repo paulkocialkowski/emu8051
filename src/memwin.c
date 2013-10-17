@@ -96,7 +96,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Get base address. */
 	gtk_tree_model_get(model, &iter, COL_ADDRESS, &str, -1);
-	sscanf(str, "%x", &address);
+	address = asciihex2int(str);
 
 	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
 	address += (column - COL_DATA0);
@@ -106,8 +106,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	log_info("  old value: $%02X", old);
 
 	/* Convert new value (asciihex) to integer. */
-	sscanf(new_str, "%x", &new);
-
+	new = asciihex2int(new_str);
 	if ((new < 0) || (new > 255)) {
 		log_info("  new value: out of range");
 		new = old; /* Put back old value... */
@@ -119,7 +118,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	cpu8051_WriteD(address, new);
 
 	/* Convert to text. */
-	sprintf(str, "%.2X", new);
+	int2asciihex(new, str, 2);
 
 	/* Store new value in gtk model. */
         gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, str, -1);
@@ -260,7 +259,8 @@ memwin_DumpD(char *MemAddress)
 		}
 
 		/* Display base address. */
-		sprintf(str, "%.4X", Address);
+		int2asciihex(Address, str, 4);
+
 		gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
 
 		for (col = 0; col < DATA_COLS; col++) {
@@ -269,7 +269,8 @@ memwin_DumpD(char *MemAddress)
 			data = cpu8051_ReadD(Address + col);
 
 			/* Display hex data */
-			sprintf(str, "%.2X", (u_int8_t) data);
+			int2asciihex(data, str, 2);
+
 			gtk_list_store_set(store, &iter, col + 1, str, -1);
 
 			/* Append to ASCII string (if applicable). */

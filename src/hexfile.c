@@ -36,6 +36,27 @@
 #include "common.h"
 #include "memory.h"
 
+/* Convert integer to ASCII hex string. */
+void
+int2asciihex(int val, char *str, int width)
+{
+	if (width == 2)
+		sprintf(str , "%.2X", (u_int8_t) val);
+	else if (width == 4)
+		sprintf(str , "%.4X", (u_int16_t) val);
+}
+
+/* Convert ASCII hex string to integer. */
+int
+asciihex2int(char *str)
+{
+	int val;
+
+	sscanf(str, "%X", &val);
+
+	return val;
+}
+
 /* Convert an ascii string to an hexadecimal number. */
 unsigned int
 Ascii2Hex(char *istring, int length)
