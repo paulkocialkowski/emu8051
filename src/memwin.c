@@ -147,6 +147,8 @@ memwin_init_columns(void)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
 
 	for (i = COL_DATA0; i < (COL_DATA0 + DATA_COLS); i++) {
+		char col_name[8];
+
 		/* Create new renderer for each editable cell. */
 		renderer = gtk_cell_renderer_text_new();
 
@@ -161,8 +163,10 @@ memwin_init_columns(void)
 		g_object_set_data(G_OBJECT(renderer), "column",
 				  GUINT_TO_POINTER(i));
 
+		sprintf(col_name, "B%02d", i - COL_DATA0);
+
 		column = gtk_tree_view_column_new_with_attributes(
-			"Val", renderer, "text", i, NULL);
+			col_name, renderer, "text", i, NULL);
 		gtk_tree_view_column_set_sizing(column,
 						GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 		gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
