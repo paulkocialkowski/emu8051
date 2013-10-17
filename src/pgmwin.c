@@ -33,7 +33,7 @@
 
 static GtkWidget *pgmlist;
 
-#define DATA_ROWS 24
+#define DATA_ROWS 100
 
 enum
 {
