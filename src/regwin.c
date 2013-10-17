@@ -30,6 +30,7 @@
 #include "cpu8051.h"
 #include "regwin.h"
 #include "memwin.h"
+#include "pgmwin.h"
 #include "instructions_8051.h"
 #include "hexfile.h"
 
@@ -390,6 +391,7 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	 */
 	regwin_Show();
 	memwin_DumpD();
+	pgmwin_Disasm();
 };
 
 static void
