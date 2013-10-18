@@ -282,22 +282,20 @@ static GtkListStore *
 regwin_init_store(void)
 {
 	GtkTreeIter iter;
-	int rows;
+	int row;
 	int col;
 	GtkListStore *store;
 	GType col_types[N_COLUMNS];
 
-	for (col = 0; col < N_COLUMNS; col++) {
+	/* No need for static array, all our columns are of the same type. */
+	for (col = 0; col < N_COLUMNS; col++)
 		col_types[col] = G_TYPE_STRING;
-	}
 
 	store = gtk_list_store_newv(N_COLUMNS, col_types);
 
-	/* Initialize with rows of dummy data... */
-	for (rows = 0; rows < DATA_ROWS; rows++) {
-		/* Add new row. */
+	/* Add rows. */
+	for (row = 0; row < DATA_ROWS; row++)
 		gtk_list_store_append(store, &iter);
-	}
 
 	return store;
 }

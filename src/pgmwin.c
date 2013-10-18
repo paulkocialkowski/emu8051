@@ -64,7 +64,7 @@ static GtkListStore *
 pgmwin_init_store(void)
 {
 	GtkTreeIter iter;
-	int rows;
+	int row;
 	int col;
 	GtkListStore *store;
 	GType col_types[N_COLUMNS];
@@ -75,15 +75,15 @@ pgmwin_init_store(void)
 
 	store = gtk_list_store_newv(N_COLUMNS, col_types);
 
-	/* Initialize with rows of dummy data... */
-	for (rows = 0; rows < DATA_ROWS; rows++) {
+	/* Add rows. */
+	for (row = 0; row < DATA_ROWS; row++) {
 		gtk_list_store_append(store, &iter);
-		if (rows == 0) {
-			/* Color first row in red (current instruction). */
+
+		/* Color first row in red (current instruction). */
+		if (row == 0)
 			gtk_list_store_set(store, &iter, COL_COLOR, "red", -1);
-		} else {
+		else
 			gtk_list_store_set(store, &iter, COL_COLOR, "black", -1);
-		}
 	}
 
 	return store;
