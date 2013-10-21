@@ -28,7 +28,7 @@ GtkWidget *
 pgmwin_init(void);
 
 void
-pgmwin_Disasm(void);
+pgmwin_refresh(void);
 
 int
 pgmwin_IsBreakpoint(unsigned int address);

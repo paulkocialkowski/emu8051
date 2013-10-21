@@ -32,6 +32,7 @@
 #include "cpu8051.h"
 #include "regwin.h"
 #include "memwin.h"
+#include "emugtk.h"
 
 #define DATA_COLS 16 /* Must be a power of 2 */
 #define DATA_ROWS_INT (INT_MEM_SIZE / DATA_COLS)
@@ -132,7 +133,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	 * Make sure to update all registers and memory.
 	 * For example, BANKed registers depends on internal memory.
 	 */
-	regwin_Show();
+	emugtk_UpdateDisplay();
 };
 
 static void
@@ -247,17 +248,15 @@ memwin_init(char *title, int memory_id)
 	return frame;
 }
 
-/* Dump up to 256 bytes from Address in Memory (direct addressing) */
+/* Dump internal or external memory. */
 void
-memwin_DumpD(int memory_id)
+memwin_refresh(int memory_id)
 {
 	int row;
 	unsigned int Address;
 	GtkListStore *store;
 	GtkWidget *memlist;
 	int data_rows;
-
-	log_info("memwin_DumpD()");
 
 	Address = 0;
 

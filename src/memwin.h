@@ -28,6 +28,6 @@ GtkWidget *
 memwin_init(char *title, int memory_id);
 
 void
-memwin_DumpD(int memory_id);
+memwin_refresh(int memory_id);
 
 #endif /* MEMWIN_H */

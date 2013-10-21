@@ -144,7 +144,7 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 		log_debug("  row address is: $%04X", val);
 
 		ToggleBreakpoint(val);
-		pgmwin_Disasm();
+		pgmwin_refresh();
 
 		g_free(str_addr);
 	} else {
@@ -205,7 +205,7 @@ pgmwin_init(void)
 
 /* Show disassembled program. */
 void
-pgmwin_Disasm(void)
+pgmwin_refresh(void)
 {
 	int row;
 	GtkListStore *store;
@@ -219,8 +219,7 @@ pgmwin_Disasm(void)
 		int valid;
 		GtkTreeIter iter;
 		char str[128];
-		int k;
-		int col_id;
+		int k;		int col_id;
 		int InstSize;
 		unsigned char OpCode;
 

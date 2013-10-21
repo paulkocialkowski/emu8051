@@ -60,10 +60,10 @@ void
 emugtk_UpdateDisplay(void)
 {
 	log_debug("UpdateDisplay()");
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD(INT_MEM_ID);
-	memwin_DumpD(EXT_MEM_ID);
+	regwin_refresh();
+	pgmwin_refresh();
+	memwin_refresh(INT_MEM_ID);
+	memwin_refresh(EXT_MEM_ID);
 }
 
 /* Step out of running state */

@@ -28,6 +28,6 @@ GtkWidget *
 regwin_init(void);
 
 void
-regwin_Show(void);
+regwin_refresh(void);
 
 #endif /* REGWIN_H */

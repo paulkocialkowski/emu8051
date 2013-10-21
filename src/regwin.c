@@ -466,7 +466,7 @@ regwin_init(void)
 
 /* Show registers. */
 void
-regwin_Show(void)
+regwin_refresh(void)
 {
 	int row;
 	GtkListStore *store;
