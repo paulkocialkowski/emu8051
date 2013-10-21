@@ -33,6 +33,7 @@
 #include "pgmwin.h"
 #include "instructions_8051.h"
 #include "hexfile.h"
+#include "emugtk.h"
 
 static GtkWidget *reglist;
 
@@ -387,9 +388,7 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	 * Make sure to update all windows.
 	 * For example, R0-R7 values depends on internal memory values.
 	 */
-	regwin_Show();
-	memwin_DumpD();
-	pgmwin_Disasm();
+	emugtk_UpdateDisplay();
 };
 
 static void

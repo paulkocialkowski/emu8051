@@ -30,4 +30,7 @@ AddMenuSeparator(GtkWidget *menu);
 void
 emugtk_new_file(char *file);
 
+void
+emugtk_UpdateDisplay(void);
+
 #endif /* EMUGTK_H */

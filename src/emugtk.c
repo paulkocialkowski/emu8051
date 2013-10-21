@@ -55,6 +55,15 @@ GtkWidget *mainwin;
 extern struct app_config_t *cfg;
 extern struct options_t options;
 
+void
+emugtk_UpdateDisplay(void)
+{
+	log_debug("UpdateDisplay()");
+	regwin_Show();
+	pgmwin_Disasm();
+	memwin_DumpD(INT_MEM_ID);
+}
+
 /* Step out of running state */
 static void
 emugtk_stop_running()
@@ -63,9 +72,7 @@ emugtk_stop_running()
 		log_info("StopRunning()");
 		g_source_remove(running_function_tag);
 		running = 0;
-		regwin_Show();
-		pgmwin_Disasm();
-		memwin_DumpD();
+		emugtk_UpdateDisplay();
 	}
 }
 
@@ -116,9 +123,7 @@ static void
 emugtk_Reset(void)
 {
 	cpu8051_Reset();
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD();
+	emugtk_UpdateDisplay();
 }
 
 /* Signal ResetEvent (ResetButton) */
@@ -135,9 +140,7 @@ static void
 emugtk_Step(void)
 {
 	cpu8051_Exec();
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD();
+	emugtk_UpdateDisplay();
 }
 
 /* Signal RunEvent (RunButton) */
@@ -381,15 +384,6 @@ emugtk_window_init(void)
 	gtk_container_add(GTK_CONTAINER(mainwin), vbox);
 
 	gtk_widget_show_all(mainwin);
-}
-
-static void
-emugtk_UpdateDisplay(void)
-{
-	log_debug("UpdateDisplay()");
-	regwin_Show();
-	pgmwin_Disasm();
-	memwin_DumpD();
 }
 
 void
