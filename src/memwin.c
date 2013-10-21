@@ -159,8 +159,8 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 		/* Create new renderer for each editable cell. */
 		renderer = gtk_cell_renderer_text_new();
 
-		/* Allow edition, align to right side. */
-		g_object_set(renderer, "editable", TRUE, "xalign", 1.0, NULL);
+		/* Allow edition, align to left side. */
+		g_object_set(renderer, "editable", TRUE, "xalign", 0, NULL);
 
 		g_signal_connect(renderer, "edited",
 				 G_CALLBACK(memwin_cell_edited),
