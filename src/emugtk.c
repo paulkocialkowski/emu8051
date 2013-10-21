@@ -63,6 +63,7 @@ emugtk_UpdateDisplay(void)
 	regwin_Show();
 	pgmwin_Disasm();
 	memwin_DumpD(INT_MEM_ID);
+	memwin_DumpD(EXT_MEM_ID);
 }
 
 /* Step out of running state */
@@ -296,9 +297,21 @@ vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
  * |  |  |                                                         |  |  |
  * |  |  |--------------------------***-----------------------------  |  |
  * |  |  |                                                         |  |  |
- * |  |  |  scrollwin                                              |  |  |
+ * |  |  |  vpaned_mem                                             |  |  |
  * |  |  |  +---------------------------------------------------+  |  |  |
- * |  |  |  | Memory window                                     |  |  |  |
+ * |  |  |  |                                                   |  |  |  |
+ * |  |  |  |  scrollwin                                        |  |  |  |
+ * |  |  |  |  +---------------------------------------------+  |  |  |  |
+ * |  |  |  |  | Internal memory window                      |  |  |  |  |
+ * |  |  |  |  +---------------------------------------------+  |  |  |  |
+ * |  |  |  |                                                   |  |  |  |
+ * |  |  |  +-----------------------***-------------------------|  |  |  |
+ * |  |  |  |                                                   |  |  |  |
+ * |  |  |  |  scrollwin                                        |  |  |  |
+ * |  |  |  |  +---------------------------------------------+  |  |  |  |
+ * |  |  |  |  | External memory window                      |  |  |  |  |
+ * |  |  |  |  +---------------------------------------------+  |  |  |  |
+ * |  |  |  |                                                   |  |  |  |
  * |  |  |  +---------------------------------------------------+  |  |  |
  * |  |  |                                                         |  |  |
  * |  |  +---------------------------------------------------------+  |  |
@@ -318,6 +331,7 @@ emugtk_window_init(void)
 	GtkWidget *scrollwin;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
+	GtkWidget *vpaned_mem;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
@@ -351,7 +365,7 @@ emugtk_window_init(void)
 	/*
 	 * vpaned will contain:
 	 *   Top:    registers and disassembly windows.
-	 *   Bottom: memory window
+	 *   Bottom: memory windows
 	 */
 	vpaned = gtk_vpaned_new();
 	gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
@@ -374,9 +388,23 @@ emugtk_window_init(void)
 
 	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
-	/* Memory dump frame. */
+	vpaned_mem = gtk_vpaned_new();
+	log_info("TODO: set vpaned_mem position and save in config file");
+#ifdef seewfdewfw
+	gtk_paned_set_position(GTK_PANED(vpaned_mem), cfg->vpane_mem_pos);
+	g_signal_connect(G_OBJECT(vpaned_mem), "notify::position",
+			 G_CALLBACK(vpaned_mem__notify_event), vpaned_mem);
+#endif
+
+	/* Internal memory dump frame. */
 	scrollwin = memwin_init("Internal memory", INT_MEM_ID);
-	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
+	gtk_paned_pack1(GTK_PANED(vpaned_mem), scrollwin, FALSE, FALSE);
+
+	/* External memory dump frame. */
+	scrollwin = memwin_init("External memory", EXT_MEM_ID);
+	gtk_paned_pack2(GTK_PANED(vpaned_mem), scrollwin, TRUE, FALSE);
+
+	gtk_paned_pack2(GTK_PANED(vpaned), vpaned_mem, TRUE, FALSE);
 
 	/* Adding vpaned window to vbox */
 	gtk_box_pack_start(GTK_BOX(vbox), vpaned, true, true, 1);
