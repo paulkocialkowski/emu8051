@@ -30,7 +30,8 @@ struct app_config_t
 	int win_width;
 	int win_height;
 	int hpane_pos;
-	int vpane_pos;
+	int vpane_pos;     /* Registers and memory windows. */
+	int vpane_mem_pos; /* Internal and external memory windows. */
 };
 
 int

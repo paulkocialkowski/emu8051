@@ -261,6 +261,14 @@ vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(vpaned));
 }
 
+static void
+vpaned_mem_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
+{
+	GtkWidget *vpaned = data;
+
+	cfg->vpane_mem_pos = gtk_paned_get_position(GTK_PANED(vpaned));
+}
+
 /*
  *  mainwin
  * +---------------------------------------------------------------------+
@@ -389,19 +397,16 @@ emugtk_window_init(void)
 	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
 	vpaned_mem = gtk_vpaned_new();
-	log_info("TODO: set vpaned_mem position and save in config file");
-#ifdef seewfdewfw
 	gtk_paned_set_position(GTK_PANED(vpaned_mem), cfg->vpane_mem_pos);
 	g_signal_connect(G_OBJECT(vpaned_mem), "notify::position",
-			 G_CALLBACK(vpaned_mem__notify_event), vpaned_mem);
-#endif
+			 G_CALLBACK(vpaned_mem_notify_event), vpaned_mem);
 
 	/* Internal memory dump frame. */
-	scrollwin = memwin_init("Internal memory", INT_MEM_ID);
+	scrollwin = memwin_init("Internal memory (IRAM)", INT_MEM_ID);
 	gtk_paned_pack1(GTK_PANED(vpaned_mem), scrollwin, FALSE, FALSE);
 
 	/* External memory dump frame. */
-	scrollwin = memwin_init("External memory", EXT_MEM_ID);
+	scrollwin = memwin_init("External memory (XRAM)", EXT_MEM_ID);
 	gtk_paned_pack2(GTK_PANED(vpaned_mem), scrollwin, TRUE, FALSE);
 
 	gtk_paned_pack2(GTK_PANED(vpaned), vpaned_mem, TRUE, FALSE);
