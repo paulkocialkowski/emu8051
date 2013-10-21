@@ -186,7 +186,9 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 		gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 	}
 
-	/* Add ASCII column */
+	/* Add ASCII column, using fixed-font. */
+	renderer = gtk_cell_renderer_text_new();
+	g_object_set(renderer, "family", "Monospace", NULL);
 	column = gtk_tree_view_column_new_with_attributes(
 		"ASCII", renderer, "text", COL_ASCII, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
