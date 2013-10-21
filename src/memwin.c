@@ -94,6 +94,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
         columnptr = g_object_get_data(G_OBJECT(cell), "column");
         column = GPOINTER_TO_UINT(columnptr);
 
+	/* Memory ID  is passed as renderer object data */
 	memory_id_ptr = g_object_get_data(G_OBJECT(cell), "memory_id");
 	memory_id = GPOINTER_TO_UINT(memory_id_ptr);
 
@@ -166,13 +167,17 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 				 gtk_tree_view_get_model(
 					 GTK_TREE_VIEW(listview)));
 
-		/* Add column index, used when editing the cell. */
+		/* Add column index and memory_id, used when editing the cell. */
 		g_object_set_data(G_OBJECT(renderer), "column",
 				  GUINT_TO_POINTER(i));
 		g_object_set_data(G_OBJECT(renderer), "memory_id",
 				  GUINT_TO_POINTER(memory_id));
 
-		sprintf(col_name, "B%02d", i - COL_DATA0);
+		/* Use two digits only if DATA_ROWS > 10 */
+		if (DATA_COLS < 10)
+			sprintf(col_name, "B%1d", i - COL_DATA0);
+		else
+			sprintf(col_name, "B%02d", i - COL_DATA0);
 
 		column = gtk_tree_view_column_new_with_attributes(
 			col_name, renderer, "text", i, NULL);
