@@ -33,10 +33,9 @@
 #include "regwin.h"
 #include "memwin.h"
 
-static GtkWidget *memlist;
-
 #define DATA_COLS 16 /* Must be a power of 2 */
-#define DATA_ROWS (INT_MEM_SIZE / DATA_COLS)
+#define DATA_ROWS_INT (INT_MEM_SIZE / DATA_COLS)
+#define DATA_ROWS_EXT (1024 / DATA_COLS)
 
 enum
 {
@@ -46,9 +45,12 @@ enum
 	N_COLUMNS,
 };
 
+static GtkWidget *memlist_internal;
+static GtkWidget *memlist_external;
+
 /* Creating a model */
 static GtkListStore *
-memwin_init_store(void)
+memwin_init_store(int data_rows)
 {
 	GtkTreeIter iter;
 	int row;
@@ -63,7 +65,7 @@ memwin_init_store(void)
 	store = gtk_list_store_newv(N_COLUMNS, col_types);
 
 	/* Add rows. */
-	for (row = 0; row < DATA_ROWS; row++)
+	for (row = 0; row < data_rows; row++)
 		gtk_list_store_append(store, &iter);
 
 	return store;
@@ -71,10 +73,12 @@ memwin_init_store(void)
 
 static void
 memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
-	    gchar *new_str, gpointer model)
+		   gchar *new_str, gpointer model)
 {
 	guint column;
+	guint memory_id;
 	gpointer columnptr;
+	gpointer memory_id_ptr;
 	GtkTreeIter iter;
 	int address;
 	u_int8_t old;
@@ -89,6 +93,9 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
         columnptr = g_object_get_data(G_OBJECT(cell), "column");
         column = GPOINTER_TO_UINT(columnptr);
 
+	memory_id_ptr = g_object_get_data(G_OBJECT(cell), "memory_id");
+	memory_id = GPOINTER_TO_UINT(memory_id_ptr);
+
 	/* Get the iterator */
         gtk_tree_model_get_iter_from_string(model, &iter, path_string);
 
@@ -98,7 +105,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
 	address += (column - COL_DATA0);
-	old = cpu8051_ReadD(address);
+	old = memory_read8(memory_id, address);
 
 	log_info("Address: $%02X", address);
 	log_info("  old value: $%02X", old);
@@ -113,7 +120,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	}
 
 	/* Store new value in emulator memory. */
-	cpu8051_WriteD(address, new);
+	memory_write8(memory_id, address, new);
 
 	/* Convert to text. */
 	int2asciihex(new, str, 2);
@@ -129,7 +136,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 };
 
 static void
-memwin_init_columns(void)
+memwin_init_columns(GtkWidget *listview, int memory_id)
 {
 	int i;
 	GtkCellRenderer *renderer;
@@ -142,7 +149,7 @@ memwin_init_columns(void)
 	column = gtk_tree_view_column_new_with_attributes(
 		"Address", renderer, "text", COL_ADDRESS, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 
 	for (i = COL_DATA0; i < (COL_DATA0 + DATA_COLS); i++) {
 		char col_name[8];
@@ -155,11 +162,14 @@ memwin_init_columns(void)
 
 		g_signal_connect(renderer, "edited",
 				 G_CALLBACK(memwin_cell_edited),
-				 gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
+				 gtk_tree_view_get_model(
+					 GTK_TREE_VIEW(listview)));
 
 		/* Add column index, used when editing the cell. */
 		g_object_set_data(G_OBJECT(renderer), "column",
 				  GUINT_TO_POINTER(i));
+		g_object_set_data(G_OBJECT(renderer), "memory_id",
+				  GUINT_TO_POINTER(memory_id));
 
 		sprintf(col_name, "B%02d", i - COL_DATA0);
 
@@ -167,24 +177,26 @@ memwin_init_columns(void)
 			col_name, renderer, "text", i, NULL);
 		gtk_tree_view_column_set_sizing(column,
 						GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-		gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+		gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 	}
 
 	/* Add ASCII column */
 	column = gtk_tree_view_column_new_with_attributes(
 		"ASCII", renderer, "text", COL_ASCII, NULL);
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
-	gtk_tree_view_append_column(GTK_TREE_VIEW(memlist), column);
+	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 }
 
 GtkWidget *
-memwin_init(void)
+memwin_init(char *title, int memory_id)
 {
 	GtkWidget *frame;
 	GtkWidget *scrollwin;
 	GtkListStore *store;
+	GtkWidget *memlist;
+	int data_rows;
 
-	frame = gtk_frame_new("Internal memory");
+	frame = gtk_frame_new(title);
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
@@ -197,15 +209,33 @@ memwin_init(void)
 
 	gtk_container_add(GTK_CONTAINER(frame), scrollwin);
 
+	if (memory_id == INT_MEM_ID) {
+		data_rows = DATA_ROWS_INT;
+	} else if (memory_id == EXT_MEM_ID) {
+		data_rows = DATA_ROWS_EXT;
+	} else {
+		log_fail("Invalid memory type");
+		exit(1);
+	}
+
 	/* Creating a model */
-	store = memwin_init_store();
+	store = memwin_init_store(data_rows);
 
 	/* Creating the view component */
 	memlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(memlist), TRUE);
 	gtk_container_add(GTK_CONTAINER(scrollwin), memlist);
 
-	memwin_init_columns();
+	if (memory_id == INT_MEM_ID) {
+		memlist_internal = memlist;
+	} else if (memory_id == EXT_MEM_ID) {
+		memlist_external = memlist;
+	} else {
+		log_fail("Invalid memory type");
+		exit(1);
+	}
+
+	memwin_init_columns(memlist, memory_id);
 
 	/*
 	 * The tree view has acquired its own reference to the model, so we can
@@ -219,23 +249,36 @@ memwin_init(void)
 
 /* Dump up to 256 bytes from Address in Memory (direct addressing) */
 void
-memwin_DumpD(void)
+memwin_DumpD(int memory_id)
 {
 	int row;
 	unsigned int Address;
 	GtkListStore *store;
+	GtkWidget *memlist;
+	int data_rows;
 
 	log_info("memwin_DumpD()");
 
 	Address = 0;
 
+	if (memory_id == INT_MEM_ID) {
+		memlist = memlist_internal;
+		data_rows = DATA_ROWS_INT;
+	} else if (memory_id == EXT_MEM_ID) {
+		memlist = memlist_external;
+		data_rows = DATA_ROWS_EXT;
+	} else {
+		log_fail("Invalid memory type");
+		exit(1);
+	}
+
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
 
-	for (row = 0; row < DATA_ROWS; row++) {
+	for (row = 0; row < data_rows; row++) {
 		int valid;
 		GtkTreeIter iter;
-		char str[4 + 2]; /* Maximum str len is for address column (4 digits) */
-		char ascii_str[DATA_COLS];
+		char str[4+1]; /* Maximum str len is for address column (4 digits) */
+		char ascii_str[DATA_COLS+1];
 		int col;
 
 		if (row == 0) {
@@ -261,7 +304,7 @@ memwin_DumpD(void)
 		for (col = 0; col < DATA_COLS; col++) {
 			u_int8_t data;
 
-			data = cpu8051_ReadD(Address + col);
+			data = memory_read8(memory_id, Address + col);
 
 			/* Display hex data */
 			int2asciihex(data, str, 2);

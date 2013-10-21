@@ -25,9 +25,9 @@
 #include <gtk/gtk.h>
 
 GtkWidget *
-memwin_init(void);
+memwin_init(char *title, int memory_id);
 
 void
-memwin_DumpD(void);
+memwin_DumpD(int memory_id);
 
 #endif /* MEMWIN_H */

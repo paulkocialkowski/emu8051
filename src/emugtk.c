@@ -29,6 +29,7 @@
 
 #include "common.h"
 #include "cpu8051.h"
+#include "memory.h"
 #include "options.h"
 #include "hexfile.h"
 
@@ -374,7 +375,7 @@ emugtk_window_init(void)
 	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
 
 	/* Memory dump frame. */
-	scrollwin = memwin_init();
+	scrollwin = memwin_init("Internal memory", INT_MEM_ID);
 	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
 
 	/* Adding vpaned window to vbox */
