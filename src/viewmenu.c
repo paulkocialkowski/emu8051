@@ -29,19 +29,54 @@
 #include "emugtk.h" /* For AddMenuSeparator() function. */
 #include "messagebox.h"
 #include "viewmenu.h"
+#include "app-config.h"
 
-static void
-ViewMenuExternalDump(gchar *string)
+extern struct app_config_t *cfg;
+
+void toggle_layout(GtkWidget *widget, gpointer data)
 {
-	ShowMessage("External Memory Dump", "Not implemented yet!",
-		    GTK_JUSTIFY_CENTER, MESSAGE_DIALOG_NORMAL_FONT);
+	int id;
+
+        id = GPOINTER_TO_UINT(data);
+
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+		log_info("  Switching to layout %d", id);
+		cfg->layout = id;
+		emugtk_restart_gui();
+	}
 }
 
-static void
-ViewMenuInternalDump(gchar *string)
+void
+view_add_layout_submenu(GtkWidget *parent)
 {
-	ShowMessage("Internal Memory Dump", "Not implemented yet!",
-		    GTK_JUSTIFY_CENTER, MESSAGE_DIALOG_NORMAL_FONT);
+	GtkWidget *submenu;
+	GtkWidget *layout;
+	GtkWidget *layout1;
+	GtkWidget *layout2;
+	GSList *group = NULL;
+
+	submenu = gtk_menu_new();
+
+	layout  = gtk_menu_item_new_with_label("Layout");
+
+	layout1 = gtk_radio_menu_item_new_with_label(group, "Layout1");
+	group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(layout1));
+	layout2 = gtk_radio_menu_item_new_with_label(group, "Layout2");
+
+	if (cfg->layout == UI_LAYOUT1)
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout1), TRUE);
+	else
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout2), TRUE);
+
+	g_signal_connect(G_OBJECT(layout1), "activate",
+			 G_CALLBACK(toggle_layout), (gpointer) UI_LAYOUT1);
+	g_signal_connect(G_OBJECT(layout2), "activate",
+			 G_CALLBACK(toggle_layout), (gpointer) UI_LAYOUT2);
+
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(layout), submenu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), layout1);
+	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), layout2);
+	gtk_menu_shell_append(GTK_MENU_SHELL(parent), layout);
 }
 
 void
@@ -49,27 +84,23 @@ ViewAddMenu(GtkWidget *menu_bar)
 {
 	GtkWidget *item;
 	GtkWidget *menu;
+	GtkWidget *view;
 
 	menu = gtk_menu_new();
 
-	/* Create the 'Viewmenu External Memory Dump' item. */
-	item = gtk_menu_item_new_with_label("External Memory Dump");
+	view = gtk_menu_item_new_with_label("View");
+
+	item = gtk_menu_item_new_with_label("Internal Memory");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	/* Attach the callback functions to the activate signal. */
-	g_signal_connect(item, "activate", G_CALLBACK(ViewMenuExternalDump),
-			 NULL);
+
+	item = gtk_menu_item_new_with_label("External Memory");
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 
 	AddMenuSeparator(menu);
 
-	/* Create the 'Viewmenu Internal Memory Dump' item. */
-	item = gtk_menu_item_new_with_label("Internal Memory Dump");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	/* Attach the callback functions to the activate signal. */
-	g_signal_connect(item, "activate", G_CALLBACK(ViewMenuInternalDump),
-			 NULL);
+	/* Add layout submenu */
+	view_add_layout_submenu(menu);
 
-	/* Adding submenu title. */
-	item = gtk_menu_item_new_with_label("View");
-	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), menu);
-	gtk_menu_shell_append((GtkMenuShell *) menu_bar, item);
+	gtk_menu_item_set_submenu(GTK_MENU_ITEM(view), menu);
+	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), view);
 }

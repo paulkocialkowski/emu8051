@@ -50,6 +50,7 @@
 
 static int running;
 static int running_function_tag;
+static int restart_gui = true;
 
 GtkWidget *mainwin;
 
@@ -248,25 +249,43 @@ mainwin_configure_event(GtkWindow *window, GdkEvent *event, gpointer data)
 static void
 hpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
-	GtkWidget *hpaned = data;
+	GtkWidget *paned = data;
 
-	cfg->hpane_pos = gtk_paned_get_position(GTK_PANED(hpaned));
+	cfg->hpane_pos = gtk_paned_get_position(GTK_PANED(paned));
 }
 
 static void
 vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
-	GtkWidget *vpaned = data;
+	GtkWidget *paned = data;
 
-	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(vpaned));
+	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(paned));
 }
 
 static void
-vpaned_mem_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
+main_paned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
-	GtkWidget *vpaned = data;
+	GtkWidget *paned = data;
 
-	cfg->vpane_mem_pos = gtk_paned_get_position(GTK_PANED(vpaned));
+	cfg->main_pane_pos = gtk_paned_get_position(GTK_PANED(paned));
+}
+
+void
+emugtk_restart_gui(void)
+{
+	emugtk_stop_running();
+
+	gtk_widget_destroy(mainwin);
+
+	restart_gui = true;
+}
+
+void
+emugtk_quit_gui(void)
+{
+	gtk_main_quit();
+
+	restart_gui = false;
 }
 
 /*
@@ -290,7 +309,7 @@ vpaned_mem_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
  * |  |                                                               |  |
  * |  |---------------------------------------------------------------|  |
  * |  |                                                               |  |
- * |  |  vpaned                                                       |  |
+ * |  |  main_paned                                                   |  |
  * |  |  +---------------------------------------------------------+  |  |
  * |  |  |                                                         |  |  |
  * |  |  |  hpaned                                                 |  |  |
@@ -305,7 +324,7 @@ vpaned_mem_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
  * |  |  |                                                         |  |  |
  * |  |  |--------------------------***-----------------------------  |  |
  * |  |  |                                                         |  |  |
- * |  |  |  vpaned_mem                                             |  |  |
+ * |  |  |  vpaned                                                 |  |  |
  * |  |  |  +---------------------------------------------------+  |  |  |
  * |  |  |  |                                                   |  |  |  |
  * |  |  |  |  scrollwin                                        |  |  |  |
@@ -339,7 +358,7 @@ emugtk_window_init(void)
 	GtkWidget *scrollwin;
 	GtkWidget *hpaned;
 	GtkWidget *vpaned;
-	GtkWidget *vpaned_mem;
+	GtkWidget *main_paned;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
@@ -354,31 +373,11 @@ emugtk_window_init(void)
 	g_signal_connect(G_OBJECT(mainwin), "configure-event",
 			 G_CALLBACK(mainwin_configure_event), NULL);
 
-	/*
-	 * vbox contains the menu bar and body_vbox (for all remaining
-	 * items).
-	 */
-	vbox = gtk_vbox_new(FALSE, 1);
-
 	/* Creating the menu bar. */
 	menu_bar = AddMenu();
-	/* Adding menu bar to vbox */
-	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 1);
 
 	/* Creating the buttons bar. */
 	buttons_bar = AddButtons();
-	/* Adding buttons bar to vbox */
-	gtk_box_pack_start(GTK_BOX(vbox), buttons_bar, FALSE, FALSE, 1);
-
-	/*
-	 * vpaned will contain:
-	 *   Top:    registers and disassembly windows.
-	 *   Bottom: memory windows
-	 */
-	vpaned = gtk_vpaned_new();
-	gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
-	g_signal_connect(G_OBJECT(vpaned), "notify::position",
-			 G_CALLBACK(vpaned_notify_event), vpaned);
 
 	/* hpaned will contain registers and disassembly windows. */
 	hpaned = gtk_hpaned_new();
@@ -394,28 +393,48 @@ emugtk_window_init(void)
 	scrollwin = pgmwin_init();
 	gtk_paned_pack2(GTK_PANED(hpaned), scrollwin, TRUE, FALSE);
 
-	gtk_paned_pack1(GTK_PANED(vpaned), hpaned, FALSE, FALSE);
-
-	vpaned_mem = gtk_vpaned_new();
-	gtk_paned_set_position(GTK_PANED(vpaned_mem), cfg->vpane_mem_pos);
-	g_signal_connect(G_OBJECT(vpaned_mem), "notify::position",
-			 G_CALLBACK(vpaned_mem_notify_event), vpaned_mem);
+	vpaned = gtk_vpaned_new();
+	gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
+	g_signal_connect(G_OBJECT(vpaned), "notify::position",
+			 G_CALLBACK(vpaned_notify_event), vpaned);
 
 	/* Internal memory dump frame. */
 	scrollwin = memwin_init("Internal memory (IRAM)", INT_MEM_ID);
-	gtk_paned_pack1(GTK_PANED(vpaned_mem), scrollwin, FALSE, FALSE);
+	gtk_paned_pack1(GTK_PANED(vpaned), scrollwin, FALSE, FALSE);
 
 	/* External memory dump frame. */
 	scrollwin = memwin_init("External memory (XRAM)", EXT_MEM_ID);
-	gtk_paned_pack2(GTK_PANED(vpaned_mem), scrollwin, TRUE, FALSE);
+	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
 
-	gtk_paned_pack2(GTK_PANED(vpaned), vpaned_mem, TRUE, FALSE);
+	/*
+	 * main_paned will contain two groups:
+	 *   group1:    registers and disassembly windows.
+	 *   group2:    memory windows
+	 */
+	if (cfg->layout == UI_LAYOUT1)
+		main_paned = gtk_vpaned_new();
+	else
+		main_paned = gtk_hpaned_new();
 
-	/* Adding vpaned window to vbox */
-	gtk_box_pack_start(GTK_BOX(vbox), vpaned, true, true, 1);
+	gtk_paned_set_position(GTK_PANED(main_paned), cfg->main_pane_pos);
+	g_signal_connect(G_OBJECT(main_paned), "notify::position",
+			 G_CALLBACK(main_paned_notify_event), main_paned);
+	gtk_paned_pack1(GTK_PANED(main_paned), hpaned, FALSE, FALSE);
+	gtk_paned_pack2(GTK_PANED(main_paned), vpaned, TRUE, FALSE);
+
+	/*
+	 * vbox contains the menu bar and body_vbox (for all remaining
+	 * items).
+	 */
+	vbox = gtk_vbox_new(FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(vbox), menu_bar, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(vbox), buttons_bar, FALSE, FALSE, 1);
+	gtk_box_pack_start(GTK_BOX(vbox), main_paned, true, true, 1);
 
 	/* Adding the vbox to the main window. */
 	gtk_container_add(GTK_CONTAINER(mainwin), vbox);
+
+	g_signal_connect(mainwin, "destroy", G_CALLBACK(emugtk_quit_gui), NULL);
 
 	gtk_widget_show_all(mainwin);
 }
@@ -436,7 +455,7 @@ emugtk_new_file(char *file)
 
 	LoadHexFile(file);
 
-	emugtk_Reset();
+	emugtk_Reset(); /* Use app-config->clear_ram_on_file_load */
 	emugtk_UpdateDisplay();
 }
 
@@ -452,14 +471,18 @@ main(int argc, char **argv)
 
 	gtk_init(&argc, &argv);
 
-	emugtk_window_init();
-
 	if (options.filename != NULL)
-		emugtk_new_file(options.filename);
+		LoadHexFile(options.filename);
 	else
-		emugtk_Reset();
+		cpu8051_Reset();
 
-	gtk_main();
+	while (restart_gui == true) {
+		log_info("Init GUI");
+
+		emugtk_window_init();
+		emugtk_UpdateDisplay();
+		gtk_main();
+	}
 
 	log_info("Terminate");
 

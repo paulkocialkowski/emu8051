@@ -107,7 +107,7 @@ FileOpenEvent(GtkObject *object, gpointer data)
 static void
 FileQuitEvent(gchar *string)
 {
-	gtk_main_quit();
+	emugtk_quit_gui();
 }
 
 void

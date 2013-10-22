@@ -51,11 +51,12 @@ app_config_init(void)
 	cfg->clear_ram_on_file_load = false;
 
 	/* UI settings */
+	cfg->layout = UI_LAYOUT1;
 	cfg->win_width = 640;
 	cfg->win_height = 480;
 	cfg->hpane_pos = 100;
 	cfg->vpane_pos = 200;
-	cfg->vpane_mem_pos = 200;
+	cfg->main_pane_pos = 200;
 }
 
 static int
@@ -82,12 +83,19 @@ app_config_load_from_key_file(GKeyFile *kf)
 				    &cfg->clear_ram_on_file_load);
 
 	/* ui */
+	app_config_key_file_get_int(kf, "ui", "layout",  &cfg->layout);
+
+	if ((cfg->layout != UI_LAYOUT1) && (cfg->layout != UI_LAYOUT2)) {
+		log_fail_no_exit("Invalid layout, defaulting to layout 1");
+		cfg->layout = UI_LAYOUT1;
+	}
+
 	app_config_key_file_get_int(kf, "ui", "win_width",  &cfg->win_width);
 	app_config_key_file_get_int(kf, "ui", "win_height", &cfg->win_height);
 	app_config_key_file_get_int(kf, "ui", "hpane_pos",  &cfg->hpane_pos);
 	app_config_key_file_get_int(kf, "ui", "vpane_pos",  &cfg->vpane_pos);
-	app_config_key_file_get_int(kf, "ui", "vpane_mem_pos",
-				    &cfg->vpane_mem_pos);
+	app_config_key_file_get_int(kf, "ui", "main_pane_pos",
+				    &cfg->main_pane_pos);
 }
 
 static char *
@@ -164,12 +172,13 @@ app_config_save(void)
 
 		g_string_append(buf, "\n[ui]\n");
 
+		g_string_append_printf(buf, "layout=%d\n", cfg->layout);
 		g_string_append_printf(buf, "win_width=%d\n", cfg->win_width);
 		g_string_append_printf(buf, "win_height=%d\n", cfg->win_height);
 		g_string_append_printf(buf, "hpane_pos=%d\n", cfg->hpane_pos);
 		g_string_append_printf(buf, "vpane_pos=%d\n", cfg->vpane_pos);
-		g_string_append_printf(buf, "vpane_mem_pos=%d\n",
-				       cfg->vpane_mem_pos);
+		g_string_append_printf(buf, "main_pane_pos=%d\n",
+				       cfg->main_pane_pos);
 
 		file_path = app_config_get_file_path();
 

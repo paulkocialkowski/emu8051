@@ -33,4 +33,10 @@ emugtk_new_file(char *file);
 void
 emugtk_UpdateDisplay(void);
 
+void
+emugtk_restart_gui(void);
+
+void
+emugtk_quit_gui(void);
+
 #endif /* EMUGTK_H */
