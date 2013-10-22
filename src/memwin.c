@@ -33,17 +33,17 @@
 #include "regwin.h"
 #include "memwin.h"
 #include "emugtk.h"
+#include "app-config.h"
 
-#define DATA_COLS 16 /* Must be a power of 2 */
-#define DATA_ROWS_INT (INT_MEM_SIZE / DATA_COLS)
-#define DATA_ROWS_EXT (1024 / DATA_COLS)
+extern struct app_config_t *cfg;
+
+static int COL_ASCII;
+static int N_COLUMNS;
 
 enum
 {
 	COL_ADDRESS = 0,
 	COL_DATA0,
-	COL_ASCII = DATA_COLS + 1,
-	N_COLUMNS,
 };
 
 static GtkWidget *memlist_internal;
@@ -153,7 +153,7 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 
-	for (i = COL_DATA0; i < (COL_DATA0 + DATA_COLS); i++) {
+	for (i = COL_DATA0; i < (COL_DATA0 + cfg->bits_per_row); i++) {
 		char col_name[8];
 
 		/* Create new renderer for each editable cell. */
@@ -174,7 +174,7 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 				  GUINT_TO_POINTER(memory_id));
 
 		/* Use two digits only if DATA_ROWS > 10 */
-		if (DATA_COLS < 10)
+		if (cfg->bits_per_row < 10)
 			sprintf(col_name, "B%1d", i - COL_DATA0);
 		else
 			sprintf(col_name, "B%02d", i - COL_DATA0);
@@ -195,6 +195,23 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 }
 
+static int
+compute_data_rows(int memory_id)
+{
+	int data_rows;
+
+	if (memory_id == INT_MEM_ID) {
+		data_rows = (INT_MEM_SIZE / cfg->bits_per_row);
+	} else if (memory_id == EXT_MEM_ID) {
+		data_rows = 1024 / cfg->bits_per_row;
+	} else {
+		log_fail("Invalid memory type");
+		exit(1);
+	}
+
+	return data_rows;
+}
+
 GtkWidget *
 memwin_init(char *title, int memory_id)
 {
@@ -203,6 +220,9 @@ memwin_init(char *title, int memory_id)
 	GtkListStore *store;
 	GtkWidget *memlist;
 	int data_rows;
+
+	COL_ASCII = cfg->bits_per_row + 1;
+	N_COLUMNS = COL_ASCII + 1;
 
 	frame = gtk_frame_new(title);
 
@@ -217,14 +237,7 @@ memwin_init(char *title, int memory_id)
 
 	gtk_container_add(GTK_CONTAINER(frame), scrollwin);
 
-	if (memory_id == INT_MEM_ID) {
-		data_rows = DATA_ROWS_INT;
-	} else if (memory_id == EXT_MEM_ID) {
-		data_rows = DATA_ROWS_EXT;
-	} else {
-		log_fail("Invalid memory type");
-		exit(1);
-	}
+	data_rows = compute_data_rows(memory_id);
 
 	/* Creating a model */
 	store = memwin_init_store(data_rows);
@@ -267,12 +280,12 @@ memwin_refresh(int memory_id)
 
 	Address = 0;
 
+	data_rows = compute_data_rows(memory_id);
+
 	if (memory_id == INT_MEM_ID) {
 		memlist = memlist_internal;
-		data_rows = DATA_ROWS_INT;
 	} else if (memory_id == EXT_MEM_ID) {
 		memlist = memlist_external;
-		data_rows = DATA_ROWS_EXT;
 	} else {
 		log_fail("Invalid memory type");
 		exit(1);
@@ -284,7 +297,7 @@ memwin_refresh(int memory_id)
 		int valid;
 		GtkTreeIter iter;
 		char str[4+1]; /* Maximum str len is for address column (4 digits) */
-		char ascii_str[DATA_COLS+1];
+		char ascii_str[16+1]; /* Maximum 16 data columns. */
 		int col;
 
 		if (row == 0) {
@@ -307,7 +320,7 @@ memwin_refresh(int memory_id)
 
 		gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
 
-		for (col = 0; col < DATA_COLS; col++) {
+		for (col = 0; col < cfg->bits_per_row; col++) {
 			u_int8_t data;
 
 			data = memory_read8(memory_id, Address + col);
@@ -326,6 +339,6 @@ memwin_refresh(int memory_id)
 		/* Display ASCII characters. */
 		gtk_list_store_set(store, &iter, COL_ASCII, ascii_str, -1);
 
-		Address += DATA_COLS;
+		Address += cfg->bits_per_row;
 	}
 }
