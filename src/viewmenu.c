@@ -46,6 +46,26 @@ void toggle_layout(GtkWidget *widget, gpointer data)
 	}
 }
 
+void toggle_int_memory(GtkWidget *widget, gpointer data)
+{
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+		log_info("  View internal memory (TODO)");
+		cfg->view_int_memory = 1;
+	} else {
+		cfg->view_int_memory = 0;
+	}
+}
+
+void toggle_ext_memory(GtkWidget *widget, gpointer data)
+{
+	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+		log_info("  View external memory (TODO)");
+		cfg->view_ext_memory = 1;
+	} else {
+		cfg->view_ext_memory = 0;
+	}
+}
+
 void
 view_add_layout_submenu(GtkWidget *parent)
 {
@@ -90,11 +110,17 @@ ViewAddMenu(GtkWidget *menu_bar)
 
 	view = gtk_menu_item_new_with_label("View");
 
-	item = gtk_menu_item_new_with_label("Internal Memory");
+	item = gtk_check_menu_item_new_with_label("Internal Memory");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
+	g_signal_connect(G_OBJECT(item), "activate",
+			 G_CALLBACK(toggle_int_memory), NULL);
 
-	item = gtk_menu_item_new_with_label("External Memory");
+	item = gtk_check_menu_item_new_with_label("External Memory");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
+	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), TRUE);
+	g_signal_connect(G_OBJECT(item), "activate",
+			 G_CALLBACK(toggle_ext_memory), NULL);
 
 	AddMenuSeparator(menu);
 

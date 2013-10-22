@@ -41,12 +41,17 @@ struct app_config_t
 	int clear_ram_on_file_load;
 
 	/* UI settings */
-	int layout; /* UI Layout 1 or 2 */
 	int win_width;
 	int win_height;
 	int hpane_pos;     /* For registers and program windows. */
 	int vpane_pos; /* For internal and external memory windows. */
 	int main_pane_pos; /* Between hpane and vpane. */
+
+	/* View menu options */
+	int layout; /* UI Layout 1 or 2 */
+	int view_int_memory;
+	int view_ext_memory;
+	int bits_per_row; /* 8 or 16 */
 };
 
 int
