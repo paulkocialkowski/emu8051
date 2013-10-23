@@ -33,9 +33,11 @@
 #include "regwin.h"
 #include "memwin.h"
 #include "emugtk.h"
+#include "options.h"
 #include "app-config.h"
 
 extern struct app_config_t *cfg;
+extern struct options_t options;
 
 static int COL_ASCII;
 static int N_COLUMNS;
@@ -201,9 +203,9 @@ compute_data_rows(int memory_id)
 	int data_rows;
 
 	if (memory_id == INT_MEM_ID) {
-		data_rows = (INT_MEM_SIZE / cfg->bits_per_row);
+		data_rows = options.iram_size / cfg->bits_per_row;
 	} else if (memory_id == EXT_MEM_ID) {
-		data_rows = 1024 / cfg->bits_per_row;
+		data_rows = options.xram_size / cfg->bits_per_row;
 	} else {
 		log_fail("Invalid memory type");
 		exit(1);

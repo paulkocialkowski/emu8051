@@ -26,6 +26,7 @@
 
 #include "common.h"
 #include "options.h"
+#include "memory.h"
 
 const char *argp_program_version = PACKAGE_VERSION;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
@@ -43,7 +44,9 @@ static const char args_doc[] = "[FILENAME]";
 
 /* The options we understand. */
 static struct argp_option argp_options[] = {
-	{"debug",    'd', "level",   0,  "Produce debugging output" },
+	{"debug", 'd', "level", 0,  "Produce debugging output" },
+	{"iram",  'i', "size",  0,  "Set internal ram size" },
+	{"xram",  'x', "size",  0,  "Set external ram size" },
 	{ 0 }
 };
 
@@ -76,6 +79,35 @@ decode_debug_option(char *arg, struct argp_state *state)
 	log_set_level(log_level);
 }
 
+static void
+decode_memory_size(char *arg, struct argp_state *state, int memid)
+{
+	char *endptr;
+	int max_size;
+	int *dest;
+
+	if (memid == INT_MEM_ID) {
+		max_size = INT_MEM_SIZE;
+		dest = &options.iram_size;
+	} else {
+		max_size = EXT_MEM_SIZE;
+		dest = &options.xram_size;
+	}
+
+	*dest = strtol(arg, &endptr, 0);
+
+	if (*endptr != '\0') {
+		log_fail_no_exit("Invalid memory size");
+		argp_usage(state);
+	}
+
+	if (*dest > max_size) {
+		log_fail_no_exit("Invalid maximum memory size (max = %d)",
+			max_size);
+		argp_usage(state);
+	}
+}
+
 /* Parse a single option. */
 static error_t
 parse_opt(int key, char *arg, struct argp_state *state)
@@ -83,6 +115,12 @@ parse_opt(int key, char *arg, struct argp_state *state)
 	switch (key) {
 	case 'd':
 		decode_debug_option(arg, state);
+		break;
+	case 'i':
+		decode_memory_size(arg, state, INT_MEM_ID);
+		break;
+	case 'x':
+		decode_memory_size(arg, state, EXT_MEM_ID);
 		break;
 	case ARGP_KEY_ARG:
 		if (state->arg_num >= ARGS_COUNT) {
@@ -117,6 +155,8 @@ parse_command_line_options(int argc, char *argv[])
 
 	/* Setting default values. */
 	options.filename = NULL;
+	options.iram_size = INT_MEM_SIZE;
+	options.xram_size = EXT_MEM_SIZE;
 
 	/* Parse our arguments. */
 	argp_parse(&argp, argc, argv, 0, 0, NULL);

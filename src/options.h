@@ -28,6 +28,8 @@
   "  -version              display version information and exit\n"
 
 struct options_t {
+	int iram_size; /* Maximum internal ram size. */
+	int xram_size; /* Maximum external ram size. */
 	char *filename;
 } options_t;
 
