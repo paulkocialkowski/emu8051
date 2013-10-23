@@ -63,8 +63,12 @@ emugtk_UpdateDisplay(void)
 	log_debug("UpdateDisplay()");
 	regwin_refresh();
 	pgmwin_refresh();
-	memwin_refresh(INT_MEM_ID);
-	memwin_refresh(EXT_MEM_ID);
+
+	if (cfg->view_int_memory)
+		memwin_refresh(INT_MEM_ID);
+
+	if (cfg->view_ext_memory)
+		memwin_refresh(EXT_MEM_ID);
 }
 
 /* Step out of running state */
@@ -393,19 +397,6 @@ emugtk_window_init(void)
 	scrollwin = pgmwin_init();
 	gtk_paned_pack2(GTK_PANED(hpaned), scrollwin, TRUE, FALSE);
 
-	vpaned = gtk_vpaned_new();
-	gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
-	g_signal_connect(G_OBJECT(vpaned), "notify::position",
-			 G_CALLBACK(vpaned_notify_event), vpaned);
-
-	/* Internal memory dump frame. */
-	scrollwin = memwin_init("Internal memory (IRAM)", INT_MEM_ID);
-	gtk_paned_pack1(GTK_PANED(vpaned), scrollwin, FALSE, FALSE);
-
-	/* External memory dump frame. */
-	scrollwin = memwin_init("External memory (XRAM)", EXT_MEM_ID);
-	gtk_paned_pack2(GTK_PANED(vpaned), scrollwin, TRUE, FALSE);
-
 	/*
 	 * main_paned will contain two groups:
 	 *   group1:    registers and disassembly windows.
@@ -420,7 +411,32 @@ emugtk_window_init(void)
 	g_signal_connect(G_OBJECT(main_paned), "notify::position",
 			 G_CALLBACK(main_paned_notify_event), main_paned);
 	gtk_paned_pack1(GTK_PANED(main_paned), hpaned, FALSE, FALSE);
-	gtk_paned_pack2(GTK_PANED(main_paned), vpaned, TRUE, FALSE);
+
+	/* Create vpaned (memory windows) only if necessary. */
+	if (cfg->view_int_memory || cfg->view_ext_memory) {
+		vpaned = gtk_vpaned_new();
+		gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
+		g_signal_connect(G_OBJECT(vpaned), "notify::position",
+				 G_CALLBACK(vpaned_notify_event), vpaned);
+
+		/* Internal memory dump frame. */
+		if (cfg->view_int_memory) {
+			scrollwin = memwin_init("Internal memory (IRAM)",
+						INT_MEM_ID);
+			gtk_paned_pack1(GTK_PANED(vpaned), scrollwin,
+					FALSE, FALSE);
+		}
+
+		/* External memory dump frame. */
+		if (cfg->view_ext_memory) {
+			scrollwin = memwin_init("External memory (XRAM)",
+						EXT_MEM_ID);
+			gtk_paned_pack2(GTK_PANED(vpaned), scrollwin,
+					TRUE, FALSE);
+		}
+
+		gtk_paned_pack2(GTK_PANED(main_paned), vpaned, TRUE, FALSE);
+	}
 
 	/*
 	 * vbox contains the menu bar and body_vbox (for all remaining
