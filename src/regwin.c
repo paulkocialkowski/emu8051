@@ -37,7 +37,7 @@
 
 static GtkWidget *reglist;
 
-#define DATA_ROWS 24
+#define DATA_ROWS 26
 
 enum
 {
@@ -65,7 +65,7 @@ regwin_read(int addr, int width)
 		return cpu8051_ReadD(addr);
 	else if (width == 4) {
 		/* Address is low address. */
-		return (cpu8051_ReadD(addr + 1) << 8) +
+		return (cpu8051_ReadD(addr + 1) << 8) |
 			cpu8051_ReadD(addr);
 	} else
 		return 0xFFFFFFFF;
@@ -95,6 +95,20 @@ static void
 regwin_write_pc(int param, int val)
 {
 	cpu8051.pc = (u_int16_t) val;
+}
+
+static unsigned int
+regwin_read_timer(int timer_low_addr)
+{
+	return (cpu8051_ReadD(timer_low_addr + 2) << 8) |
+		cpu8051_ReadD(timer_low_addr);
+}
+
+static void
+regwin_write_timer(int timer_low_addr, int val)
+{
+	cpu8051_WriteD(timer_low_addr + 2, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+	cpu8051_WriteD(timer_low_addr, (u_int8_t) val);
 }
 
 static unsigned int
@@ -202,6 +216,18 @@ static struct regwin_infos_t regwin_infos[DATA_ROWS] = {
 		HEX_DIGITS_2,
 		NULL, NULL,
 		_TMOD_,
+	},
+	{
+		"TIMER0",
+		HEX_DIGITS_4,
+		regwin_read_timer, regwin_write_timer,
+		_TL0_,
+	},
+	{
+		"TIMER1",
+		HEX_DIGITS_4,
+		regwin_read_timer, regwin_write_timer,
+		_TL1_,
 	},
 	{
 		"SCON",
