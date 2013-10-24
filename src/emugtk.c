@@ -471,7 +471,9 @@ emugtk_new_file(char *file)
 
 	LoadHexFile(file);
 
-	emugtk_Reset(); /* Use app-config->clear_ram_on_file_load */
+	if (cfg->clear_ram_on_file_load)
+		emugtk_Reset();
+
 	emugtk_UpdateDisplay();
 }
 
@@ -489,8 +491,8 @@ main(int argc, char **argv)
 
 	if (options.filename != NULL)
 		LoadHexFile(options.filename);
-	else
-		cpu8051_Reset();
+
+	cpu8051_Reset();
 
 	while (restart_gui == true) {
 		log_info("Init GUI");
