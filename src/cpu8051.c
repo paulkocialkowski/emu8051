@@ -114,7 +114,7 @@ cpu8051_Reset(void)
 	/* Reset registers */
 
 	for (i = 0; i < 256; i++) {
-		/* Clear  IRAM nad SFR */
+		/* Clear  IRAM and SFR */
 		memory_write8(INT_MEM_ID, i, 0);
 	}
 
