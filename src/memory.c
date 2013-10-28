@@ -26,81 +26,95 @@
 #include "cpu8051.h"
 #include "hexfile.h"
 #include "memory.h"
+#include "options.h"
 
-static u_int8_t pgm_mem[PGM_MEM_MAX_SIZE];
-static u_int8_t int_mem[INT_MEM_MAX_SIZE];
-static u_int8_t ext_mem[EXT_MEM_MAX_SIZE];
+struct mem_infos_t {
+	int size;
+	int max_size;
+	u_int8_t *buf;
+};
 
+struct mem_infos_t mem_infos[MEM_ID_COUNT];
+
+extern struct options_t options;
+
+/* Init each 8051 memory sections. */
 void
-memory_write8(int memory_id, unsigned long address, u_int8_t value)
+memory_init(void)
 {
-	switch (memory_id) {
-	case PGM_MEM_ID:
-		if (address >= PGM_MEM_MAX_SIZE) {
-			printf("Address (%lu) is greater than PGM_MEM_MAX_SIZE\n",
-			       address);
-			return;
-		} else
-			pgm_mem[address] = value;
-		break;
-	case INT_MEM_ID:
-		if (address >= INT_MEM_MAX_SIZE) {
-			printf("Address (%lu) is greater than INT_MEM_MAX_SIZE\n",
-			       address);
-			return;
-		} else
-			int_mem[address] = value;
-		break;
-	case EXT_MEM_ID:
-		if (address >= EXT_MEM_MAX_SIZE) {
-			printf("Address (%lu) is greater than EXT_MEM_MAX_SIZE\n",
-			       address);
-			return;
-		} else
-			ext_mem[address] = value;
-		break;
-	default:
-		/* Error. */
-		break;
+	int k;
+	struct mem_infos_t *m;
+
+	/* Set desired and maximum allowable sizes for each memory type. */
+	mem_infos[PGM_MEM_ID].size = options.pram_size;
+	mem_infos[PGM_MEM_ID].max_size = PGM_MEM_MAX_SIZE;
+
+	mem_infos[INT_MEM_ID].size = options.iram_size;
+	mem_infos[INT_MEM_ID].max_size = INT_MEM_MAX_SIZE;
+
+	mem_infos[EXT_MEM_ID].size = options.xram_size;
+	mem_infos[EXT_MEM_ID].max_size = EXT_MEM_MAX_SIZE;
+
+	/* Verify if desired sizes are valid, and if so allocate memory. */
+	for (k = 0; k < MEM_ID_COUNT; k++) {
+		m = &mem_infos[k];
+
+		if (m->size > m->max_size) {
+			log_fail_no_exit("Memory size invalid (max = %d)",
+					 m->max_size);
+			exit(1);
+		}
+
+		m->buf = malloc(m->size);
+		if (m->buf == NULL) {
+			log_fail_no_exit("%s", strerror(errno));
+			exit(1);
+		}
 	}
 }
 
-u_int8_t
-memory_read8(int memory_id, unsigned long address)
+void
+memory_clear(enum mem_id_t id)
 {
-	switch (memory_id) {
-	case PGM_MEM_ID:
-		if (address < PGM_MEM_MAX_SIZE)
-			return pgm_mem[address];
-		else {
-			printf("Address (%lu) is greater than PGM_MEM_MAX_SIZE\n",
-				address);
-			return 0;
-		}
-		break;
-	case INT_MEM_ID:
-		if (address < INT_MEM_MAX_SIZE)
-			return int_mem[address];
-		else {
-			printf("Address (%lu) is greater than INT_MEM_MAX_SIZE\n",
-			       address);
-			return 0;
-		}
-		break;
-	case EXT_MEM_ID:
-		if (address < EXT_MEM_MAX_SIZE)
-			return ext_mem[address];
-		else {
-			printf("Address (%lu) is greater than EXT_MEM_MAX_SIZE\n",
-			       address);
-			return 0;
-		}
-		break;
-	default:
-		/* Error. */
+	memset(mem_infos[id].buf, 0, mem_infos[id].size);
+}
+
+void
+memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value)
+{
+	if (address >= mem_infos[id].max_size) {
+		printf("Error writing to memory ID: %d\n", id);
+		printf("  Address (%lu) greater than maximum memory size\n",
+		       address);
+		return;
+	} else
+		mem_infos[id].buf[address] = value;
+}
+
+void
+memory_sfr_write8(unsigned long address, u_int8_t value)
+{
+	/* SFR registers are from addresses $80 to $FF. */
+	memory_write8(INT_MEM_ID, address, value);
+}
+
+u_int8_t
+memory_read8(enum mem_id_t id, unsigned long address)
+{
+	if (address >= mem_infos[id].max_size) {
+		printf("Error reading from memory ID: %d\n", id);
+		printf("  Address (%lu) greater than maximum memory size\n",
+		       address);
 		return 0;
-		break;
-	}
+	} else
+		return mem_infos[id].buf[address];
+}
+
+u_int8_t
+memory_sfr_read8(unsigned long address)
+{
+	/* SFR registers are from addresses $80 to $FF. */
+	return memory_read8(INT_MEM_ID, address);
 }
 
 /* Dump memory */

@@ -83,27 +83,23 @@ static void
 decode_memory_size(char *arg, struct argp_state *state, int memid)
 {
 	char *endptr;
-	int max_size;
 	int *dest;
 
-	if (memid == INT_MEM_ID) {
-		max_size = INT_MEM_MAX_SIZE;
+	if (memid == INT_MEM_ID)
 		dest = &options.iram_size;
-	} else {
-		max_size = EXT_MEM_MAX_SIZE;
+	else if (memid == EXT_MEM_ID)
 		dest = &options.xram_size;
-	}
+	else
+		exit(1); /* Programming error. */
 
+	/*
+	 * Sizes versus max memory sizes will be checked when calling
+	 * memory_init().
+	 */
 	*dest = strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
 		log_fail_no_exit("Invalid memory size");
-		argp_usage(state);
-	}
-
-	if (*dest > max_size) {
-		log_fail_no_exit("Invalid maximum memory size (max = %d)",
-			max_size);
 		argp_usage(state);
 	}
 }

@@ -33,19 +33,33 @@
 #define INT_MEM_MAX_SIZE   256
 #define EXT_MEM_MAX_SIZE 65536
 
+#define PGM_MEM_DEFAULT_SIZE 8192
 #define EXT_MEM_DEFAULT_SIZE 1024
 
-enum {
-  PGM_MEM_ID,
-  INT_MEM_ID,
-  EXT_MEM_ID
+enum mem_id_t {
+	PGM_MEM_ID,
+	INT_MEM_ID,
+	EXT_MEM_ID,
+	MEM_ID_COUNT
 };
 
 void
-memory_write8(int memory_id, unsigned long address, u_int8_t value);
+memory_init(void);
+
+void
+memory_clear(enum mem_id_t id);
+
+void
+memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
+
+void
+memory_sfr_write8(unsigned long address, u_int8_t value);
 
 u_int8_t
-memory_read8(int memory_id, unsigned long address);
+memory_read8(enum mem_id_t id, unsigned long address);
+
+u_int8_t
+memory_sfr_read8(unsigned long address);
 
 void
 DumpMem(char *Address, char *Asize, int memory_id);

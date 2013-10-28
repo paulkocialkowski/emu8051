@@ -95,6 +95,8 @@ ToggleBreakpoint(unsigned int address)
 void
 cpu8051_init(void)
 {
+	memory_init();
+
 	cpu8051.pc = 0;
 	cpu8051.clock = 0;
 	cpu8051.active_priority = -1;
@@ -105,24 +107,18 @@ cpu8051_init(void)
 void
 cpu8051_Reset(void)
 {
-	int i;
-
 	cpu8051.pc = 0;
 	cpu8051.clock = 0;
 	cpu8051.active_priority = -1;
 
-	/* Reset registers */
+	/* Clear IRAM and SFR. */
+	memory_clear(INT_MEM_ID);
 
-	for (i = 0; i < 256; i++) {
-		/* Clear  IRAM and SFR */
-		memory_write8(INT_MEM_ID, i, 0);
-	}
-
-	memory_write8(INT_MEM_ID, _P0_, 0xFF);
-	memory_write8(INT_MEM_ID, _P1_, 0xFF);
-	memory_write8(INT_MEM_ID, _P2_, 0xFF);
-	memory_write8(INT_MEM_ID, _P3_, 0xFF);
-	memory_write8(INT_MEM_ID, _SP_, 0x07);
+	memory_sfr_write8(_P0_, 0xFF);
+	memory_sfr_write8(_P1_, 0xFF);
+	memory_sfr_write8(_P2_, 0xFF);
+	memory_sfr_write8(_P3_, 0xFF);
+	memory_sfr_write8(_SP_, 0x07);
 }
 
 static void

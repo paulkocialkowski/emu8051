@@ -28,6 +28,7 @@
 #include "common.h"
 #include "reg8051.h"
 #include "cpu8051.h"
+#include "memory.h"
 #include "regwin.h"
 #include "memwin.h"
 #include "pgmwin.h"
@@ -62,11 +63,11 @@ static unsigned int
 regwin_read(int addr, int width)
 {
 	if (width == 2)
-		return cpu8051_ReadD(addr);
+		return memory_sfr_read8(addr);
 	else if (width == 4) {
 		/* Address is low address. */
-		return (cpu8051_ReadD(addr + 1) << 8) |
-			cpu8051_ReadD(addr);
+		return (memory_sfr_read8(addr + 1) << 8) |
+			memory_sfr_read8(addr);
 	} else
 		return 0xFFFFFFFF;
 }
@@ -75,11 +76,11 @@ static void
 regwin_write(int addr, int val, int width)
 {
 	if (width == 2)
-		cpu8051_WriteD(addr, (u_int8_t) val);
+		memory_sfr_write8(addr, (u_int8_t) val);
 	else if (width == 4) {
 		/* Address is low address. */
-		cpu8051_WriteD(addr + 1, (u_int8_t) ((val & 0x0000FFFF) >> 8));
-		cpu8051_WriteD(addr, (u_int8_t) val);
+		memory_sfr_write8(addr + 1, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+		memory_sfr_write8(addr, (u_int8_t) val);
 	}
 };
 
@@ -100,47 +101,54 @@ regwin_write_pc(int param, int val)
 static unsigned int
 regwin_read_timer(int timer_low_addr)
 {
-	return (cpu8051_ReadD(timer_low_addr + 2) << 8) |
-		cpu8051_ReadD(timer_low_addr);
+	return (memory_sfr_read8(timer_low_addr + 2) << 8) |
+		memory_sfr_read8(timer_low_addr);
 }
 
 static void
 regwin_write_timer(int timer_low_addr, int val)
 {
-	cpu8051_WriteD(timer_low_addr + 2, (u_int8_t) ((val & 0x0000FFFF) >> 8));
-	cpu8051_WriteD(timer_low_addr, (u_int8_t) val);
+	memory_sfr_write8(timer_low_addr + 2, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+	memory_sfr_write8(timer_low_addr, (u_int8_t) val);
+}
+
+static u_int8_t
+regwin_read_bank_offset(void)
+{
+	return memory_sfr_read8(_PSW_) & 0x18;
 }
 
 static unsigned int
 regwin_read_bank(int dummy)
 {
-	return BANKPSW >> 3;
+	return regwin_read_bank_offset() >> 3;
 }
 
 static void
 regwin_write_bank(int param, int bank_number)
 {
-	u_int8_t psw = cpu8051_ReadD(_PSW_);
+	u_int8_t psw = memory_sfr_read8(_PSW_);
 
 	if ((bank_number < 0) || (bank_number > 3)) {
 		log_info("Error: invalid bank number: %d", bank_number);
 		bank_number = 0;
 	}
 
-	cpu8051_WriteD(_PSW_, (psw & ~0x18) | (bank_number << 3));
+	memory_sfr_write8(_PSW_, (psw & ~0x18) | (bank_number << 3));
 }
 
-/* Read R0 - R7 in current bank. */
+/* Indirect read of R0 - R7 in current bank from internal memory. */
 static unsigned int
 regwin_read_rx(int offset)
 {
-	return cpu8051_ReadD(BANKPSW + offset);
+	return memory_read8(INT_MEM_ID, regwin_read_bank_offset() + offset);
 }
 
+/* Indirect write to R0 - R7 in current bank to internal memory. */
 static void
 regwin_write_rx(int offset, int val)
 {
-	cpu8051_WriteD(BANKPSW + offset, (u_int8_t) val);
+	memory_write8(INT_MEM_ID, regwin_read_bank_offset() + offset, (u_int8_t) val);
 }
 
 /* This array defines how to read value for each register. */
