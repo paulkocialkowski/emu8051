@@ -60,14 +60,13 @@ memory_init(void)
 		m = &mem_infos[k];
 
 		if (m->size > m->max_size) {
-			log_fail_no_exit("Memory size invalid (max = %d)",
-					 m->max_size);
+			log_err("Memory size invalid (max = %d)", m->max_size);
 			exit(1);
 		}
 
 		m->buf = malloc(m->size);
 		if (m->buf == NULL) {
-			log_fail_no_exit("%s", strerror(errno));
+			log_err("%s", strerror(errno));
 			exit(1);
 		}
 	}

@@ -68,16 +68,16 @@ decode_debug_option(char *arg, struct argp_state *state)
 	log_level = strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
-		log_fail_no_exit("Invalid log level");
+		log_err("Invalid log level");
 		argp_usage(state);
 	}
 
 	if (log_level > LOG_LEVEL_DEBUG) {
-		log_fail_no_exit("Invalid log level");
+		log_err("Invalid log level (0 to 3)");
 		argp_usage(state);
 	}
 
-	log_set_level(log_level);
+	options.log = log_level;
 }
 
 static void
@@ -102,7 +102,7 @@ decode_memory_size(char *arg, struct argp_state *state, int memid)
 	*dest = strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
-		log_fail_no_exit("Invalid memory size");
+		log_err("Invalid memory size");
 		argp_usage(state);
 	}
 }
@@ -160,6 +160,7 @@ parse_command_line_options(int argc, char *argv[])
 	options.pram_size = PGM_MEM_DEFAULT_SIZE;
 	options.iram_size = INT_MEM_MAX_SIZE;
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;
+	options.log = LOG_LEVEL_ERR;
 
 	/* Parse our arguments. */
 	argp_parse(&argp, argc, argv, 0, 0, NULL);

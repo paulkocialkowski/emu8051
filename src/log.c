@@ -20,12 +20,26 @@
 #include "common.h"
 #include "options.h"
 
-static int log_level = LOG_LEVEL_ERR; /* LEVEL = ERROR */
+#define PREFIX_PACKAGE_NAME 1
+#define ADD_LINEFEED        1
 
-void
-log_set_level(int new_log_level)
+extern struct options_t options;
+
+static void
+log_prefix_package_name(FILE *stream, const char *severity)
 {
-	log_level = new_log_level;
+#if PREFIX_PACKAGE_NAME
+	/* Printing the name of the program first if desired. */
+	fprintf(stream, "%s %s: ", PACKAGE_NAME, severity);
+#endif /* PREFIX_PACKAGE_NAME */
+}
+
+static void
+log_suffix_newline(FILE *stream)
+{
+#if ADD_LINEFEED
+	fprintf(stream, "\n");
+#endif /* ADD_LINEFEED */
 }
 
 void
@@ -33,17 +47,16 @@ log_debug(const char *format, ...)
 {
 	FILE *stream = stdout;
 
-	if (log_level >= LOG_LEVEL_DEBUG) {
+	if (options.log >= LOG_LEVEL_DEBUG) {
 		va_list ap;
 
-		/* Printing the name of the program first. */
-		fprintf(stream, "%s debug  : ", PACKAGE_NAME);
+		log_prefix_package_name(stream, "debug");
 
 		va_start(ap, format);
 		vfprintf(stream, format, ap);
 		va_end(ap);
 
-		fprintf(stream, "\n");
+		log_suffix_newline(stream);
 	}
 }
 
@@ -52,17 +65,16 @@ log_info(const char *format, ...)
 {
 	FILE *stream = stdout;
 
-	if (log_level >= LOG_LEVEL_INFO) {
+	if (options.log >= LOG_LEVEL_INFO) {
 		va_list ap;
 
-		/* Printing the name of the program first. */
-		fprintf(stream, "%s info   : ", PACKAGE_NAME);
+		log_prefix_package_name(stream, "info");
 
 		va_start(ap, format);
 		vfprintf(stream, format, ap);
 		va_end(ap);
 
-		fprintf(stream, "\n");
+		log_suffix_newline(stream);
 	}
 }
 
@@ -71,50 +83,48 @@ log_warn(const char *format, ...)
 {
 	FILE *stream = stderr;
 
-	if (log_level >= LOG_LEVEL_WARN) {
+	if (options.log >= LOG_LEVEL_WARN) {
 		va_list ap;
 
-		/* Printing the name of the program first. */
-		fprintf(stream, "%s warning: ", PACKAGE_NAME);
+		log_prefix_package_name(stream, "warn");
 
 		va_start(ap, format);
 		vfprintf(stream, format, ap);
 		va_end(ap);
 
-		fprintf(stream, "\n");
+		log_suffix_newline(stream);
 	}
 }
 
+void
+log_err(const char *format, ...)
+{
+	FILE *stream = stderr;
+	va_list ap;
+
+	log_prefix_package_name(stream, "error");
+
+	va_start(ap, format);
+	vfprintf(stream, format, ap);
+	va_end(ap);
+
+	log_suffix_newline(stream);
+}
+
+/* Log error message and exits with error code. */
 void
 log_fail(const char *format, ...)
 {
 	FILE *stream = stderr;
 	va_list ap;
 
-	/* Printing the name of the program first. */
-	fprintf(stream, "%s error  : ", PACKAGE_NAME);
+	log_prefix_package_name(stream, "error");
 
 	va_start(ap, format);
 	vfprintf(stream, format, ap);
 	va_end(ap);
 
-	fprintf(stream, "\n");
+	log_suffix_newline(stream);
 
 	exit(EXIT_FAILURE);
-}
-
-void
-log_fail_no_exit(const char *format, ...)
-{
-	FILE *stream = stderr;
-	va_list ap;
-
-	/* Printing the name of the program first. */
-	fprintf(stream, "%s error: ", PACKAGE_NAME);
-
-	va_start(ap, format);
-	vfprintf(stream, format, ap);
-	va_end(ap);
-
-	fprintf(stream, "\n");
 }

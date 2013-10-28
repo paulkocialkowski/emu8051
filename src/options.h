@@ -32,6 +32,7 @@ struct options_t {
 	int iram_size; /* Maximum internal ram size. */
 	int xram_size; /* Maximum external ram size. */
 	char *filename;
+	int log;
 } options_t;
 
 void

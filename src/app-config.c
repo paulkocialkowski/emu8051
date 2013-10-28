@@ -98,7 +98,7 @@ app_config_load_from_key_file(GKeyFile *kf)
 	/* View */
 	app_config_key_file_get_int(kf, "view", "layout",  &cfg->layout);
 	if ((cfg->layout != UI_LAYOUT1) && (cfg->layout != UI_LAYOUT2)) {
-		log_fail_no_exit("Invalid layout, defaulting to layout 1");
+		log_err("Invalid layout, defaulting to layout 1");
 		cfg->layout = UI_LAYOUT1;
 	}
 	app_config_key_file_get_int(kf, "view", "int_memory",

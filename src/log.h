@@ -21,14 +21,11 @@
 #include "common.h"
 
 enum LOG_LEVEL {
-	LOG_LEVEL_ERR,
-	LOG_LEVEL_WARN,
-	LOG_LEVEL_INFO,
-	LOG_LEVEL_DEBUG
+	LOG_LEVEL_ERR = 0, /* Display only errors */
+	LOG_LEVEL_WARN,    /* Display warnings */
+	LOG_LEVEL_INFO,    /* Display information messages */
+	LOG_LEVEL_DEBUG,   /* Display all messages */
 };
-
-void
-log_set_level(int new_log_level);
 
 void
 log_debug(const char *format, ...);
@@ -40,9 +37,10 @@ void
 log_warn(const char *format, ...);
 
 void
-log_fail(const char *format, ...);
+log_err(const char *format, ...);
 
+/* Log error message and exits with error code. */
 void
-log_fail_no_exit(const char *format, ...);
+log_fail(const char *format, ...);
 
 #endif /* LOG_H */
