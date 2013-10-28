@@ -46,7 +46,7 @@ static const char args_doc[] = "[FILENAME]";
 static struct argp_option argp_options[] = {
 	{"debug", 'd', "level", 0,  "Produce debugging output" },
 	{"iram",  'i', "size",  0,  "Set internal ram size" },
-	{"xram",  'x', "size",  0,  "Set external ram size" },
+	{"xram",  'x', "size",  0,  "Set external ram size (default is 1024)" },
 	{ 0 }
 };
 
@@ -156,7 +156,7 @@ parse_command_line_options(int argc, char *argv[])
 	/* Setting default values. */
 	options.filename = NULL;
 	options.iram_size = INT_MEM_SIZE;
-	options.xram_size = EXT_MEM_SIZE;
+	options.xram_size = EXT_MEM_DEFAULT_SIZE;
 
 	/* Parse our arguments. */
 	argp_parse(&argp, argc, argv, 0, 0, NULL);

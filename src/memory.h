@@ -28,6 +28,7 @@
 #define INT_MEM_SIZE 256 /* IRAM = Direct addresses $00 to $7F
 			  * SFR  = Direct addresses $80 to $FF */
 #define EXT_MEM_SIZE 65536
+#define EXT_MEM_DEFAULT_SIZE 1024
 
 enum {
   PGM_MEM_ID,
