@@ -87,10 +87,10 @@ decode_memory_size(char *arg, struct argp_state *state, int memid)
 	int *dest;
 
 	if (memid == INT_MEM_ID) {
-		max_size = INT_MEM_SIZE;
+		max_size = INT_MEM_MAX_SIZE;
 		dest = &options.iram_size;
 	} else {
-		max_size = EXT_MEM_SIZE;
+		max_size = EXT_MEM_MAX_SIZE;
 		dest = &options.xram_size;
 	}
 
@@ -155,7 +155,7 @@ parse_command_line_options(int argc, char *argv[])
 
 	/* Setting default values. */
 	options.filename = NULL;
-	options.iram_size = INT_MEM_SIZE;
+	options.iram_size = INT_MEM_MAX_SIZE;
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;
 
 	/* Parse our arguments. */

@@ -27,33 +27,33 @@
 #include "hexfile.h"
 #include "memory.h"
 
-static u_int8_t pgm_mem[PGM_MEM_SIZE];
-static u_int8_t int_mem[INT_MEM_SIZE];
-static u_int8_t ext_mem[EXT_MEM_SIZE];
+static u_int8_t pgm_mem[PGM_MEM_MAX_SIZE];
+static u_int8_t int_mem[INT_MEM_MAX_SIZE];
+static u_int8_t ext_mem[EXT_MEM_MAX_SIZE];
 
 void
 memory_write8(int memory_id, unsigned long address, u_int8_t value)
 {
 	switch (memory_id) {
 	case PGM_MEM_ID:
-		if (address >= PGM_MEM_SIZE) {
-			printf("Address (%lu) is greater than PGM_MEM_SIZE\n",
+		if (address >= PGM_MEM_MAX_SIZE) {
+			printf("Address (%lu) is greater than PGM_MEM_MAX_SIZE\n",
 			       address);
 			return;
 		} else
 			pgm_mem[address] = value;
 		break;
 	case INT_MEM_ID:
-		if (address >= INT_MEM_SIZE) {
-			printf("Address (%lu) is greater than INT_MEM_SIZE\n",
+		if (address >= INT_MEM_MAX_SIZE) {
+			printf("Address (%lu) is greater than INT_MEM_MAX_SIZE\n",
 			       address);
 			return;
 		} else
 			int_mem[address] = value;
 		break;
 	case EXT_MEM_ID:
-		if (address >= EXT_MEM_SIZE) {
-			printf("Address (%lu) is greater than EXT_MEM_SIZE\n",
+		if (address >= EXT_MEM_MAX_SIZE) {
+			printf("Address (%lu) is greater than EXT_MEM_MAX_SIZE\n",
 			       address);
 			return;
 		} else
@@ -70,28 +70,28 @@ memory_read8(int memory_id, unsigned long address)
 {
 	switch (memory_id) {
 	case PGM_MEM_ID:
-		if (address < PGM_MEM_SIZE)
+		if (address < PGM_MEM_MAX_SIZE)
 			return pgm_mem[address];
 		else {
-			printf("Address (%lu) is greater than PGM_MEM_SIZE\n",
+			printf("Address (%lu) is greater than PGM_MEM_MAX_SIZE\n",
 				address);
 			return 0;
 		}
 		break;
 	case INT_MEM_ID:
-		if (address < INT_MEM_SIZE)
+		if (address < INT_MEM_MAX_SIZE)
 			return int_mem[address];
 		else {
-			printf("Address (%lu) is greater than INT_MEM_SIZE\n",
+			printf("Address (%lu) is greater than INT_MEM_MAX_SIZE\n",
 			       address);
 			return 0;
 		}
 		break;
 	case EXT_MEM_ID:
-		if (address < EXT_MEM_SIZE)
+		if (address < EXT_MEM_MAX_SIZE)
 			return ext_mem[address];
 		else {
-			printf("Address (%lu) is greater than EXT_MEM_SIZE\n",
+			printf("Address (%lu) is greater than EXT_MEM_MAX_SIZE\n",
 			       address);
 			return 0;
 		}

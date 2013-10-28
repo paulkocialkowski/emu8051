@@ -24,10 +24,15 @@
 
 #include <sys/types.h>
 
-#define PGM_MEM_SIZE 65536
-#define INT_MEM_SIZE 256 /* IRAM = Direct addresses $00 to $7F
-			  * SFR  = Direct addresses $80 to $FF */
-#define EXT_MEM_SIZE 65536
+#define PGM_MEM_MAX_SIZE 65536
+/*
+ *   Direct addressing $00 to $7F = IRAM (8051)
+ *   Direct addressing $80 to $FF = SFR  (8051)
+ * Indirect addressing $80 to $FF = IRAM (8052)
+ */
+#define INT_MEM_MAX_SIZE   256
+#define EXT_MEM_MAX_SIZE 65536
+
 #define EXT_MEM_DEFAULT_SIZE 1024
 
 enum {
