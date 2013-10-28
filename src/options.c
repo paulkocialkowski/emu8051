@@ -46,6 +46,7 @@ static const char args_doc[] = "[FILENAME]";
 static struct argp_option argp_options[] = {
 	{"debug", 'd', "level", 0,  "Produce debugging output" },
 	{"iram",  'i', "size",  0,  "Set internal ram size" },
+	{"pram",  'p', "size",  0,  "Set program memory size" },
 	{"xram",  'x', "size",  0,  "Set external ram size (default is 1024)" },
 	{ 0 }
 };
@@ -85,7 +86,9 @@ decode_memory_size(char *arg, struct argp_state *state, int memid)
 	char *endptr;
 	int *dest;
 
-	if (memid == INT_MEM_ID)
+	if (memid == PGM_MEM_ID)
+		dest = &options.pram_size;
+	else if (memid == INT_MEM_ID)
 		dest = &options.iram_size;
 	else if (memid == EXT_MEM_ID)
 		dest = &options.xram_size;
@@ -114,6 +117,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 		break;
 	case 'i':
 		decode_memory_size(arg, state, INT_MEM_ID);
+		break;
+	case 'p':
+		decode_memory_size(arg, state, PGM_MEM_ID);
 		break;
 	case 'x':
 		decode_memory_size(arg, state, EXT_MEM_ID);
@@ -151,6 +157,7 @@ parse_command_line_options(int argc, char *argv[])
 
 	/* Setting default values. */
 	options.filename = NULL;
+	options.pram_size = PGM_MEM_DEFAULT_SIZE;
 	options.iram_size = INT_MEM_MAX_SIZE;
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;
 
