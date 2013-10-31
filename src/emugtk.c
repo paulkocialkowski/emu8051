@@ -292,6 +292,40 @@ emugtk_quit_gui(void)
 	restart_gui = false;
 }
 
+static GtkWidget *
+emugtk_create_memory_paned(void)
+{
+	GtkWidget *vpaned;
+	GtkWidget *scrollwin;
+
+	/* Create vpaned (memory windows) only if necessary. */
+	if (cfg->view_int_memory || cfg->view_ext_memory) {
+		vpaned = gtk_vpaned_new();
+		gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
+		g_signal_connect(G_OBJECT(vpaned), "notify::position",
+				 G_CALLBACK(vpaned_notify_event), vpaned);
+
+		/* Internal memory dump frame. */
+		if (cfg->view_int_memory) {
+			scrollwin = memwin_init("Internal memory (IRAM)",
+						INT_MEM_ID);
+			gtk_paned_pack1(GTK_PANED(vpaned), scrollwin,
+					FALSE, FALSE);
+		}
+
+		/* External memory dump frame. */
+		if (cfg->view_ext_memory) {
+			scrollwin = memwin_init("External memory (XRAM)",
+						EXT_MEM_ID);
+			gtk_paned_pack2(GTK_PANED(vpaned), scrollwin,
+					TRUE, FALSE);
+		}
+
+		return vpaned;
+	} else
+		return NULL;
+}
+
 /*
  *  mainwin
  * +---------------------------------------------------------------------+
@@ -412,31 +446,10 @@ emugtk_window_init(void)
 			 G_CALLBACK(main_paned_notify_event), main_paned);
 	gtk_paned_pack1(GTK_PANED(main_paned), hpaned, FALSE, FALSE);
 
-	/* Create vpaned (memory windows) only if necessary. */
-	if (cfg->view_int_memory || cfg->view_ext_memory) {
-		vpaned = gtk_vpaned_new();
-		gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
-		g_signal_connect(G_OBJECT(vpaned), "notify::position",
-				 G_CALLBACK(vpaned_notify_event), vpaned);
-
-		/* Internal memory dump frame. */
-		if (cfg->view_int_memory) {
-			scrollwin = memwin_init("Internal memory (IRAM)",
-						INT_MEM_ID);
-			gtk_paned_pack1(GTK_PANED(vpaned), scrollwin,
-					FALSE, FALSE);
-		}
-
-		/* External memory dump frame. */
-		if (cfg->view_ext_memory) {
-			scrollwin = memwin_init("External memory (XRAM)",
-						EXT_MEM_ID);
-			gtk_paned_pack2(GTK_PANED(vpaned), scrollwin,
-					TRUE, FALSE);
-		}
-
-		gtk_paned_pack2(GTK_PANED(main_paned), vpaned, TRUE, FALSE);
-	}
+	vpaned = emugtk_create_memory_paned();
+	if (vpaned != NULL)
+		gtk_paned_pack2(GTK_PANED(main_paned), vpaned,
+				TRUE, FALSE);
 
 	/*
 	 * vbox contains the menu bar and body_vbox (for all remaining
