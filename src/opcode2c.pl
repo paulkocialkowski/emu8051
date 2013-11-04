@@ -290,7 +290,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char destination = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
 	    }
 	    if ($op_destination == 18) { # @A+DPTR
-		print INST_IMP "unsigned int destination = cpu8051_ReadI( cpu8051_ReadD( _ACC_ ) + cpu8051_ReadD( _DPTRLOW_ ) + ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) );\n";
+		print INST_IMP "unsigned int destination = cpu8051_ReadD( _ACC_ ) + cpu8051_ReadD( _DPTRLOW_ ) + ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 );\n";
 	    }
 # Mis en commentaire car donnait un warning (destination et source unused variables...)
 #	if ($op_destination == 20) { # AB
