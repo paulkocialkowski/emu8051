@@ -483,6 +483,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
 	    print INST_IMP "cpu8051.pc = ( cpu8051_ReadI( SP-- ) << 8 );\n";
 	    print INST_IMP "cpu8051.pc += cpu8051_ReadI( SP-- );\n";
+	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
 	}
 
 	# RLC
