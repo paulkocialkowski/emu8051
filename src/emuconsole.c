@@ -156,7 +156,7 @@ console_show_registers(void)
 	       "   -   P |\n");
 	printf("| %.4X | %.2X | %.4X |  %.2X | %.2X |", cpu8051.pc,
 	       cpu8051_ReadD(_SP_),
-	       (cpu8051_ReadD(_DPTRHIGH_) << 8) + cpu8051_ReadD(_DPTRLOW_),
+	       memory_sfr_read_dptr(),
 	       cpu8051_ReadD(_ACC_), cpu8051_ReadD(_B_));
 	printf("        %d   %d   %d   %d   %d   %d   %d   %d |",
 	       (PSW >> 7) & 1, (PSW >> 6) & 1, (PSW >> 5) & 1, (PSW >> 4) & 1,

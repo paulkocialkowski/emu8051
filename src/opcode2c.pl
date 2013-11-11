@@ -290,7 +290,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char destination = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
 	    }
 	    if ($op_destination == 18) { # @A+DPTR
-		print INST_IMP "unsigned int destination = cpu8051_ReadD( _ACC_ ) + cpu8051_ReadD( _DPTRLOW_ ) + ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 );\n";
+		print INST_IMP "unsigned int destination = cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr();\n";
 	    }
 # Mis en commentaire car donnait un warning (destination et source unused variables...)
 #	if ($op_destination == 20) { # AB
@@ -298,7 +298,7 @@ for ($i=0 ; $i< 256; $i++) {
 #	    print INST_IMP "unsigned char source = cpu8051_ReadD( _B_ );\n";
 #	}
 	    if ($op_destination == 21) { # DPTR
-		print INST_IMP "unsigned int destination = ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ );\n";
+		print INST_IMP "unsigned int destination = memory_sfr_read_dptr();\n";
 	    }
 	    if ($op_destination == 22) { # #data16
 		print INST_IMP "unsigned char destination = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
@@ -309,7 +309,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "destination = ( cpu8051_ReadB( dstbitaddr ) ^ 1 );\n";
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		print INST_IMP "unsigned char destination = cpu8051_ReadI( ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_) );\n";
+		print INST_IMP "unsigned char destination = cpu8051_ReadI(memory_sfr_read_dptr());\n";
 	    }
 	}
 
@@ -375,13 +375,13 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char source = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
 	    }
 	    if ($op_source == 18) { # @A+DPTR
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + cpu8051_ReadD( _DPTRLOW_ ) + ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) );\n";
+		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr());\n";
 	    }
 	    if ($op_source == 19) { # @A+PC
 		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + ( ++cpu8051.pc ) );\n";
 	    }
 	    if ($op_source == 21) { # DPTR
-		print INST_IMP "unsigned int source = ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ );\n";
+		print INST_IMP "unsigned int source = memory_sfr_read_dptr();\n";
 	    }
 	    if ($op_source == 22) { # #data16
 		print INST_IMP "unsigned char source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
@@ -392,7 +392,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "source = ( cpu8051_ReadB( srcbitaddr ) ^ 1 );\n";
 	    }
 	    if ($op_source == 24) { # @DPTR
-		print INST_IMP "unsigned char source = cpu8051_ReadI( ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_) );\n";
+		print INST_IMP "unsigned char source = cpu8051_ReadI(memory_sfr_read_dptr());\n";
 	    }
 	}
 
@@ -727,14 +727,13 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "cpu8051_WriteD( _PSW_, ( ( cpu8051_ReadD( _PSW_ ) & 0x7F) | ( destination << 7 ) ) );\n";
 	    }
 	    if ($op_destination == 21) { # DPTR
-		print INST_IMP "cpu8051_WriteD( _DPTRHIGH_, ( destination >> 8 ) );\n";
-		print INST_IMP "cpu8051_WriteD( _DPTRLOW_, ( destination & 0xFF ) );\n";
+		print INST_IMP "memory_sfr_write_dptr(destination);\n";
 	    }
 	    if ($op_destination == 23) { # /bitaddr
 		print INST_IMP "cpu8051_WriteB( dstbitaddr, destination );\n";
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		print INST_IMP "cpu8051_WriteI( ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ ), destination );\n";
+		print INST_IMP "cpu8051_WriteI(memory_sfr_read_dptr(), destination);\n";
 	    }
 	}
 
@@ -790,14 +789,13 @@ for ($i=0 ; $i< 256; $i++) {
 		    print INST_IMP "cpu8051_WriteD( _PSW_, ( ( cpu8051_ReadD( _PSW_ ) & 0x7F) | ( source << 7 ) ) );\n";
 		}
 		if ($op_source == 21) { # DPTR
-		    print INST_IMP "cpu8051_WriteD( _DPTRHIGH_, ( source >> 8 ) );\n";
-		    print INST_IMP "cpu8051_WriteD( _DPTRLOW_, ( source & 0xFF ) );\n";
+                    print INST_IMP "memory_sfr_write_dptr(source);\n";
 		}
 		if ($op_source == 23) { # /bitaddr
 		    print INST_IMP "cpu8051_WriteB( srcbitaddr, source );\n";
 		}
 		if ($op_source == 24) { # @DPTR
-		    print INST_IMP "cpu8051_WriteI( ( cpu8051_ReadD( _DPTRHIGH_ ) << 8 ) + cpu8051_ReadD( _DPTRLOW_ ), source );\n";
+		    print INST_IMP "cpu8051_WriteI(memory_sfr_read_dptr(), source);\n";
 		}
 	    }
 	}

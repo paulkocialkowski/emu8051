@@ -55,11 +55,17 @@ memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
 void
 memory_sfr_write8(unsigned long address, u_int8_t value);
 
+void
+memory_sfr_write_dptr(u_int16_t value);
+
 u_int8_t
 memory_read8(enum mem_id_t id, unsigned long address);
 
 u_int8_t
 memory_sfr_read8(unsigned long address);
+
+u_int16_t
+memory_sfr_read_dptr(void);
 
 void
 DumpMem(char *Address, char *Asize, int memory_id);

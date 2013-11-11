@@ -24,6 +24,7 @@
 
 #include "common.h"
 #include "cpu8051.h"
+#include "reg8051.h"
 #include "hexfile.h"
 #include "memory.h"
 #include "options.h"
@@ -97,6 +98,13 @@ memory_sfr_write8(unsigned long address, u_int8_t value)
 	memory_write8(INT_MEM_ID, address, value);
 }
 
+void
+memory_sfr_write_dptr(u_int16_t value)
+{
+	memory_write8(INT_MEM_ID, _DPTRHIGH_, value >> 8);
+	memory_write8(INT_MEM_ID, _DPTRLOW_, (uint8_t) value);
+}
+
 u_int8_t
 memory_read8(enum mem_id_t id, unsigned long address)
 {
@@ -114,6 +122,13 @@ memory_sfr_read8(unsigned long address)
 {
 	/* SFR registers are from addresses $80 to $FF. */
 	return memory_read8(INT_MEM_ID, address);
+}
+
+u_int16_t
+memory_sfr_read_dptr(void)
+{
+	return (memory_read8(INT_MEM_ID, _DPTRHIGH_) << 8) +
+		memory_read8(INT_MEM_ID, _DPTRLOW_);
 }
 
 /* Dump memory */
