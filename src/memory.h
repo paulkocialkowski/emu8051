@@ -68,6 +68,18 @@ u_int16_t
 memory_sfr_read_dptr(void);
 
 void
+stack_push8(uint8_t value);
+
+void
+stack_push16(uint16_t value);
+
+uint8_t
+stack_pop8(void);
+
+uint16_t
+stack_pop16(void);
+
+void
 DumpMem(char *Address, char *Asize, int memory_id);
 
 #endif /* MEMORY_H */

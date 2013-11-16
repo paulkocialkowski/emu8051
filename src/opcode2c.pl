@@ -417,18 +417,12 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# ACALL
 	if ($insttype[$i] == 6) {
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc & 0x00FF ) );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+	    print INST_IMP "stack_push16(cpu8051.pc);\n";
 	}
 
 	# LCALL
 	if ($insttype[$i] == 7) {
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc & 0x00FF ) );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, ( cpu8051.pc >> 8 ) );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+	    print INST_IMP "stack_push16(cpu8051.pc);\n";
 	}
 
 	# RRC
@@ -450,10 +444,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# RET
 	if ($insttype[$i] == 11) {
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051.pc = ( cpu8051_ReadI( SP-- ) << 8 );\n";
-	    print INST_IMP "cpu8051.pc += cpu8051_ReadI ( SP-- );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+            print INST_IMP "cpu8051.pc = stack_pop16();\n";
 	}
 
 	# RL
@@ -480,10 +471,7 @@ for ($i=0 ; $i< 256; $i++) {
 	# RETI
 	if ($insttype[$i] == 15) {
 	    print INST_IMP "cpu8051.active_priority = -1;\n";
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051.pc = ( cpu8051_ReadI( SP-- ) << 8 );\n";
-	    print INST_IMP "cpu8051.pc += cpu8051_ReadI( SP-- );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+            print INST_IMP "cpu8051.pc = stack_pop16();\n";
 	}
 
 	# RLC
@@ -605,9 +593,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# PUSH
 	if ($insttype[$i] == 35) {
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "cpu8051_WriteI( ++SP, destination );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+	    print INST_IMP "stack_push8(destination);\n";
 	}
 
 	# CLR
@@ -629,9 +615,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# POP
 	if ($insttype[$i] == 39) {
-	    print INST_IMP "unsigned char SP = cpu8051_ReadD( _SP_ );\n";
-	    print INST_IMP "destination = cpu8051_ReadI( SP-- );\n";
-	    print INST_IMP "cpu8051_WriteD( _SP_, SP );\n";
+            print INST_IMP "destination = stack_pop8();\n";
 	}
 
 	# SETB

@@ -131,6 +131,58 @@ memory_sfr_read_dptr(void)
 		memory_read8(INT_MEM_ID, _DPTRLOW_);
 }
 
+void
+stack_push8(uint8_t value)
+{
+	uint8_t sp;
+
+	sp = memory_read8(INT_MEM_ID, _SP_);
+
+	memory_write8(INT_MEM_ID, ++sp, value);
+	memory_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+}
+
+void
+stack_push16(uint16_t value)
+{
+	uint8_t sp;
+
+	sp = memory_read8(INT_MEM_ID, _SP_);
+
+	memory_write8(INT_MEM_ID, ++sp, (uint8_t) value); /* Write LSB */
+	memory_write8(INT_MEM_ID, ++sp, value >> 8);      /* Write MSB */
+	memory_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+}
+
+uint8_t
+stack_pop8(void)
+{
+	uint8_t sp;
+	uint8_t value;
+
+	sp = memory_read8(INT_MEM_ID, _SP_);
+
+	value = memory_read8(INT_MEM_ID, sp--);
+	memory_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+
+	return value;
+}
+
+uint16_t
+stack_pop16(void)
+{
+	uint8_t sp;
+	uint16_t value;
+
+	sp = memory_read8(INT_MEM_ID, _SP_);
+
+	value = memory_read8(INT_MEM_ID, sp--) << 8; /* Read MSB */
+	value |= memory_read8(INT_MEM_ID, sp--);     /* Read LSB */
+	memory_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+
+	return value;
+}
+
 /* Dump memory */
 void
 DumpMem(char *Address, char *Asize, int memory_id)
