@@ -118,6 +118,8 @@ cpu8051_Reset(void)
 	memory_sfr_write8(_P1_, 0xFF);
 	memory_sfr_write8(_P2_, 0xFF);
 	memory_sfr_write8(_P3_, 0xFF);
+
+	/* The default value of SP (after system reset) is 07 */
 	memory_sfr_write8(_SP_, 0x07);
 }
 
