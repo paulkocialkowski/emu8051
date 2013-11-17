@@ -28,9 +28,9 @@ psw_write_cy(int cy)
 	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
 
 	if (cy)
-		psw |= 0x80;  /* Set */
+		psw |= PSW_FLAG_CY;  /* Set */
 	else
-		psw &= ~0x80; /* Clear */
+		psw &= ~PSW_FLAG_CY; /* Clear */
 
 	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
 }
@@ -40,7 +40,7 @@ psw_set_cy(void)
 {
 	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
 
-	psw |= 0x80;
+	psw |= PSW_FLAG_CY;
 
 	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
 }
@@ -50,7 +50,7 @@ psw_clr_cy(void)
 {
 	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
 
-	psw &= ~0x80;
+	psw &= ~PSW_FLAG_CY;
 
 	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
 }
@@ -59,5 +59,5 @@ psw_clr_cy(void)
 int
 psw_read_cy(void)
 {
-	return memory_read8(INT_MEM_ID, _PSW_) >> 7;
+	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_CY;
 }

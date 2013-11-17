@@ -62,4 +62,14 @@
 #define _BANK2_     0x10
 #define _BANK3_     0x18
 
+#define PSW_BIT_CY 7
+#define PSW_BIT_AC 6
+#define PSW_BIT_OV 2
+#define PSW_BIT_P  0
+
+#define PSW_FLAG_CY (1 << PSW_BIT_CY)
+#define PSW_FLAG_AC (1 << PSW_BIT_AC)
+#define PSW_FLAG_OV (1 << PSW_BIT_OV)
+#define PSW_FLAG_P  (1 << PSW_BIT_P)
+
 #endif /* REG8051_H */
