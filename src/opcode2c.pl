@@ -455,12 +455,24 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# ADD
 	if ($insttype[$i] == 13) {
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+	    print INST_IMP "psw_clr_ac();\n";
+	    print INST_IMP "psw_clr_ov();\n";
+            # The Overflow (OV) bit is set if there is a carry-out of bit 6 or
+            # out of bit 7, but not both. In other words, if the addition of the
+            # Accumulator, operand and (in the case of ADDC) the Carry flag
+            # treated as signed values results in a value that is out of the
+            # range of a signed byte (-128 through +127) the Overflow flag is
+            # set. Otherwise, the Overflow flag is cleared.
 	    print INST_IMP "if ( destination + source > 0xFF ) {\n";
+            # Carry from bit 7
 	    print INST_IMP "   psw_set_cy();\n";
-	    print INST_IMP "   if ( ( destination & 0x7F ) + ( source & 0x7F ) < 0x80 )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "} else if ( ( destination & 0x7F ) + ( source & 0x7F ) > 0x7F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) > 0x0F )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
+            # If no carry from bit 6, set OV
+	    print INST_IMP "   if (((destination & 0x7F) + (source & 0x7F)) < 0x80)\n";
+	    print INST_IMP "       psw_set_ov();\n";
+            # If no carry from bit 7, but caary from bit 6, set OV
+	    print INST_IMP "} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )  psw_set_ov();\n";
+	    print INST_IMP "if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)  psw_set_ac();\n";
 	    print INST_IMP "destination += source;\n";
 	}
 
@@ -485,12 +497,15 @@ for ($i=0 ; $i< 256; $i++) {
 	# ADDC
 	if ($insttype[$i] == 17) {
 	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+	    print INST_IMP "psw_clr_ac();\n";
+	    print INST_IMP "psw_clr_ov();\n";
 	    print INST_IMP "if ( destination + source + carryflag > 0xFF ) {\n";
 	    print INST_IMP "   psw_set_cy();\n";
-	    print INST_IMP "   if ( ( destination & 0x7F ) + ( source & 0x7F ) + carryflag < 0x80 )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "} else if ( ( destination & 0x7F ) + ( source & 0x7F ) + carryflag > 0x7F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) + carryflag > 0x0F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
+	    print INST_IMP "   if (((destination & 0x7F) + (source & 0x7F) + carryflag) < 0x80);\n";
+	    print INST_IMP "       psw_set_ov();\n";
+	    print INST_IMP "} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)  psw_set_ov();\n";
+	    print INST_IMP "if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)  psw_set_ac();\n";
 	    print INST_IMP "destination += source;\n";
 	}
 
@@ -552,30 +567,41 @@ for ($i=0 ; $i< 256; $i++) {
 	# DIV
 	if ($insttype[$i] == 29) {
 	    print INST_IMP "unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7B ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+            # If B is zero, the OV flag will be set indicating a
+            # division-by-zero error
 	    print INST_IMP "if ( B != 0 ) {\n";
-	    print INST_IMP "cpu8051_WriteD( _ACC_, A/B ); cpu8051_WriteD( _B_, A%B );\n";
-	    print INST_IMP "} else cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
+	    print INST_IMP "    cpu8051_WriteD( _ACC_, A/B ); cpu8051_WriteD( _B_, A%B );\n";
+	    print INST_IMP "    psw_clr_ov();\n";
+	    print INST_IMP "} else {\n";
+	    print INST_IMP "    psw_set_ov();\n";
+	    print INST_IMP "}\n";
 	}
 
 	# SUBB
 	if ($insttype[$i] == 30) {
 	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+	    print INST_IMP "psw_clr_ac();\n";
+	    print INST_IMP "psw_clr_ov();\n";
 	    print INST_IMP "if ( destination < ( source + carryflag ) ) {\n";
 	    print INST_IMP "  psw_set_cy();\n";
-	    print INST_IMP "  if ( ( destination & 0x7F ) > ( ( source + carryflag ) & 0x7F ) )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "} else if ( ( destination & 0x7F ) < ( ( source + carryflag ) & 0x7F ) )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "if ( ( destination & 0x0F ) < ( ( source + carryflag ) & 0x0F ) )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
+	    print INST_IMP "  if ((destination & 0x7F) > ((source + carryflag) & 0x7F))  psw_set_ov();\n";
+	    print INST_IMP "} else if ((destination & 0x7F) < ((source + carryflag) & 0x7F))   psw_set_ov();\n";
+	    print INST_IMP "if ((destination & 0x0F) < ((source + carryflag) & 0x0F))   psw_set_ac();\n";
 	    print INST_IMP "destination -= source + carryflag;\n";
 	}
 
 	# MUL
 	if ($insttype[$i] == 31) {
 	    print INST_IMP "unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7B ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+	    print INST_IMP "psw_clr_ov();\n";
 	    print INST_IMP "cpu8051_WriteD( _ACC_ , ( ( A * B ) & 0x00FF ) ); cpu8051_WriteD( _B_, ( A * B ) / 0x100 );\n";
-	    print INST_IMP "if ( cpu8051_ReadD( _B_ ) > 0) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
+	    print INST_IMP "if (cpu8051_ReadD(_B_) > 0)\n";
+	    print INST_IMP "    psw_set_ov();\n";
+	    print INST_IMP "else\n";
+	    print INST_IMP "    psw_clr_ov();\n";
 	}
 
 	# CPL
@@ -626,7 +652,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# DA
 	if ($insttype[$i] == 41) {
-	    print INST_IMP "if ( ( ( destination & 0x0F ) > 9) || ( cpu8051_ReadD( _PSW_ ) | 0x40)) {\n";
+	    print INST_IMP "if (((destination & 0x0F) > 9) || psw_read_ac()) {\n";
 	    print INST_IMP "   if ( ( destination + 6 ) > 0xFF)  psw_set_cy();\n";
 	    print INST_IMP "   destination += 6;\n";
 	    print INST_IMP "}\n";

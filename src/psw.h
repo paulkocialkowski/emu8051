@@ -35,4 +35,28 @@ psw_write_cy(int cy);
 int
 psw_read_cy(void);
 
+void
+psw_set_ac(void);
+
+void
+psw_clr_ac(void);
+
+void
+psw_write_ac(int ac);
+
+int
+psw_read_ac(void);
+
+void
+psw_set_ov(void);
+
+void
+psw_clr_ov(void);
+
+void
+psw_write_ov(int ov);
+
+int
+psw_read_ov(void);
+
 #endif /* PSW_H */

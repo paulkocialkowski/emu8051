@@ -53,3 +53,67 @@ psw_read_cy(void)
 {
 	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_CY;
 }
+
+void
+psw_write_ac(int ac)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	if (ac)
+		psw |= PSW_FLAG_AC;  /* Set */
+	else
+		psw &= ~PSW_FLAG_AC; /* Clear */
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+void
+psw_set_ac(void)
+{
+	psw_write_ac(1);
+}
+
+void
+psw_clr_ac(void)
+{
+	psw_write_ac(0);
+}
+
+/* Returns 0 or 1 */
+int
+psw_read_ac(void)
+{
+	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_AC;
+}
+
+void
+psw_write_ov(int ov)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	if (ov)
+		psw |= PSW_FLAG_OV;  /* Set */
+	else
+		psw &= ~PSW_FLAG_OV; /* Clear */
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+void
+psw_set_ov(void)
+{
+	psw_write_ov(1);
+}
+
+void
+psw_clr_ov(void)
+{
+	psw_write_ov(0);
+}
+
+/* Returns 0 or 1 */
+int
+psw_read_ov(void)
+{
+	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_OV;
+}
