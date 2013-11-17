@@ -25,6 +25,7 @@ common_SOURCES = \
 	cpu8051.h \
 	memory.c \
 	memory.h \
+	psw.c psw.h \
 	common.h \
 	reg8051.h
 

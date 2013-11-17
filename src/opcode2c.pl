@@ -51,6 +51,7 @@ print INST_IMP "#define INSTRUCTIONS_8051_M 1\n\n\n";
 print INST_IMP "#include \"reg8051.h\"\n";
 print INST_IMP "#include \"cpu8051.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
+print INST_IMP "#include \"psw.h\"\n";
 print INST_IMP "#include \"instructions_8051.h\"\n\n\n";
 
 # Header for disasm.h
