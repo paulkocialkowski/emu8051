@@ -289,11 +289,10 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($op_destination == 18) { # @A+DPTR
 		cfw("unsigned int destination = cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr();");
 	    }
-# Mis en commentaire car donnait un warning (destination et source unused variables...)
-#	if ($op_destination == 20) { # AB
-#	    cfw("unsigned char destination = cpu8051_ReadD( _ACC_ );");
-#	    cfw("unsigned char source = cpu8051_ReadD( _B_ );");
-#	}
+            if ($op_destination == 20) { # AB
+                cfw("unsigned char destination = cpu8051_ReadD( _ACC_ );");
+                cfw("unsigned char source = cpu8051_ReadD( _B_ );");
+            }
 	    if ($op_destination == 21) { # DPTR
 		cfw("unsigned int destination = memory_sfr_read_dptr();");
 	    }
@@ -562,12 +561,14 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# DIV
 	if ($insttype[$i] == 29) {
-	    cfw("unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );");
+            # A = destination
+            # B = source
 	    cfw("psw_clr_cy();");
             # If B is zero, the OV flag will be set indicating a
             # division-by-zero error
-	    cfw("if ( B != 0 ) {");
-	    cfw("    cpu8051_WriteD( _ACC_, A/B ); cpu8051_WriteD( _B_, A%B );");
+	    cfw("if (source != 0) {");
+	    cfw("    cpu8051_WriteD(_ACC_, destination/source);");
+            cfw("    cpu8051_WriteD( _B_, destination%source);");
 	    cfw("    psw_clr_ov();");
 	    cfw("} else {");
 	    cfw("    psw_set_ov();");
@@ -590,10 +591,11 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# MUL
 	if ($insttype[$i] == 31) {
-	    cfw("unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );");
+            # A = destination
+            # B = source
 	    cfw("psw_clr_cy();");
-	    cfw("psw_clr_ov();");
-	    cfw("cpu8051_WriteD( _ACC_ , ( ( A * B ) & 0x00FF ) ); cpu8051_WriteD( _B_, ( A * B ) / 0x100 );");
+	    cfw("cpu8051_WriteD(_ACC_, destination * source);");
+            cfw("cpu8051_WriteD(_B_, (destination * source) / 0x100);");
 	    cfw("if (cpu8051_ReadD(_B_) > 0)");
 	    cfw("    psw_set_ov();");
 	    cfw("else");
