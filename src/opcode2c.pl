@@ -468,7 +468,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    print INST_IMP "   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
 	    print INST_IMP "   if ( ( destination & 0x7F ) + ( source & 0x7F ) < 0x80 )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "} else if ( ( destination & 0x7F ) + ( source & 0x7F ) > 0x7F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
-	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) > 0x0F )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
+	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) > 0x0F )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
 	    print INST_IMP "destination += source;\n";
 	}
 
