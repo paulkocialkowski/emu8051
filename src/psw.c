@@ -38,21 +38,13 @@ psw_write_cy(int cy)
 void
 psw_set_cy(void)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
-
-	psw |= PSW_FLAG_CY;
-
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	psw_write_cy(1);
 }
 
 void
 psw_clr_cy(void)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
-
-	psw &= ~PSW_FLAG_CY;
-
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	psw_write_cy(0);
 }
 
 /* Returns 0 or 1 */
