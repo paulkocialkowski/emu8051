@@ -287,7 +287,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char destination = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
 	    }
 	    if ($op_destination == 17) { # C
-		print INST_IMP "unsigned char destination = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
+		print INST_IMP "unsigned char destination = psw_read_cy();\n";
 	    }
 	    if ($op_destination == 18) { # @A+DPTR
 		print INST_IMP "unsigned int destination = cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr();\n";
@@ -372,7 +372,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
 	    }
 	    if ($op_source == 17) { # C
-		print INST_IMP "unsigned char source = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
+		print INST_IMP "unsigned char source = psw_read_cy();\n";
 	    }
 	    if ($op_source == 18) { # @A+DPTR
 		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr());\n";
@@ -427,9 +427,9 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# RRC
 	if ($insttype[$i] == 8) {
-	    print INST_IMP "unsigned char tmpval = destination;\n";
-	    print INST_IMP "destination = ( destination >> 1 ) | ( cpu8051_ReadD( _PSW_ ) & 0x80 );\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) | ( tmpval << 7 ) );\n";
+	    print INST_IMP "unsigned char new_cy = destination & 0x01;\n";
+	    print INST_IMP "destination = ( destination >> 1 ) | (psw_read_cy() << 7);\n";
+	    print INST_IMP "psw_write_cy(new_cy);\n";
 	}
 
 	# DEC
@@ -456,7 +456,7 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($insttype[$i] == 13) {
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
 	    print INST_IMP "if ( destination + source > 0xFF ) {\n";
-	    print INST_IMP "   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "   psw_set_cy();\n";
 	    print INST_IMP "   if ( ( destination & 0x7F ) + ( source & 0x7F ) < 0x80 )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "} else if ( ( destination & 0x7F ) + ( source & 0x7F ) > 0x7F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) > 0x0F )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
@@ -476,17 +476,17 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# RLC
 	if ($insttype[$i] == 16) {
-	    print INST_IMP "unsigned char tmpval = destination;\n";
-	    print INST_IMP "destination = ( destination << 1 ) | ( ( cpu8051_ReadD( _PSW_ ) & 0x80 ) >> 7 );\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) | ( tmpval & 0x80 ) );\n";
+	    print INST_IMP "unsigned char new_cy = destination & 0x80;\n";
+	    print INST_IMP "destination = ( destination << 1 ) | psw_read_cy();\n";
+	    print INST_IMP "psw_write_cy(new_cy);\n";
 	}
 
 	# ADDC
 	if ($insttype[$i] == 17) {
-	    print INST_IMP "unsigned char carryflag = ( cpu8051_ReadD( _PSW_ ) >> 7 );\n";
+	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
 	    print INST_IMP "if ( destination + source + carryflag > 0xFF ) {\n";
-	    print INST_IMP "   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "   psw_set_cy();\n";
 	    print INST_IMP "   if ( ( destination & 0x7F ) + ( source & 0x7F ) + carryflag < 0x80 )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "} else if ( ( destination & 0x7F ) + ( source & 0x7F ) + carryflag > 0x7F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "if ( ( destination & 0x0F ) + ( source & 0x0F ) + carryflag > 0x0F )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
@@ -495,7 +495,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JC
 	if ($insttype[$i] == 18) {
-	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) > 0x7F) { cpu8051.pc = destination; }\n";
+	    print INST_IMP "if (psw_read_cy()) { cpu8051.pc = destination; }\n";
 	}
 
 	# ORL
@@ -505,7 +505,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# JNC
 	if ($insttype[$i] == 20) {
-	    print INST_IMP "if ( cpu8051_ReadD( _PSW_ ) < 0x80 ) { cpu8051.pc = destination; }\n";
+	    print INST_IMP "if (psw_read_cy() == 0) { cpu8051.pc = destination; }\n";
 	}
 
 	# ANL
@@ -559,10 +559,10 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# SUBB
 	if ($insttype[$i] == 30) {
-	    print INST_IMP "unsigned char carryflag = cpu8051_ReadD( _PSW_ ) >> 7;\n";
+	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
 	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x3B ) );\n";
 	    print INST_IMP "if ( destination < ( source + carryflag ) ) {\n";
-	    print INST_IMP "  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "  psw_set_cy();\n";
 	    print INST_IMP "  if ( ( destination & 0x7F ) > ( ( source + carryflag ) & 0x7F ) )  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "} else if ( ( destination & 0x7F ) < ( ( source + carryflag ) & 0x7F ) )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x04 ) );\n";
 	    print INST_IMP "if ( ( destination & 0x0F ) < ( ( source + carryflag ) & 0x0F ) )   cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x40 ) );\n";
@@ -586,8 +586,8 @@ for ($i=0 ; $i< 256; $i++) {
 	# CJNE
 	if ($insttype[$i] == 34) {
 	    print INST_IMP "unsigned int reladdr = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);\n";
-	    print INST_IMP "cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) & 0x7F ) );\n";
-	    print INST_IMP "if ( destination < source ) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "psw_clr_cy();\n";
+	    print INST_IMP "if ( destination < source ) psw_set_cy();\n";
 	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++; \n";
 	}
 
@@ -626,11 +626,11 @@ for ($i=0 ; $i< 256; $i++) {
 	# DA
 	if ($insttype[$i] == 41) {
 	    print INST_IMP "if ( ( ( destination & 0x0F ) > 9) || ( cpu8051_ReadD( _PSW_ ) | 0x40)) {\n";
-	    print INST_IMP "   if ( ( destination + 6 ) > 0xFF)  cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "   if ( ( destination + 6 ) > 0xFF)  psw_set_cy();\n";
 	    print INST_IMP "   destination += 6;\n";
 	    print INST_IMP "}\n";
-	    print INST_IMP "if ( ( cpu8051_ReadD( _PSW_ ) & 0x80) || ( ( destination & 0xF0 ) > 0x90 ) ) {\n";
-	    print INST_IMP "   if ( ( destination + 0x60 ) > 0xFF ) cpu8051_WriteD( _PSW_, ( cpu8051_ReadD( _PSW_ ) | 0x80 ) );\n";
+	    print INST_IMP "if ( psw_read_cy() || ( ( destination & 0xF0 ) > 0x90 ) ) {\n";
+	    print INST_IMP "   if ( ( destination + 0x60 ) > 0xFF ) psw_set_cy();\n";
 	    print INST_IMP "   destination += 0x60;\n";
 	    print INST_IMP "}\n";
 	}
@@ -708,7 +708,7 @@ for ($i=0 ; $i< 256; $i++) {
 		print INST_IMP "cpu8051_WriteB( dstbitaddr, destination );\n";
 	    }
 	    if ($op_destination == 17) { # C
-		print INST_IMP "cpu8051_WriteD( _PSW_, ( ( cpu8051_ReadD( _PSW_ ) & 0x7F) | ( destination << 7 ) ) );\n";
+		print INST_IMP "psw_write_cy(destination);\n";
 	    }
 	    if ($op_destination == 21) { # DPTR
 		print INST_IMP "memory_sfr_write_dptr(destination);\n";
@@ -770,7 +770,7 @@ for ($i=0 ; $i< 256; $i++) {
 		    print INST_IMP "cpu8051_WriteB( srcbitaddr, source );\n";
 		}
 		if ($op_source == 17) { # C
-		    print INST_IMP "cpu8051_WriteD( _PSW_, ( ( cpu8051_ReadD( _PSW_ ) & 0x7F) | ( source << 7 ) ) );\n";
+		    print INST_IMP "psw_write_cy(source);\n";
 		}
 		if ($op_source == 21) { # DPTR
                     print INST_IMP "memory_sfr_write_dptr(source);\n";

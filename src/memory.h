@@ -80,6 +80,18 @@ uint16_t
 stack_pop16(void);
 
 void
+psw_set_cy(void);
+
+void
+psw_clr_cy(void);
+
+void
+psw_write_cy(int cy);
+
+int
+psw_read_cy(void);
+
+void
 DumpMem(char *Address, char *Asize, int memory_id);
 
 #endif /* MEMORY_H */

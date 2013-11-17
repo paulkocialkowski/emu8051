@@ -183,6 +183,46 @@ stack_pop16(void)
 	return value;
 }
 
+void
+psw_write_cy(int cy)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	if (cy)
+		psw |= 0x80;  /* Set */
+	else
+		psw &= ~0x80; /* Clear */
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+void
+psw_set_cy(void)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	psw |= 0x80;
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+void
+psw_clr_cy(void)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	psw &= ~0x80;
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+/* Returns 0 or 1 */
+int
+psw_read_cy(void)
+{
+	return memory_read8(INT_MEM_ID, _PSW_) >> 7;
+}
+
 /* Dump memory */
 void
 DumpMem(char *Address, char *Asize, int memory_id)
