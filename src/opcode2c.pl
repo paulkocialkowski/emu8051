@@ -522,13 +522,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# ANL
 	if ($insttype[$i] == 21) {
-	    if ($instargs[$i*4+1] == 17) {
-		# sur des bits
-		print INST_IMP "cpu8051_WriteD( _PSW_, ( ( destination & source) << 7 ) );\n";
-	    } else {
-		# sur des bytes
-		print INST_IMP "destination &= source;\n";
-	    }
+            print INST_IMP "destination &= source;\n";
 	}
 
 	# JZ
