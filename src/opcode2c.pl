@@ -51,6 +51,13 @@ sub write_header
     print $fd " */\n\n";
 }
 
+# Write C function source code line to INST_IMP file.
+# Prefix each line with a tab (indentation) and add newline character at the end.
+sub cfw
+{
+    print INST_IMP "\t",$_[0],"\n";
+}
+
 # Header for instructions_8051.c
 print INST_IMP "/*\n";
 print INST_IMP " * instructions_8051.c\n";
@@ -220,454 +227,454 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
 	    if ($op_destination == 0) { # addr11
-		print INST_IMP "  unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, cpu8051.pc );\n";
-		print INST_IMP "  cpu8051.pc++;\n";
+		cfw("unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, cpu8051.pc );");
+		cfw("cpu8051.pc++;");
 	    }
 	    if ($op_destination == 1) { # addr16
-		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, cpu8051.pc++ ) << 8 );\n";
-		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
+		cfw("unsigned int addr16 = ( memory_read8( PGM_MEM_ID, cpu8051.pc++ ) << 8 );");
+		cfw("addr16 += memory_read8( PGM_MEM_ID, cpu8051.pc++ );");
 	    }
 	    if ($op_destination == 2) { # A
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( _ACC_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( _ACC_ );");
 	    }
 	    if ($op_destination == 3) { # direct
-		print INST_IMP "unsigned char destaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( destaddr );\n";
+		cfw("unsigned char destaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );");
+		cfw("unsigned char destination = cpu8051_ReadD( destaddr );");
 	    }
 	    if ($op_destination == 4) { # @R0
-		print INST_IMP "unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R0_ ) );\n";
+		cfw("unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R0_ ) );");
 	    }
 	    if ($op_destination == 5) { # @R1
-		print INST_IMP "unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );\n";
+		cfw("unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );");
 	    }
 
 	    if ($op_destination == 6) { # R0
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R0_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R0_ );");
 	    }
 	    if ($op_destination == 7) { # R1
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R1_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R1_ );");
 	    }
 	    if ($op_destination == 8) { # R2
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R2_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R2_ );");
 	    }
 	    if ($op_destination == 9) { # R3
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R3_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R3_ );");
 	    }
 	    if ($op_destination == 10) { # R4
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R4_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R4_ );");
 	    }
 	    if ($op_destination == 11) { # R5
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R5_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R5_ );");
 	    }
 	    if ($op_destination == 12) { # R6
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R6_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R6_ );");
 	    }
 	    if ($op_destination == 13) { # R7
-		print INST_IMP "unsigned char destination = cpu8051_ReadD( BANKPSW + _R7_ );\n";
+		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R7_ );");
 	    }
 	    if ($op_destination == 14) { # bitaddr
-		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
-		print INST_IMP "destination = cpu8051_ReadB( dstbitaddr );\n";
+		cfw("unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, cpu8051.pc++ );");
+		cfw("destination = cpu8051_ReadB( dstbitaddr );");
 	    }
 	    if ($op_destination == 15) { # reladdr
-		print INST_IMP "cpu8051.pc++;\n";
-		print INST_IMP "unsigned int destination = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;\n";
+		cfw("cpu8051.pc++;");
+		cfw("unsigned int destination = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;");
 	    }
 	    if ($op_destination == 16) { # #data
-		print INST_IMP "unsigned char destination = memory_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
+		cfw("unsigned char destination = memory_read8( PGM_MEM_ID, cpu8051.pc++ );");
 	    }
 	    if ($op_destination == 17) { # C
-		print INST_IMP "unsigned char destination = psw_read_cy();\n";
+		cfw("unsigned char destination = psw_read_cy();");
 	    }
 	    if ($op_destination == 18) { # @A+DPTR
-		print INST_IMP "unsigned int destination = cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr();\n";
+		cfw("unsigned int destination = cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr();");
 	    }
 # Mis en commentaire car donnait un warning (destination et source unused variables...)
 #	if ($op_destination == 20) { # AB
-#	    print INST_IMP "unsigned char destination = cpu8051_ReadD( _ACC_ );\n";
-#	    print INST_IMP "unsigned char source = cpu8051_ReadD( _B_ );\n";
+#	    cfw("unsigned char destination = cpu8051_ReadD( _ACC_ );");
+#	    cfw("unsigned char source = cpu8051_ReadD( _B_ );");
 #	}
 	    if ($op_destination == 21) { # DPTR
-		print INST_IMP "unsigned int destination = memory_sfr_read_dptr();\n";
+		cfw("unsigned int destination = memory_sfr_read_dptr();");
 	    }
 	    if ($op_destination == 22) { # #data16
-		print INST_IMP "unsigned char destination = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
-		print INST_IMP "destination += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
+		cfw("unsigned char destination = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
+		cfw("destination += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_destination == 23) { # /bitaddr
-		print INST_IMP "unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
-		print INST_IMP "destination = ( cpu8051_ReadB( dstbitaddr ) ^ 1 );\n";
+		cfw("unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("destination = ( cpu8051_ReadB( dstbitaddr ) ^ 1 );");
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		print INST_IMP "unsigned char destination = cpu8051_ReadI(memory_sfr_read_dptr());\n";
+		cfw("unsigned char destination = cpu8051_ReadI(memory_sfr_read_dptr());");
 	    }
 	}
 
 	if ($instargs[$i*4] > 1) {
 	    $op_source=$instargs[$i*4+2];
 	    if ($op_source == 0) { # addr11
-		print INST_IMP "unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
+		cfw("unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 1) { # addr16
-		print INST_IMP "unsigned int addr16 = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
-		print INST_IMP "addr16 += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
+		cfw("unsigned int addr16 = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
+		cfw("addr16 += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 2) { # A
-		print INST_IMP "unsigned char source = cpu8051_ReadD( _ACC_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( _ACC_ );");
 	    }
 	    if ($op_source == 3) { # direct
-		print INST_IMP "unsigned char srcaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
-		print INST_IMP "unsigned char source = cpu8051_ReadD( srcaddr );\n";
+		cfw("unsigned char srcaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("unsigned char source = cpu8051_ReadD( srcaddr );");
 	    }
 	    if ($op_source == 4) { # @R0
-		print INST_IMP "unsigned char source = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R0_ ) );\n";
+		cfw("unsigned char source = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R0_ ) );");
 	    }
 	    if ($op_source == 5) { # @R1
-		print INST_IMP "unsigned char source = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );\n";
+		cfw("unsigned char source = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );");
 	    }
 	    if ($op_source == 6) { # R0
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R0_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R0_ );");
 	    }
 	    if ($op_source == 7) { # R1
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R1_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R1_ );");
 	    }
 	    if ($op_source == 8) { # R2
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R2_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R2_ );");
 	    }
 	    if ($op_source == 9) { # R3
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R3_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R3_ );");
 	    }
 	    if ($op_source == 10) { # R4
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R4_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R4_ );");
 	    }
 	    if ($op_source == 11) { # R5
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R5_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R5_ );");
 	    }
 	    if ($op_source == 12) { # R6
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R6_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R6_ );");
 	    }
 	    if ($op_source == 13) { # R7
-		print INST_IMP "unsigned char source = cpu8051_ReadD( BANKPSW + _R7_ );\n";
+		cfw("unsigned char source = cpu8051_ReadD( BANKPSW + _R7_ );");
 	    }
 
 	    if ($op_source == 14) { # bitaddr
-		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
-		print INST_IMP "source = cpu8051_ReadB( srcbitaddr );\n";
+		cfw("unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("source = cpu8051_ReadB( srcbitaddr );");
 	    }
 	    if ($op_source == 15) { # reladdr
-		print INST_IMP "(cpu8051.pc)++;\n";
-		print INST_IMP "unsigned int source = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;\n";
+		cfw("(cpu8051.pc)++;");
+		cfw("unsigned int source = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;");
 	    }
 	    if ($op_source == 16) { # #data
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
+		cfw("unsigned char source = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 17) { # C
-		print INST_IMP "unsigned char source = psw_read_cy();\n";
+		cfw("unsigned char source = psw_read_cy();");
 	    }
 	    if ($op_source == 18) { # @A+DPTR
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr());\n";
+		cfw("unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + memory_sfr_read_dptr());");
 	    }
 	    if ($op_source == 19) { # @A+PC
-		print INST_IMP "unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + ( ++cpu8051.pc ) );\n";
+		cfw("unsigned char source = memory_read8( PGM_MEM_ID, cpu8051_ReadD( _ACC_ ) + ( ++cpu8051.pc ) );");
 	    }
 	    if ($op_source == 21) { # DPTR
-		print INST_IMP "unsigned int source = memory_sfr_read_dptr();\n";
+		cfw("unsigned int source = memory_sfr_read_dptr();");
 	    }
 	    if ($op_source == 22) { # #data16
-		print INST_IMP "unsigned char source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );\n";
-		print INST_IMP "source += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
+		cfw("unsigned char source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
+		cfw("source += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 23) { # /bitaddr
-		print INST_IMP "unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );\n";
-		print INST_IMP "source = ( cpu8051_ReadB( srcbitaddr ) ^ 1 );\n";
+		cfw("unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("source = ( cpu8051_ReadB( srcbitaddr ) ^ 1 );");
 	    }
 	    if ($op_source == 24) { # @DPTR
-		print INST_IMP "unsigned char source = cpu8051_ReadI(memory_sfr_read_dptr());\n";
+		cfw("unsigned char source = cpu8051_ReadI(memory_sfr_read_dptr());");
 	    }
 	}
 
 ##############################################################################
 	$modifysrc=0;
-#    print INST_IMP "\n// Inserer le code ici\n\n";
+#    cfw("\n// Inserer le code ici\n\n";
 
 	# RR
 	if ($insttype[$i] == 3) {
-	    print INST_IMP "destination = ( destination >> 1 ) | ( destination << 7 );\n";
+	    cfw("destination = ( destination >> 1 ) | ( destination << 7 );");
 	}
 
 	# INC
 	if ($insttype[$i] == 4) {
-	    print INST_IMP "destination++;\n";
+	    cfw("destination++;");
 	}
 
 	# JBC
 	if ($insttype[$i] == 5) {
-	    print INST_IMP "if ( destination == 1 ) { cpu8051.pc = source; destination = 0; }\n";
+	    cfw("if ( destination == 1 ) { cpu8051.pc = source; destination = 0; }");
 	}
 
 	# ACALL
 	if ($insttype[$i] == 6) {
-	    print INST_IMP "stack_push16(cpu8051.pc);\n";
+	    cfw("stack_push16(cpu8051.pc);");
 	}
 
 	# LCALL
 	if ($insttype[$i] == 7) {
-	    print INST_IMP "stack_push16(cpu8051.pc);\n";
+	    cfw("stack_push16(cpu8051.pc);");
 	}
 
 	# RRC
 	if ($insttype[$i] == 8) {
-	    print INST_IMP "unsigned char new_cy = destination & 0x01;\n";
-	    print INST_IMP "destination = ( destination >> 1 ) | (psw_read_cy() << 7);\n";
-	    print INST_IMP "psw_write_cy(new_cy);\n";
+	    cfw("unsigned char new_cy = destination & 0x01;");
+	    cfw("destination = ( destination >> 1 ) | (psw_read_cy() << 7);");
+	    cfw("psw_write_cy(new_cy);");
 	}
 
 	# DEC
 	if ($insttype[$i] == 9) {
-	    print INST_IMP "destination--;\n";
+	    cfw("destination--;");
 	}
 
 	# JB
 	if ($insttype[$i] == 10) {
-	    print INST_IMP "if ( destination == 1 ) { cpu8051.pc = source; }\n";
+	    cfw("if ( destination == 1 ) { cpu8051.pc = source; }");
 	}
 
 	# RET
 	if ($insttype[$i] == 11) {
-            print INST_IMP "cpu8051.pc = stack_pop16();\n";
+            cfw("cpu8051.pc = stack_pop16();");
 	}
 
 	# RL
 	if ($insttype[$i] == 12) {
-	    print INST_IMP "destination = ( destination << 1 ) | ( destination >> 7 );\n";
+	    cfw("destination = ( destination << 1 ) | ( destination >> 7 );");
 	}
 
 	# ADD
 	if ($insttype[$i] == 13) {
-	    print INST_IMP "psw_clr_cy();\n";
-	    print INST_IMP "psw_clr_ac();\n";
-	    print INST_IMP "psw_clr_ov();\n";
+	    cfw("psw_clr_cy();");
+	    cfw("psw_clr_ac();");
+	    cfw("psw_clr_ov();");
             # The Overflow (OV) bit is set if there is a carry-out of bit 6 or
             # out of bit 7, but not both. In other words, if the addition of the
             # Accumulator, operand and (in the case of ADDC) the Carry flag
             # treated as signed values results in a value that is out of the
             # range of a signed byte (-128 through +127) the Overflow flag is
             # set. Otherwise, the Overflow flag is cleared.
-	    print INST_IMP "if ( destination + source > 0xFF ) {\n";
+	    cfw("if ( destination + source > 0xFF ) {");
             # Carry from bit 7
-	    print INST_IMP "   psw_set_cy();\n";
+	    cfw("   psw_set_cy();");
             # If no carry from bit 6, set OV
-	    print INST_IMP "   if (((destination & 0x7F) + (source & 0x7F)) < 0x80)\n";
-	    print INST_IMP "       psw_set_ov();\n";
+	    cfw("   if (((destination & 0x7F) + (source & 0x7F)) < 0x80)");
+	    cfw("       psw_set_ov();");
             # If no carry from bit 7, but caary from bit 6, set OV
-	    print INST_IMP "} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )  psw_set_ov();\n";
-	    print INST_IMP "if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)  psw_set_ac();\n";
-	    print INST_IMP "destination += source;\n";
+	    cfw("} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )  psw_set_ov();");
+	    cfw("if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)  psw_set_ac();");
+	    cfw("destination += source;");
 	}
 
 	# JNB
 	if ($insttype[$i] == 14) {
-	    print INST_IMP "if ( destination == 0 ) { cpu8051.pc = source; }\n";
+	    cfw("if ( destination == 0 ) { cpu8051.pc = source; }");
 	}
 
 	# RETI
 	if ($insttype[$i] == 15) {
-	    print INST_IMP "cpu8051.active_priority = -1;\n";
-            print INST_IMP "cpu8051.pc = stack_pop16();\n";
+	    cfw("cpu8051.active_priority = -1;");
+            cfw("cpu8051.pc = stack_pop16();");
 	}
 
 	# RLC
 	if ($insttype[$i] == 16) {
-	    print INST_IMP "unsigned char new_cy = destination & 0x80;\n";
-	    print INST_IMP "destination = ( destination << 1 ) | psw_read_cy();\n";
-	    print INST_IMP "psw_write_cy(new_cy);\n";
+	    cfw("unsigned char new_cy = destination & 0x80;");
+	    cfw("destination = ( destination << 1 ) | psw_read_cy();");
+	    cfw("psw_write_cy(new_cy);");
 	}
 
 	# ADDC
 	if ($insttype[$i] == 17) {
-	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
-	    print INST_IMP "psw_clr_cy();\n";
-	    print INST_IMP "psw_clr_ac();\n";
-	    print INST_IMP "psw_clr_ov();\n";
-	    print INST_IMP "if ( destination + source + carryflag > 0xFF ) {\n";
-	    print INST_IMP "   psw_set_cy();\n";
-	    print INST_IMP "   if (((destination & 0x7F) + (source & 0x7F) + carryflag) < 0x80);\n";
-	    print INST_IMP "       psw_set_ov();\n";
-	    print INST_IMP "} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)  psw_set_ov();\n";
-	    print INST_IMP "if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)  psw_set_ac();\n";
-	    print INST_IMP "destination += source;\n";
+	    cfw("unsigned char carryflag = psw_read_cy();");
+	    cfw("psw_clr_cy();");
+	    cfw("psw_clr_ac();");
+	    cfw("psw_clr_ov();");
+	    cfw("if ( destination + source + carryflag > 0xFF ) {");
+	    cfw("   psw_set_cy();");
+	    cfw("   if (((destination & 0x7F) + (source & 0x7F) + carryflag) < 0x80);");
+	    cfw("       psw_set_ov();");
+	    cfw("} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)  psw_set_ov();");
+	    cfw("if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)  psw_set_ac();");
+	    cfw("destination += source;");
 	}
 
 	# JC
 	if ($insttype[$i] == 18) {
-	    print INST_IMP "if (psw_read_cy()) { cpu8051.pc = destination; }\n";
+	    cfw("if (psw_read_cy()) { cpu8051.pc = destination; }");
 	}
 
 	# ORL
 	if ($insttype[$i] == 19) {
-            print INST_IMP "destination |= source;\n";
+            cfw("destination |= source;");
 	}
 
 	# JNC
 	if ($insttype[$i] == 20) {
-	    print INST_IMP "if (psw_read_cy() == 0) { cpu8051.pc = destination; }\n";
+	    cfw("if (psw_read_cy() == 0) { cpu8051.pc = destination; }");
 	}
 
 	# ANL
 	if ($insttype[$i] == 21) {
-            print INST_IMP "destination &= source;\n";
+            cfw("destination &= source;");
 	}
 
 	# JZ
 	if ($insttype[$i] == 22) {
-	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) == 0 ) { cpu8051.pc = destination; }\n";
+	    cfw("if ( cpu8051_ReadD( _ACC_ ) == 0 ) { cpu8051.pc = destination; }");
 	}
 
 	# XRL
 	if ($insttype[$i] == 23) {
-	    print INST_IMP "destination ^= source;\n";
+	    cfw("destination ^= source;");
 	}
 
 	# JNZ
 	if ($insttype[$i] == 24) {
-	    print INST_IMP "if ( cpu8051_ReadD( _ACC_ ) != 0 ) { cpu8051.pc = destination; }\n";
+	    cfw("if ( cpu8051_ReadD( _ACC_ ) != 0 ) { cpu8051.pc = destination; }");
 	}
 
 	# JMP
 	if ($insttype[$i] == 25) {
-	    print INST_IMP "cpu8051.pc = destination;\n";
+	    cfw("cpu8051.pc = destination;");
 	}
 
 	# MOV
 	if ($insttype[$i] == 26) {
-	    print INST_IMP "destination = source;\n";
+	    cfw("destination = source;");
 	}
 
 	# SJMP
 	if ($insttype[$i] == 27) {
-	    print INST_IMP "cpu8051.pc = destination;\n";
+	    cfw("cpu8051.pc = destination;");
 	}
 
 	# MOVC
 	if ($insttype[$i] == 28) {
-	    print INST_IMP "destination = source;\n";
+	    cfw("destination = source;");
 	}
 
 	# DIV
 	if ($insttype[$i] == 29) {
-	    print INST_IMP "unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );\n";
-	    print INST_IMP "psw_clr_cy();\n";
+	    cfw("unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );");
+	    cfw("psw_clr_cy();");
             # If B is zero, the OV flag will be set indicating a
             # division-by-zero error
-	    print INST_IMP "if ( B != 0 ) {\n";
-	    print INST_IMP "    cpu8051_WriteD( _ACC_, A/B ); cpu8051_WriteD( _B_, A%B );\n";
-	    print INST_IMP "    psw_clr_ov();\n";
-	    print INST_IMP "} else {\n";
-	    print INST_IMP "    psw_set_ov();\n";
-	    print INST_IMP "}\n";
+	    cfw("if ( B != 0 ) {");
+	    cfw("    cpu8051_WriteD( _ACC_, A/B ); cpu8051_WriteD( _B_, A%B );");
+	    cfw("    psw_clr_ov();");
+	    cfw("} else {");
+	    cfw("    psw_set_ov();");
+	    cfw("}");
 	}
 
 	# SUBB
 	if ($insttype[$i] == 30) {
-	    print INST_IMP "unsigned char carryflag = psw_read_cy();\n";
-	    print INST_IMP "psw_clr_cy();\n";
-	    print INST_IMP "psw_clr_ac();\n";
-	    print INST_IMP "psw_clr_ov();\n";
-	    print INST_IMP "if ( destination < ( source + carryflag ) ) {\n";
-	    print INST_IMP "  psw_set_cy();\n";
-	    print INST_IMP "  if ((destination & 0x7F) > ((source + carryflag) & 0x7F))  psw_set_ov();\n";
-	    print INST_IMP "} else if ((destination & 0x7F) < ((source + carryflag) & 0x7F))   psw_set_ov();\n";
-	    print INST_IMP "if ((destination & 0x0F) < ((source + carryflag) & 0x0F))   psw_set_ac();\n";
-	    print INST_IMP "destination -= source + carryflag;\n";
+	    cfw("unsigned char carryflag = psw_read_cy();");
+	    cfw("psw_clr_cy();");
+	    cfw("psw_clr_ac();");
+	    cfw("psw_clr_ov();");
+	    cfw("if ( destination < ( source + carryflag ) ) {");
+	    cfw("  psw_set_cy();");
+	    cfw("  if ((destination & 0x7F) > ((source + carryflag) & 0x7F))  psw_set_ov();");
+	    cfw("} else if ((destination & 0x7F) < ((source + carryflag) & 0x7F))   psw_set_ov();");
+	    cfw("if ((destination & 0x0F) < ((source + carryflag) & 0x0F))   psw_set_ac();");
+	    cfw("destination -= source + carryflag;");
 	}
 
 	# MUL
 	if ($insttype[$i] == 31) {
-	    print INST_IMP "unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );\n";
-	    print INST_IMP "psw_clr_cy();\n";
-	    print INST_IMP "psw_clr_ov();\n";
-	    print INST_IMP "cpu8051_WriteD( _ACC_ , ( ( A * B ) & 0x00FF ) ); cpu8051_WriteD( _B_, ( A * B ) / 0x100 );\n";
-	    print INST_IMP "if (cpu8051_ReadD(_B_) > 0)\n";
-	    print INST_IMP "    psw_set_ov();\n";
-	    print INST_IMP "else\n";
-	    print INST_IMP "    psw_clr_ov();\n";
+	    cfw("unsigned char A = cpu8051_ReadD( _ACC_ ), B = cpu8051_ReadD( _B_ );");
+	    cfw("psw_clr_cy();");
+	    cfw("psw_clr_ov();");
+	    cfw("cpu8051_WriteD( _ACC_ , ( ( A * B ) & 0x00FF ) ); cpu8051_WriteD( _B_, ( A * B ) / 0x100 );");
+	    cfw("if (cpu8051_ReadD(_B_) > 0)");
+	    cfw("    psw_set_ov();");
+	    cfw("else");
+	    cfw("    psw_clr_ov();");
 	}
 
 	# CPL
 	if ($insttype[$i] == 33) {
-	    if ($instargs[$i*4+1] == 2) { print INST_IMP "destination ^= 0xFF;\n"; }
-	    else { print INST_IMP "destination ^= 0x01;\n"; }
+	    if ($instargs[$i*4+1] == 2) { cfw("destination ^= 0xFF;"); }
+	    else { cfw("destination ^= 0x01;"); }
 	}
 
 	# CJNE
 	if ($insttype[$i] == 34) {
-	    print INST_IMP "unsigned int reladdr = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);\n";
-	    print INST_IMP "psw_clr_cy();\n";
-	    print INST_IMP "if ( destination < source ) psw_set_cy();\n";
-	    print INST_IMP "if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++; \n";
+	    cfw("unsigned int reladdr = ((char) memory_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);");
+	    cfw("psw_clr_cy();");
+	    cfw("if ( destination < source ) psw_set_cy();");
+	    cfw("if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++;");
 	}
 
 	# PUSH
 	if ($insttype[$i] == 35) {
-	    print INST_IMP "stack_push8(destination);\n";
+	    cfw("stack_push8(destination);");
 	}
 
 	# CLR
 	if ($insttype[$i] == 36) {
-	    print INST_IMP "destination = 0;\n";
+	    cfw("destination = 0;");
 	}
 
 	# SWAP
 	if ($insttype[$i] == 37) {
-	    print INST_IMP "destination = ( destination << 4 ) + ( destination >> 4 );\n";
+	    cfw("destination = ( destination << 4 ) + ( destination >> 4 );");
 	}
 
 	# XCH
 	if ($insttype[$i] == 38) {
-	    print INST_IMP "unsigned char tmpval = destination;\n";
-	    print INST_IMP "destination = source; source = tmpval;\n";
+	    cfw("unsigned char tmpval = destination;");
+	    cfw("destination = source; source = tmpval;");
 	    $modifysrc=1;
 	}
 
 	# POP
 	if ($insttype[$i] == 39) {
-            print INST_IMP "destination = stack_pop8();\n";
+            cfw("destination = stack_pop8();");
 	}
 
 	# SETB
 	if ($insttype[$i] == 40) {
-	    print INST_IMP "destination = 1;\n";
+	    cfw("destination = 1;");
 	}
 
 	# DA
 	if ($insttype[$i] == 41) {
-	    print INST_IMP "if (((destination & 0x0F) > 9) || psw_read_ac()) {\n";
-	    print INST_IMP "   if ( ( destination + 6 ) > 0xFF)  psw_set_cy();\n";
-	    print INST_IMP "   destination += 6;\n";
-	    print INST_IMP "}\n";
-	    print INST_IMP "if ( psw_read_cy() || ( ( destination & 0xF0 ) > 0x90 ) ) {\n";
-	    print INST_IMP "   if ( ( destination + 0x60 ) > 0xFF ) psw_set_cy();\n";
-	    print INST_IMP "   destination += 0x60;\n";
-	    print INST_IMP "}\n";
+	    cfw("if (((destination & 0x0F) > 9) || psw_read_ac()) {");
+	    cfw("   if ( ( destination + 6 ) > 0xFF)  psw_set_cy();");
+	    cfw("   destination += 6;");
+	    cfw("}");
+	    cfw("if ( psw_read_cy() || ( ( destination & 0xF0 ) > 0x90 ) ) {");
+	    cfw("   if ( ( destination + 0x60 ) > 0xFF ) psw_set_cy();");
+	    cfw("   destination += 0x60;");
+	    cfw("}");
 	}
 
 	# DJNZ
 	if ($insttype[$i] == 42) {
-	    print INST_IMP "destination--;\n";
-	    print INST_IMP "if ( destination != 0 ) cpu8051.pc = source;\n";
+	    cfw("destination--;");
+	    cfw("if ( destination != 0 ) cpu8051.pc = source;");
 	}
 
 	# XCHD
 	if ($insttype[$i] == 43) {
-	    print INST_IMP "unsigned char tmpval = ( destination & 0x0F );\n";
-	    print INST_IMP "destination = ( destination & 0xF0 ) + ( source & 0x0F );\n";
-	    print INST_IMP "source = ( source & 0xF0 ) + tmpval;\n";
+	    cfw("unsigned char tmpval = ( destination & 0x0F );");
+	    cfw("destination = ( destination & 0xF0 ) + ( source & 0x0F );");
+	    cfw("source = ( source & 0xF0 ) + tmpval;");
 	    $modifysrc=1;
 	}
 
 	# MOVX
 	if ($insttype[$i] == 44) {
-	    print INST_IMP "destination = source;\n";
+	    cfw("destination = source;");
 	}
 
 
@@ -678,62 +685,62 @@ for ($i=0 ; $i< 256; $i++) {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
 	    if ($op_destination == 0) { # addr11
-		print INST_IMP "cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;\n";
+		cfw("cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;");
 	    }
 	    if ($op_destination == 1) { # addr16
-		print INST_IMP "cpu8051.pc = addr16;\n";
+		cfw("cpu8051.pc = addr16;");
 	    }
 	    if ($op_destination == 2) { # A
-		print INST_IMP "cpu8051_WriteD( _ACC_, destination );\n";
+		cfw("cpu8051_WriteD( _ACC_, destination );");
 	    }
 	    if ($op_destination == 3) { # direct
-		print INST_IMP "cpu8051_WriteD( destaddr, destination );\n";
+		cfw("cpu8051_WriteD( destaddr, destination );");
 	    }
 	    if ($op_destination == 4) { # @R0
-		print INST_IMP "cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R0_ ), destination );\n";
+		cfw("cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R0_ ), destination );");
 	    }
 	    if ($op_destination == 5) { # @R1
-		print INST_IMP "cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R1_ ), destination );\n";
+		cfw("cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R1_ ), destination );");
 	    }
 	    if ($op_destination == 6) { # R0
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R0_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R0_, destination );");
 	    }
 	    if ($op_destination == 7) { # R1
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R1_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R1_, destination );");
 	    }
 	    if ($op_destination == 8) { # R2
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R2_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R2_, destination );");
 	    }
 	    if ($op_destination == 9) { # R3
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R3_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R3_, destination );");
 	    }
 	    if ($op_destination == 10) { # R4
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R4_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R4_, destination );");
 	    }
 	    if ($op_destination == 11) { # R5
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R5_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R5_, destination );");
 	    }
 	    if ($op_destination == 12) { # R6
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R6_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R6_, destination );");
 	    }
 	    if ($op_destination == 13) { # R7
-		print INST_IMP "cpu8051_WriteD( BANKPSW + _R7_, destination );\n";
+		cfw("cpu8051_WriteD( BANKPSW + _R7_, destination );");
 	    }
 
 	    if ($op_destination == 14) { # bitaddr
-		print INST_IMP "cpu8051_WriteB( dstbitaddr, destination );\n";
+		cfw("cpu8051_WriteB( dstbitaddr, destination );");
 	    }
 	    if ($op_destination == 17) { # C
-		print INST_IMP "psw_write_cy(destination);\n";
+		cfw("psw_write_cy(destination);");
 	    }
 	    if ($op_destination == 21) { # DPTR
-		print INST_IMP "memory_sfr_write_dptr(destination);\n";
+		cfw("memory_sfr_write_dptr(destination);");
 	    }
 	    if ($op_destination == 23) { # /bitaddr
-		print INST_IMP "cpu8051_WriteB( dstbitaddr, destination );\n";
+		cfw("cpu8051_WriteB( dstbitaddr, destination );");
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		print INST_IMP "cpu8051_WriteI(memory_sfr_read_dptr(), destination);\n";
+		cfw("cpu8051_WriteI(memory_sfr_read_dptr(), destination);");
 	    }
 	}
 
@@ -741,68 +748,68 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($instargs[$i*4] > 1) {
 		$op_source=$instargs[$i*4+2];
 		if ($op_source == 0) { # addr11
-		    print INST_IMP "cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;\n";
+		    cfw("cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;");
 		}
 		if ($op_source == 1) { # addr16
-		    print INST_IMP "cpu8051.pc = addr16;\n";
+		    cfw("cpu8051.pc = addr16;");
 		}
 		if ($op_source == 2) { # A
-		    print INST_IMP "cpu8051_WriteD( _ACC_, source );\n";
+		    cfw("cpu8051_WriteD( _ACC_, source );");
 		}
 		if ($op_source == 3) { # direct
-		    print INST_IMP "cpu8051_WriteD( srcaddr, source );\n";
+		    cfw("cpu8051_WriteD( srcaddr, source );");
 		}
 		if ($op_source == 4) { # @R0
-		    print INST_IMP "cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R0_ ), source );\n";
+		    cfw("cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R0_ ), source );");
 		}
 		if ($op_source == 5) { # @R1
-		    print INST_IMP "cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R1_ ), source );\n";
+		    cfw("cpu8051_WriteI( cpu8051_ReadD( BANKPSW + _R1_ ), source );");
 		}
 		if ($op_source == 6) { # R0
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R0_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R0_, source );");
 		}
 		if ($op_source == 7) { # R1
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R1_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R1_, source );");
 		}
 		if ($op_source == 8) { # R2
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R2_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R2_, source );");
 		}
 		if ($op_source == 9) { # R3
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R3_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R3_, source );");
 		}
 		if ($op_source == 10) { # R4
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R4_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R4_, source );");
 		}
 		if ($op_source == 11) { # R5
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R5_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R5_, source );");
 		}
 		if ($op_source == 12) { # R6
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R6_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R6_, source );");
 		}
 		if ($op_source == 13) { # R7
-		    print INST_IMP "cpu8051_WriteD( BANKPSW + _R7_, source );\n";
+		    cfw("cpu8051_WriteD( BANKPSW + _R7_, source );");
 		}
 		if ($op_source == 14) { # bitaddr
-		    print INST_IMP "cpu8051_WriteB( srcbitaddr, source );\n";
+		    cfw("cpu8051_WriteB( srcbitaddr, source );");
 		}
 		if ($op_source == 17) { # C
-		    print INST_IMP "psw_write_cy(source);\n";
+		    cfw("psw_write_cy(source);");
 		}
 		if ($op_source == 21) { # DPTR
-                    print INST_IMP "memory_sfr_write_dptr(source);\n";
+                    cfw("memory_sfr_write_dptr(source);");
 		}
 		if ($op_source == 23) { # /bitaddr
-		    print INST_IMP "cpu8051_WriteB( srcbitaddr, source );\n";
+		    cfw("cpu8051_WriteB( srcbitaddr, source );");
 		}
 		if ($op_source == 24) { # @DPTR
-		    print INST_IMP "cpu8051_WriteI(memory_sfr_read_dptr(), source);\n";
+		    cfw("cpu8051_WriteI(memory_sfr_read_dptr(), source);");
 		}
 	    }
 	}
     }
-    print INST_IMP "return $a_cycles[$i];\n";
+    cfw("return $a_cycles[$i];");
     print INST_IMP "}\n";
-    print INST_IMP "\n\n";
+    print INST_IMP "\n";
 }
 # ------------------------------------------------------------------------------
 
