@@ -231,8 +231,8 @@ for ($i=0 ; $i< 256; $i++) {
 		cfw("cpu8051.pc++;");
 	    }
 	    if ($op_destination == 1) { # addr16
-		cfw("unsigned int addr16 = ( memory_read8( PGM_MEM_ID, cpu8051.pc++ ) << 8 );");
-		cfw("addr16 += memory_read8( PGM_MEM_ID, cpu8051.pc++ );");
+		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc);");
+		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_destination == 2) { # A
 		cfw("unsigned char destination = cpu8051_ReadD( _ACC_ );");
@@ -247,7 +247,6 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($op_destination == 5) { # @R1
 		cfw("unsigned char destination = cpu8051_ReadI ( cpu8051_ReadD( BANKPSW + _R1_ ) );");
 	    }
-
 	    if ($op_destination == 6) { # R0
 		cfw("unsigned char destination = cpu8051_ReadD( BANKPSW + _R0_ );");
 	    }
@@ -311,8 +310,8 @@ for ($i=0 ; $i< 256; $i++) {
 		cfw("unsigned int addr11 = ( ( memory_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 1) { # addr16
-		cfw("unsigned int addr16 = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
-		cfw("addr16 += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc);");
+		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_source == 2) { # A
 		cfw("unsigned char source = cpu8051_ReadD( _ACC_ );");
@@ -376,8 +375,8 @@ for ($i=0 ; $i< 256; $i++) {
 		cfw("unsigned int source = memory_sfr_read_dptr();");
 	    }
 	    if ($op_source == 22) { # #data16
-		cfw("unsigned int source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
-		cfw("source += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("uint16_t source = pgm_read_addr16(cpu8051.pc);");
+		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_source == 23) { # /bitaddr
 		cfw("unsigned char source, srcbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
@@ -390,7 +389,6 @@ for ($i=0 ; $i< 256; $i++) {
 
 ##############################################################################
 	$modifysrc=0;
-#    cfw("\n// Inserer le code ici\n\n";
 
 	# RR
 	if ($insttype[$i] == 3) {

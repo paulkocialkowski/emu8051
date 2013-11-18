@@ -183,6 +183,18 @@ stack_pop16(void)
 	return value;
 }
 
+/* Read a 16-bit address from PGM memory, starting at <base> offset */
+uint16_t
+pgm_read_addr16(uint16_t base)
+{
+	uint16_t addr;
+
+	addr = memory_read8(PGM_MEM_ID, base) << 8; /* MSB */
+	addr |= memory_read8(PGM_MEM_ID, base + 1); /* LSB */
+
+	return addr;
+}
+
 /* Dump memory */
 void
 DumpMem(char *Address, char *Asize, int memory_id)

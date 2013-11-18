@@ -79,6 +79,9 @@ stack_pop8(void);
 uint16_t
 stack_pop16(void);
 
+uint16_t
+pgm_read_addr16(uint16_t base);
+
 void
 DumpMem(char *Address, char *Asize, int memory_id);
 
