@@ -296,10 +296,6 @@ for ($i=0 ; $i< 256; $i++) {
 	    if ($op_destination == 21) { # DPTR
 		cfw("unsigned int destination = memory_sfr_read_dptr();");
 	    }
-	    if ($op_destination == 22) { # #data16
-		cfw("unsigned char destination = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
-		cfw("destination += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
-	    }
 	    if ($op_destination == 23) { # /bitaddr
 		cfw("unsigned char destination, dstbitaddr = memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 		cfw("destination = ( cpu8051_ReadB( dstbitaddr ) ^ 1 );");
