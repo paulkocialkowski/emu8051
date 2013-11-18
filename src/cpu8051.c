@@ -28,6 +28,7 @@
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "memory.h"
+#include "psw.h"
 #include "disasm.h"
 #include "instructions_8051.h"
 
@@ -373,6 +374,12 @@ cpu8051_Exec(void)
 	opcode = memory_read8(PGM_MEM_ID, cpu8051.pc);
 	cpu8051.pc++;
 	insttiming = (*opcode_table[opcode])(); /* Function callback. */
+
+	/*
+	 * Parity bit (p): is automatically set or cleared in each machine
+	 * cycle to establish even parity in the accumulator.
+	 */
+	psw_compute_parity_bit();
 
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_CheckInterrupts();

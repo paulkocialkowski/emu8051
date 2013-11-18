@@ -117,3 +117,35 @@ psw_read_ov(void)
 {
 	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_OV;
 }
+
+void
+psw_write_p(int p)
+{
+	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+
+	if (p)
+		psw |= PSW_FLAG_P;  /* Set */
+	else
+		psw &= ~PSW_FLAG_P; /* Clear */
+
+	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+}
+
+/*
+ * Compute parity of bits in accumulator:
+ *   parity = 0: even number of ones in accumulator
+ *   parity = 1: odd  number of ones in accumulator
+ */
+void
+psw_compute_parity_bit(void)
+{
+	int parity = 0;
+	uint8_t acc = memory_read8(INT_MEM_ID, _ACC_);
+
+	while (acc) {
+		parity = !parity;
+		acc = acc & (acc - 1);
+	}
+
+	psw_write_p(parity);
+}

@@ -59,4 +59,10 @@ psw_write_ov(int ov);
 int
 psw_read_ov(void);
 
+void
+psw_write_p(int p);
+
+void
+psw_compute_parity_bit(void);
+
 #endif /* PSW_H */
