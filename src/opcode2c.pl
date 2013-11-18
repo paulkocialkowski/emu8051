@@ -376,7 +376,7 @@ for ($i=0 ; $i< 256; $i++) {
 		cfw("unsigned int source = memory_sfr_read_dptr();");
 	    }
 	    if ($op_source == 22) { # #data16
-		cfw("unsigned char source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
+		cfw("unsigned int source = ( memory_read8( PGM_MEM_ID, (cpu8051.pc)++ ) << 8 );");
 		cfw("source += memory_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
 	    }
 	    if ($op_source == 23) { # /bitaddr
