@@ -40,10 +40,14 @@
 void
 int2asciihex(int val, char *str, int width)
 {
-	if (width == 2)
+	if (width == 1)
+		sprintf(str , "%.1X", (u_int8_t) val);
+	else if (width == 2)
 		sprintf(str , "%.2X", (u_int8_t) val);
 	else if (width == 4)
 		sprintf(str , "%.4X", (u_int16_t) val);
+	else
+		sprintf(str , "Err");
 }
 
 /* Convert ASCII hex string to integer. */
