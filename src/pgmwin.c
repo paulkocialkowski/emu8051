@@ -33,6 +33,7 @@
 
 static GtkWidget *pgmlist;
 
+#define LIST_VIEW_NAME "Program"
 #define DATA_ROWS 100
 
 enum
@@ -162,7 +163,7 @@ pgmwin_init(void)
 	GtkListStore *store;
 	GtkTreeSelection *selection;
 
-	frame = gtk_frame_new("Program");
+	frame = gtk_frame_new(LIST_VIEW_NAME);
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),

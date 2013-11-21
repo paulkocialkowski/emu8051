@@ -38,6 +38,7 @@
 
 static GtkWidget *reglist;
 
+#define LIST_VIEW_NAME "Registers"
 #define DATA_ROWS 26
 
 enum
@@ -465,7 +466,7 @@ regwin_init(void)
 	GtkWidget *scrollwin;
 	GtkListStore *store;
 
-	frame = gtk_frame_new("Registers");
+	frame = gtk_frame_new(LIST_VIEW_NAME);
 
 	scrollwin = gtk_scrolled_window_new(NULL, NULL);
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scrollwin),
