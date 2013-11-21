@@ -48,7 +48,7 @@ enum
 	N_COLUMNS,
 };
 
-char *col_names[N_COLUMNS] = {
+static char *col_names[N_COLUMNS] = {
 	"BPT",
 	"Address",
 	"B0",
