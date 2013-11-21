@@ -23,44 +23,47 @@
 
 #include <sys/types.h>
 
-void
-psw_set_cy(void);
+int
+psw_read_bit(int bit);
 
 void
-psw_clr_cy(void);
-
-void
-psw_write_cy(int cy);
+psw_write_bit(int bit, int val);
 
 int
 psw_read_cy(void);
 
 void
-psw_set_ac(void);
+psw_write_cy(int cy);
 
 void
-psw_clr_ac(void);
+psw_clr_cy(void);
 
 void
-psw_write_ac(int ac);
+psw_set_cy(void);
 
 int
 psw_read_ac(void);
 
 void
-psw_set_ov(void);
+psw_write_ac(int ac);
 
 void
-psw_clr_ov(void);
+psw_clr_ac(void);
 
 void
-psw_write_ov(int ov);
+psw_set_ac(void);
 
 int
 psw_read_ov(void);
 
 void
-psw_write_p(int p);
+psw_write_ov(int ov);
+
+void
+psw_clr_ov(void);
+
+void
+psw_set_ov(void);
 
 void
 psw_compute_parity_bit(void);

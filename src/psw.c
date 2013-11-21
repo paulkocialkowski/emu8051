@@ -22,113 +22,99 @@
 #include "reg8051.h"
 #include "memory.h"
 
+/* Returns 0 or 1 */
+int
+psw_read_bit(int bit)
+{
+	return (memory_read8(INT_MEM_ID, _PSW_) >> bit) & 0x01;
+}
+
 void
-psw_write_cy(int cy)
+psw_write_bit(int bit, int val)
 {
 	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
 
-	if (cy)
-		psw |= PSW_FLAG_CY;  /* Set */
+	if (val)
+		psw |= (1 << bit);  /* Set */
 	else
-		psw &= ~PSW_FLAG_CY; /* Clear */
+		psw &= ~(1 << bit); /* Clear */
 
 	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
-}
-
-void
-psw_set_cy(void)
-{
-	psw_write_cy(1);
-}
-
-void
-psw_clr_cy(void)
-{
-	psw_write_cy(0);
 }
 
 /* Returns 0 or 1 */
 int
 psw_read_cy(void)
 {
-	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_CY;
+	return psw_read_bit(PSW_BIT_CY);
 }
 
 void
-psw_write_ac(int ac)
+psw_write_cy(int cy)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
-
-	if (ac)
-		psw |= PSW_FLAG_AC;  /* Set */
-	else
-		psw &= ~PSW_FLAG_AC; /* Clear */
-
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	psw_write_bit(PSW_BIT_CY, cy);
 }
 
 void
-psw_set_ac(void)
+psw_set_cy(void)
 {
-	psw_write_ac(1);
+	psw_write_bit(PSW_BIT_CY, 1);
 }
 
 void
-psw_clr_ac(void)
+psw_clr_cy(void)
 {
-	psw_write_ac(0);
+	psw_write_bit(PSW_BIT_CY, 0);
 }
 
 /* Returns 0 or 1 */
 int
 psw_read_ac(void)
 {
-	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_AC;
+	return psw_read_bit(PSW_BIT_AC);
 }
 
 void
-psw_write_ov(int ov)
+psw_write_ac(int ac)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
-
-	if (ov)
-		psw |= PSW_FLAG_OV;  /* Set */
-	else
-		psw &= ~PSW_FLAG_OV; /* Clear */
-
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	psw_write_bit(PSW_BIT_AC, ac);
 }
 
 void
-psw_set_ov(void)
+psw_set_ac(void)
 {
-	psw_write_ov(1);
+	psw_write_bit(PSW_BIT_AC, 1);
 }
 
 void
-psw_clr_ov(void)
+psw_clr_ac(void)
 {
-	psw_write_ov(0);
+	psw_write_bit(PSW_BIT_AC, 0);
 }
 
 /* Returns 0 or 1 */
 int
 psw_read_ov(void)
 {
-	return memory_read8(INT_MEM_ID, _PSW_) >> PSW_BIT_OV;
+	return psw_read_bit(PSW_BIT_OV);
 }
 
 void
-psw_write_p(int p)
+psw_write_ov(int ov)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+	psw_write_bit(PSW_BIT_OV, ov);
+}
 
-	if (p)
-		psw |= PSW_FLAG_P;  /* Set */
-	else
-		psw &= ~PSW_FLAG_P; /* Clear */
+void
+psw_set_ov(void)
+{
+	psw_write_bit(PSW_BIT_OV, 1);
+}
 
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+void
+psw_clr_ov(void)
+{
+	psw_write_bit(PSW_BIT_OV, 0);
 }
 
 /*
@@ -147,5 +133,5 @@ psw_compute_parity_bit(void)
 		acc = acc & (acc - 1);
 	}
 
-	psw_write_p(parity);
+	psw_write_bit(PSW_BIT_P, parity);
 }
