@@ -39,7 +39,7 @@
 static GtkWidget *reglist;
 
 #define LIST_VIEW_NAME "Registers"
-#define DATA_ROWS 26
+#define DATA_ROWS 25
 
 enum
 {
@@ -183,12 +183,6 @@ static struct regwin_infos_t regwin_infos[DATA_ROWS] = {
 		HEX_DIGITS_4,
 		NULL, NULL,
 		_DPL_,
-	},
-	{
-		"PSW",
-		HEX_DIGITS_2,
-		NULL, NULL,
-		_PSW_,
 	},
 	{
 		"P0",

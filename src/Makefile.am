@@ -42,6 +42,7 @@ if USE_GTK
 	pgmwin.h \
 	regwin.c \
 	regwin.h \
+	pswwin.c pswwin.h \
 	filemenu.c \
 	filemenu.h \
 	viewmenu.c \
