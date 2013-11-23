@@ -196,6 +196,9 @@ pswwin_init(void)
 
 	/* Creating the view component */
 	pswlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+
+	gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(pswlist), GTK_TREE_VIEW_GRID_LINES_BOTH);
+
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(pswlist), TRUE);
 	gtk_container_add(GTK_CONTAINER(frame), pswlist);
 
