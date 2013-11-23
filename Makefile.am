@@ -6,8 +6,7 @@ SUBDIRS = src data doc
 
 ## We want these in the dist tarball
 EXTRA_DIST = autogen.sh \
-             pixmaps \
-             test-files
+             pixmaps
 
 ACLOCAL = aclocal -I $(ac_aux_dir)
 
