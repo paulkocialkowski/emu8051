@@ -70,6 +70,8 @@ memory_init(void)
 			log_err("%s", strerror(errno));
 			exit(1);
 		}
+
+		memset(m->buf, 0x00, m->size);
 	}
 }
 
