@@ -110,7 +110,7 @@ LoadHexFile(const char *filename)
 	/* Trying to open the file. */
 	fp = fopen(filename, "r");
 	if (fp == NULL) {
-		perror(PACKAGE);
+		perror(filename);
 		/*ErrorLocation(__FILE__, __LINE__);*/
 		exit(EXIT_FAILURE);
 	}
