@@ -4,6 +4,10 @@ AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = src data doc
 
+if RUN_TESTS
+SUBDIRS += tests
+endif
+
 ## We want these in the dist tarball
 EXTRA_DIST = autogen.sh \
              pixmaps

@@ -7,7 +7,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/cpu8051.c)
 AM_CONFIG_HEADER(config.h:config-h.in)
 dnl Checking if the NEWS file has been updated to reflect the current version.
-AM_INIT_AUTOMAKE(check-news -Wall std-options)
+AM_INIT_AUTOMAKE(check-news -Wall std-options color-tests parallel-tests)
 AM_SILENT_RULES([yes])
 
 dnl Testing the C compiler.
@@ -47,9 +47,31 @@ fi
 
 AM_CONDITIONAL([USE_GTK], [test x${ac_cv_enable_gui} = xyes])
 
+dnl Check if tests are enabled (disabled by default)
+AC_ARG_ENABLE([tests],
+              [AS_HELP_STRING([--enable-tests],[Run test suite])],
+              [run_tests=${enableval}],
+              [run_tests="no"])
+
+dnl If tests are enabled, try to locate asem 8051 compiler
+if test x"${run_tests}" = xyes; then
+    dnl Tests for 8051 assembler to generate hex test files
+    dnl TODO: add argument to specify location of asem executable...
+    AC_CHECK_PROG(ASEM_CHECK,asem,yes)
+    if test x"$ASEM_CHECK" != x"yes" ; then
+	 AC_MSG_ERROR([Please install asem (http://plit.de/asem-51) to run test suite.])
+    fi
+fi
+
+AM_CONDITIONAL([RUN_TESTS],[test "x$run_tests" = "xyes"])
+
 AC_SUBST(CFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 
 dnl Creating output file(s)
 AC_OUTPUT(Makefile src/Makefile data/Makefile doc/Makefile)
+
+if test x"${run_tests}" = xyes; then
+    AC_OUTPUT(tests/Makefile)
+fi
