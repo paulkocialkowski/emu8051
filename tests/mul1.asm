@@ -1,9 +1,9 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: MUL AB (no overflow)
-; Test output1: ACC = 0xC2
-; Test output2: B = 0x00
-; Test output2: PSW = 0x01
+; Test output1: A = $C2
+; Test output2: B = $00
+; Test output3: PSW = $01
 
         CSEG
 
@@ -13,4 +13,5 @@
         MOV     B, #002h
         MUL     AB              ; CY should be cleared, OV should be cleared
 
+        LJMP    0FFF0h
         END
