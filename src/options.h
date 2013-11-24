@@ -33,6 +33,7 @@ struct options_t {
 	int xram_size; /* Maximum external ram size. */
 	char *filename;
 	int log;
+	uint16_t stop_address; /* Run program up to that adress and exit. */
 } options_t;
 
 void

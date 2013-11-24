@@ -48,6 +48,7 @@ static struct argp_option argp_options[] = {
 	{"iram",  'i', "size",  0,  "Set internal ram size" },
 	{"pram",  'p', "size",  0,  "Set program memory size" },
 	{"xram",  'x', "size",  0,  "Set external ram size (default is 1024)" },
+	{"stop",  's', "addr",  0,  "Automatically run program and stop at address" },
 	{ 0 }
 };
 
@@ -107,6 +108,19 @@ decode_memory_size(char *arg, struct argp_state *state, int memid)
 	}
 }
 
+static void
+decode_address(char *arg, struct argp_state *state, uint16_t *dest)
+{
+	char *endptr;
+
+	*dest = strtol(arg, &endptr, 0);
+
+	if (*endptr != '\0') {
+		log_err("Invalid address");
+		argp_usage(state);
+	}
+}
+
 /* Parse a single option. */
 static error_t
 parse_opt(int key, char *arg, struct argp_state *state)
@@ -120,6 +134,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 		break;
 	case 'p':
 		decode_memory_size(arg, state, PGM_MEM_ID);
+		break;
+	case 's':
+		decode_address(arg, state, &options.stop_address);
 		break;
 	case 'x':
 		decode_memory_size(arg, state, EXT_MEM_ID);
@@ -161,6 +178,7 @@ parse_command_line_options(int argc, char *argv[])
 	options.iram_size = INT_MEM_MAX_SIZE;
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;
 	options.log = LOG_LEVEL_ERR;
+	options.stop_address = 0; /* 0 means stop address is disabled. */
 
 	/* Parse our arguments. */
 	argp_parse(&argp, argc, argv, 0, 0, NULL);

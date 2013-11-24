@@ -48,6 +48,9 @@ _SCOPE_ struct cpu8051_t cpu8051;
 int
 IsBreakpoint(unsigned int Address);
 
+int
+IsStoppoint(unsigned int address);
+
 void
 ShowBreakpoints(void);
 

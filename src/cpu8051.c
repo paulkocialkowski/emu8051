@@ -30,7 +30,10 @@
 #include "memory.h"
 #include "psw.h"
 #include "disasm.h"
+#include "options.h"
 #include "instructions_8051.h"
+
+extern struct options_t options;
 
 /* Check if the address is a breakpoint */
 int
@@ -45,6 +48,16 @@ IsBreakpoint(unsigned int address)
 
 	/* The address was not found in the list of breakpoints */
 	return 0;
+}
+
+/* Check if the address is a stop point */
+int
+IsStoppoint(unsigned int address)
+{
+	if ((options.stop_address != 0) && (options.stop_address == address))
+		return 1;
+	else
+		return 0;
 }
 
 /* Show Breakpoints list */

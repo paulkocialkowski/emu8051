@@ -71,8 +71,9 @@ console_exec(char *Address, char *NumberInst)
 	if (STREQ(Address, "PC"))
 		cpu8051.pc = Ascii2Hex(Address, strlen(Address));
 
-	if (strlen(NumberInst) != 0)
-		NbInst = Ascii2Hex(NumberInst, strlen(NumberInst));
+	if (NumberInst)
+		if (strlen(NumberInst) != 0)
+			NbInst = Ascii2Hex(NumberInst, strlen(NumberInst));
 
 	InitUnixKB();
 
@@ -82,7 +83,8 @@ console_exec(char *Address, char *NumberInst)
 		cpu8051_Exec();
 		if (NbInst > 0)
 			NbInst--;
-	} while (!IsBreakpoint(cpu8051.pc) && (NbInst != 0) && !kbhit());
+	} while (!IsBreakpoint(cpu8051.pc) && !IsStoppoint(cpu8051.pc) &&
+		 (NbInst != 0) && !kbhit());
 	if (kbhit()) {
 		(void) getch(); /* Flush key */
 		log_info("Caught break signal!");
@@ -91,6 +93,8 @@ console_exec(char *Address, char *NumberInst)
 		log_info("Number of instructions reached! Stopping!");
 	if (IsBreakpoint(cpu8051.pc))
 		log_info("Breakpoint hit at %.4X! Stopping!", cpu8051.pc);
+	if (IsStoppoint(cpu8051.pc))
+		log_info("Stoppoint hit at %.4X! Stopping!", cpu8051.pc);
 
 	ResetUnixKB();
 }
@@ -191,7 +195,6 @@ console_reset(void)
 	log_info("Resetting...");
 	cpu8051_Reset();
 	log_info("Done");
-	console_show_registers();
 }
 
 /* CPU trace and Console UI update */
@@ -242,15 +245,24 @@ console_main(void)
 		" [number of instructions]",
 		"  Reset processor............. Z", 0 };
 
-	Index = 0;
-	while (Title[Index] != 0)
-		printf("%s\n", Title[Index++]);
-
-	Index = 0;
-	while (Menu[Index] != 0)
-		printf("%s\n", Menu[Index++]);
-
 	console_reset();
+
+	if (options.stop_address != 0) {
+		/* Automatically run program and stop at specified address. */
+		console_exec("0x0000", NULL);
+		console_show_registers();
+		QuitRequest = 1;
+	} else {
+		Index = 0;
+		while (Title[Index] != 0)
+			printf("%s\n", Title[Index++]);
+
+		Index = 0;
+		while (Menu[Index] != 0)
+			printf("%s\n", Menu[Index++]);
+
+		console_show_registers();
+	}
 
 	while (!QuitRequest) {
 		int slen;
