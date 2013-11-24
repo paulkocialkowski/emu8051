@@ -211,7 +211,7 @@ console_main(void)
 {
 	unsigned int Index;
 	char *line = NULL;
-
+	int QuitRequest = 0;
 	char prompt[] = "-> ";
 
 	char *Title[] = { "      *******************",
@@ -251,8 +251,6 @@ console_main(void)
 		printf("%s\n", Menu[Index++]);
 
 	console_reset();
-
-	int QuitRequest = 0;
 
 	while (!QuitRequest) {
 		int slen;
