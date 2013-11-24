@@ -119,6 +119,12 @@ static struct regwin_infos_t regwin_infos[SFR_REGS] = {
 		_SP_,
 	},
 	{
+		"PSW",
+		HEX_DIGITS_2,
+		NULL, NULL,
+		_PSW_,
+	},
+	{
 		"A",
 		HEX_DIGITS_2,
 		NULL, NULL,

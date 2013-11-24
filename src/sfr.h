@@ -21,7 +21,7 @@
 #ifndef SFR_H
 #define SFR_H 1
 
-#define SFR_REGS 25
+#define SFR_REGS 26
 
 struct regwin_infos_t {
 	char *name; /* Register name */
