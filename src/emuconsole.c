@@ -28,6 +28,7 @@
 #include "common.h"
 #include "cpu8051.h"
 #include "reg8051.h"
+#include "sfr.h"
 #include "memory.h"
 #include "options.h"
 #include "hexfile.h"
@@ -147,9 +148,33 @@ SetRegister(char *Register, char *NewValue)
 	}
 }
 
-/* Show CPU registers */
+/* Show CPU registers, one per line */
 static void
-console_show_registers(void)
+console_dump_sfr_registers_detailed(void)
+{
+	int k;
+
+	for (k = 0; k < SFR_REGS; k++) {
+		struct regwin_infos_t *regwin_infos;
+		int val;
+
+		regwin_infos = sfr_get_infos_from_row(k);
+
+		printf("%s = ", regwin_infos->name);
+
+		val = regwin_read(k);
+		if (regwin_infos->w == 2)
+			printf("$%02X", val);
+		else if (regwin_infos->w == 4)
+			printf("$%04X", val);
+
+		printf("\n");
+	}
+}
+
+/* Show CPU registers, compact format */
+static void
+console_dump_sfr_registers_compact(void)
 {
 	unsigned char PSW = cpu8051_ReadD(_PSW_);
 	int BankSelect = (PSW & 0x18);
@@ -186,6 +211,16 @@ console_show_registers(void)
 	printf("|    |\n");
 	printf("---------------------------------------------------------------"
 	       "-------\n");
+}
+
+/* Show CPU registers */
+static void
+console_show_registers(void)
+{
+	if (options.stop_address != 0)
+		console_dump_sfr_registers_detailed();
+	else
+		console_dump_sfr_registers_compact();
 }
 
 /* CPU reset and Console UI update */
