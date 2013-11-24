@@ -64,7 +64,7 @@ console_exec(char *Address, char *NumberInst)
 {
 	int NbInst = -1; /* -1 is infinity */
 	if (strlen(Address) == 0) {
-		printf("Invalid address\n");
+		log_err("Invalid address");
 		return;
 	}
 
@@ -76,7 +76,7 @@ console_exec(char *Address, char *NumberInst)
 
 	InitUnixKB();
 
-	printf("Program executing...\n");
+	log_info("Program executing...");
 
 	do {
 		cpu8051_Exec();
@@ -85,12 +85,12 @@ console_exec(char *Address, char *NumberInst)
 	} while (!IsBreakpoint(cpu8051.pc) && (NbInst != 0) && !kbhit());
 	if (kbhit()) {
 		(void) getch(); /* Flush key */
-		printf("Caught break signal!\n");
+		log_info("Caught break signal!");
 	}
 	if (NbInst == 0)
-		printf("Number of instructions reached! Stopping!\n");
+		log_info("Number of instructions reached! Stopping!");
 	if (IsBreakpoint(cpu8051.pc))
-		printf("Breakpoint hit at %.4X! Stopping!\n", cpu8051.pc);
+		log_info("Breakpoint hit at %.4X! Stopping!", cpu8051.pc);
 
 	ResetUnixKB();
 }
@@ -188,9 +188,9 @@ console_show_registers(void)
 static void
 console_reset(void)
 {
-	printf("Resetting... ");
+	log_info("Resetting...");
 	cpu8051_Reset();
-	printf("Done.\n");
+	log_info("Done");
 	console_show_registers();
 }
 
