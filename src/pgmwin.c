@@ -239,38 +239,55 @@ pgmwin_refresh(void)
 			return;
 		}
 
-		/* Display breakpoints. */
-		if (IsBreakpoint(Address))
-			sprintf(str, "*");
-		else
+		if (Address > 0xFFFF) {
+			/*
+			 * Not the most elegant solution, but it works to not
+			 * display instructions past last address, 0xFFFF.
+			 */
+			gtk_list_store_set(store, &iter,
+					   COL_BREAKPT, NULL,
+					   COL_ADDR, NULL,
+					   COL_B0, NULL,
+					   COL_B1, NULL,
+					   COL_B2, NULL,
+					   COL_INST, NULL,
+					   COL_ARGS, NULL,
+					   COL_COLOR, NULL,
+					   -1);
+		} else {
+			/* Display breakpoints. */
+			if (IsBreakpoint(Address))
+				sprintf(str, "*");
+			else
+				str[0] = '\0';
+
+			gtk_list_store_set(store, &iter, COL_BREAKPT, str, -1);
+
+			/* Display base address. */
+			int2asciihex(Address, str, 4);
+
+			gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
+
+			OpCode = memory_read8(PGM_MEM_ID, Address);
+			InstSize = cpu8051_get_instruction_size(OpCode);
+
+			/* Display instruction hex bytes. */
+			for (k = 0, col_id = COL_B0; k < InstSize; k++, col_id++) {
+				int2asciihex(memory_read8(PGM_MEM_ID, Address + k),
+					     str, 2);
+				gtk_list_store_set(store, &iter, col_id, str, -1);
+			}
+
+			/* Display instruction menmonic. */
+			cpu8051_disasm_mnemonic(OpCode, str);
+			gtk_list_store_set(store, &iter, COL_INST, str, -1);
+
+			/* Display instruction arguments (if applicable). */
 			str[0] = '\0';
+			cpu8051_disasm_args(Address, str);
+			gtk_list_store_set(store, &iter, COL_ARGS, str, -1);
 
-		gtk_list_store_set(store, &iter, COL_BREAKPT, str, -1);
-
-		/* Display base address. */
-		int2asciihex(Address, str, 4);
-
-		gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
-
-		OpCode = memory_read8(PGM_MEM_ID, Address);
-		InstSize = cpu8051_get_instruction_size(OpCode);
-
-		/* Display instruction hex bytes. */
-		for (k = 0, col_id = COL_B0; k < InstSize; k++, col_id++) {
-			int2asciihex(memory_read8(PGM_MEM_ID, Address + k),
-				     str, 2);
-			gtk_list_store_set(store, &iter, col_id, str, -1);
+			Address += InstSize;
 		}
-
-		/* Display instruction menmonic. */
-		cpu8051_disasm_mnemonic(OpCode, str);
-		gtk_list_store_set(store, &iter, COL_INST, str, -1);
-
-		/* Display instruction arguments (if applicable). */
-		str[0] = '\0';
-		cpu8051_disasm_args(Address, str);
-		gtk_list_store_set(store, &iter, COL_ARGS, str, -1);
-
-		Address += InstSize;
 	}
 }

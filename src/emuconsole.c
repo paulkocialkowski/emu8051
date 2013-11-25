@@ -110,6 +110,9 @@ DisasmN(unsigned int Address, int NumberInst)
 	for (Row = 0; Row < NumberInst ; Row++) {
 		Address += cpu8051_Disasm(Address, TextTmp);
 		printf("%s\n", TextTmp);
+
+		if (Address > 0xFFFF)
+			return;
 	}
 }
 
