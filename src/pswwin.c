@@ -1,5 +1,5 @@
 /*
- * pswwin.cpp
+ * pswwin.c
  *
  * Copyright (C) 1999 Jonathan St-André
  * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>

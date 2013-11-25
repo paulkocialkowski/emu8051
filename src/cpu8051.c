@@ -492,7 +492,7 @@ cpu8051_get_instruction_size(unsigned char opcode)
 	return InstSizesTbl[opcode];
 }
 
-/* Display instruction menmonic. */
+/* Display instruction mnemonic. */
 void
 cpu8051_disasm_mnemonic(unsigned char OpCode, char *buf)
 {
@@ -630,7 +630,7 @@ cpu8051_Disasm(unsigned int Address, char *Text)
 	for (; len < 17;)
 		len += sprintf(&Text[len], " ");
 
-	/* Display instruction menmonic. */
+	/* Display instruction mnemonic. */
 	len += sprintf(&Text[len], "%s ",
 			      InstTextTbl[InstTypesTbl[OpCode]]);
 	ArgTblOfs = OpCode << 2;
