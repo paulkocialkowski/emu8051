@@ -7,11 +7,12 @@ SUFFIXES = .hex .asm
 TESTS = \
     opcodes
 
-check_PROGRAMS = mul1.hex mul2.hex orl.hex
+check_PROGRAMS = mul1.hex mul2.hex orl.hex anl.hex
 
 mul1.hex: mul1.asm
 mul2.hex: mul2.asm
 orl.hex: orl.asm
+anl.hex: anl.asm
 
 .asm.hex:
 	$(AS51) $<
