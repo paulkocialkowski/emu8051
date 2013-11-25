@@ -220,7 +220,8 @@ pgmwin_refresh(void)
 		int valid;
 		GtkTreeIter iter;
 		char str[128];
-		int k;		int col_id;
+		int k;
+		int col_id;
 		int InstSize;
 		unsigned char OpCode;
 
