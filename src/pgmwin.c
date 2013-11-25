@@ -273,9 +273,14 @@ pgmwin_refresh(void)
 			InstSize = cpu8051_get_instruction_size(OpCode);
 
 			/* Display instruction hex bytes. */
-			for (k = 0, col_id = COL_B0; k < InstSize; k++, col_id++) {
-				int2asciihex(memory_read8(PGM_MEM_ID, Address + k),
-					     str, 2);
+			for (k = 0, col_id = COL_B0; k < 3; k++, col_id++) {
+				if (k < InstSize)
+					int2asciihex(memory_read8(PGM_MEM_ID,
+								  Address + k),
+						     str, 2);
+				else
+					str[0] = '\0';
+
 				gtk_list_store_set(store, &iter, col_id, str, -1);
 			}
 
