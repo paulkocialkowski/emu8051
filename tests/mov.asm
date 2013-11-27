@@ -1,6 +1,7 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: MOV
+; Test output0: PC = $FFF0
 ; Test output1: A = $66
 ; Test output2: B = $98
 ; Test output3: PSW = $00

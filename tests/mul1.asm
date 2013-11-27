@@ -1,6 +1,7 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: MUL AB (no overflow)
+; Test output0: PC = $FFF0
 ; Test output1: A = $C2
 ; Test output2: B = $00
 ; Test output3: PSW = $01

@@ -1,6 +1,7 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: ORL
+; Test output0: PC = $FFF0
 ; Test output1: A = $60
 ; Test output2: PSW = $E0
 ; Test output3: TCON = $01
