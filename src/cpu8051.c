@@ -293,8 +293,8 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 
 		if (tmp == 0)  /* If overflow set TF0 */
 			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-		cpu8051_WriteD(_TH0_, tmp / 0x100);
-		cpu8051_WriteD(_TL0_, tmp & 0xFF);
+		cpu8051_WriteD(th, tmp / 0x100);
+		cpu8051_WriteD(tl, tmp & 0xFF);
 		break;
 	case 1:
 		/* Mode 1, 16-bits counter */
@@ -303,8 +303,8 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 		tmp &= 0xFFFF; /* We keep only 16 bits */
 		if (tmp == 0) /* If overflow set TF0 */
 			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-		cpu8051_WriteD(_TH0_, (tmp / 0x100));
-		cpu8051_WriteD(_TL0_, (tmp & 0xFF));
+		cpu8051_WriteD(th, (tmp / 0x100));
+		cpu8051_WriteD(tl, (tmp & 0xFF));
 		break;
 	case 2:
 		/* Mode 2, 8-bits counter with Auto-Reload */
