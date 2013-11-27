@@ -283,18 +283,27 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 	      uint8_t GATE, uint32_t TimerCounter)
 {
 	unsigned int tmp;
+	unsigned int prescaler;
 
 	switch (mode) {
 	case 0:
-		/* Mode 0, 13-bits counter. */
-		tmp = cpu8051_ReadD(th) * 0x100 + cpu8051_ReadD(tl);
-		tmp++;
-		tmp &= 0x1FFF; /* We keep only 13 bits */
+		/* Mode 0, 8-bit timer "TH" with "TL" as 5-bit prescaler. */
+		prescaler = cpu8051_ReadD(tl);
+		prescaler++;
+		prescaler &= 0x1F; /* We keep only 5 bits */
+		cpu8051_WriteD(tl, prescaler);
 
-		if (tmp == 0)  /* If overflow set TF0 */
-			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-		cpu8051_WriteD(th, tmp / 0x100);
-		cpu8051_WriteD(tl, tmp & 0xFF);
+		if (prescaler == 0) {
+			/* If overflow, increment TH */
+			tmp = cpu8051_ReadD(th);
+			tmp++;
+			tmp &= 0xFF; /* We keep only 8 bits */
+
+			if (tmp == 0)  /* If overflow set TF */
+				cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
+
+			cpu8051_WriteD(th, tmp);
+		}
 		break;
 	case 1:
 		/* Mode 1, 16-bits counter */
