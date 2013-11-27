@@ -7,7 +7,7 @@ SUFFIXES = .hex .asm
 TESTS = \
     opcodes
 
-check_PROGRAMS = mul1.hex mul2.hex div.hex orl.hex anl.hex mov.hex
+check_PROGRAMS = mul1.hex mul2.hex div.hex orl.hex anl.hex mov.hex timer1.hex
 
 mul1.hex: mul1.asm
 mul2.hex: mul2.asm
@@ -15,6 +15,7 @@ div.hex: div.asm
 orl.hex: orl.asm
 anl.hex: anl.asm
 mov.hex: mov.asm
+timer1.hex: timer1.asm
 
 .asm.hex:
 	$(AS51) $<
