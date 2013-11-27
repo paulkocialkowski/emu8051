@@ -1,12 +1,13 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: MOV
-; Test output0: PC = $FFF0
-; Test output1: A = $66
-; Test output2: B = $98
-; Test output3: PSW = $00
-; Test output4: DPTR = $9876
-; Test output5: R0 = $66
+; Test output: PC = $FFF0
+; Test output: SP = $07
+; Test output: A = $66
+; Test output: B = $98
+; Test output: PSW = $00
+; Test output: DPTR = $9876
+; Test output: R0 = $66
 
         CSEG
 

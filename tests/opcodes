@@ -16,7 +16,7 @@ for f in *.hex; do
 
     while read line; do
         if echo ${line} | grep -q "; Test output"; then
-            test_str=$(echo ${line} | sed "s/^; Test output[0-9]: //")
+            test_str=$(echo ${line} | sed "s/^; Test output: //")
 
             if ! grep -q "${test_str}" ${lf}; then
                 echo "Failed test: ${test_str}" >> ${lf}

@@ -1,11 +1,12 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: ANL
-; Test output0: PC = $FFF0
-; Test output1: A = $60
-; Test output2: B = $60
-; Test output3: PSW = $E0
-; Test output4: TCON = $01
+; Test output: PC = $FFF0
+; Test output: SP = $07
+; Test output: A = $60
+; Test output: B = $60
+; Test output: PSW = $E0
+; Test output: TCON = $01
 
         CSEG
 

@@ -1,10 +1,11 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: MUL AB (overflow)
-; Test output0: PC = $FFF0
-; Test output1: A = $5B
-; Test output2: B = $0B
-; Test output3: PSW = $05
+; Test output: PC = $FFF0
+; Test output: SP = $07
+; Test output: A = $5B
+; Test output: B = $0B
+; Test output: PSW = $05
 
         CSEG
 

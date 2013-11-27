@@ -1,10 +1,11 @@
 ; Test program to verify correct emu8051 operation
 ;
 ; Test desc: DIV AB
-; Test output0: PC = $FFF0
-; Test output1: A = $3C
-; Test output2: B = $00
-; Test output3: PSW = $00
+; Test output: PC = $FFF0
+; Test output: SP = $07
+; Test output: A = $3C
+; Test output: B = $00
+; Test output: PSW = $00
 
         CSEG
 
