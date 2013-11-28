@@ -29,9 +29,6 @@
 #include "cpu8051.h"
 #include "sfr.h"
 #include "memory.h"
-#include "regwin.h"
-#include "memwin.h"
-#include "pgmwin.h"
 #include "instructions_8051.h"
 
 #define HEX_DIGITS_2 2
