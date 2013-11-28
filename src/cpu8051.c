@@ -29,6 +29,7 @@
 #include "cpu8051.h"
 #include "memory.h"
 #include "psw.h"
+#include "timers.h"
 #include "disasm.h"
 #include "options.h"
 #include "instructions_8051.h"
@@ -278,113 +279,6 @@ cpu8051_CheckInterrupts(void)
 	}
 }
 
-static void
-process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
-	      uint8_t GATE, uint32_t TimerCounter)
-{
-	unsigned int tmp;
-	unsigned int prescaler;
-
-	switch (mode) {
-	case 0:
-		/* Mode 0, 8-bit timer "TH" with "TL" as 5-bit prescaler. */
-		prescaler = cpu8051_ReadD(tl);
-		prescaler++;
-		prescaler &= 0x1F; /* We keep only 5 bits */
-		cpu8051_WriteD(tl, prescaler);
-
-		if (prescaler == 0) {
-			/* If overflow, increment TH */
-			tmp = cpu8051_ReadD(th);
-			tmp++;
-			tmp &= 0xFF; /* We keep only 8 bits */
-
-			if (tmp == 0)  /* If overflow set TF */
-				cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-
-			cpu8051_WriteD(th, tmp);
-		}
-		break;
-	case 1:
-		/* Mode 1, 16-bits counter */
-		tmp = cpu8051_ReadD(th) * 0x100 + cpu8051_ReadD(tl);
-		tmp++;
-		tmp &= 0xFFFF; /* We keep only 16 bits */
-		if (tmp == 0) /* If overflow set TF0 */
-			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-		cpu8051_WriteD(th, (tmp / 0x100));
-		cpu8051_WriteD(tl, (tmp & 0xFF));
-		break;
-	case 2:
-		/* Mode 2, 8-bits counter with Auto-Reload */
-		tmp = cpu8051_ReadD(tl);
-		tmp++;
-		tmp &= 0xFF;
-		if (tmp == 0) {
-			/* If overflow -> reload and set TF0 */
-			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-			cpu8051_WriteD(tl, cpu8051_ReadD(th));
-		} else
-			cpu8051_WriteD(tl, tmp);
-		break;
-	case 3:
-		/* Mode 3 : inactive mode for timer 1 */
-		if (tl == _TL0_) {
-			/* TL0 and TH0 are 2 independents 8-bits timers. */
-			if (TR && !GATE && !TimerCounter) {
-				tmp = cpu8051_ReadD(tl);
-				tmp++;
-				tmp &= 0xFF;
-				if (tmp == 0) /* If TL0 overflow set TF0 */
-					cpu8051_WriteD(_TCON_,
-						       cpu8051_ReadD(_TCON_) |
-						       tf_mask);
-				cpu8051_WriteD(tl, tmp);
-			} /* TH0 utilise TR1 et TF1. */
-			TR = cpu8051_ReadD(_TCON_) & 0x40;
-			if (TR) {
-				tmp = cpu8051_ReadD(th);
-				tmp++;
-				tmp &= 0xFF;
-				if (tmp == 0) /* If TH0 overflow set TF1 */
-					cpu8051_WriteD(_TCON_,
-						       cpu8051_ReadD(_TCON_) |
-						       0x80);
-				cpu8051_WriteD(_TH0_, tmp);
-			}
-		}
-		break;
-	}
-}
-
-/* Run timers */
-static void
-cpu8051_DoTimers(void)
-{
-	unsigned int TR;
-	unsigned int MODE;
-	unsigned int GATE;
-	unsigned int TimerCounter;
-
-	/* Timer 0 */
-	TR = cpu8051_ReadD(_TCON_) & 0x10;
-	MODE = cpu8051_ReadD(_TMOD_) & 0x03;
-	GATE = cpu8051_ReadD(_TMOD_) & 0x08;
-	TimerCounter = cpu8051_ReadD(_TMOD_) & 0x04;
-
-	if ((TR && !GATE && !TimerCounter) || (MODE == 3))
-		process_timer(_TL0_, _TH0_, 0x20, TR, MODE, GATE, TimerCounter);
-
-	/* Timer 1 */
-	TR = cpu8051_ReadD(_TCON_) & 0x40;
-	MODE = (cpu8051_ReadD(_TMOD_) & 0x30) >> 4 ;
-	GATE = cpu8051_ReadD(_TMOD_) & 0x80;
-	TimerCounter = cpu8051_ReadD(_TMOD_) & 0x40;
-
-	if (TR && !GATE && !TimerCounter)
-		process_timer(_TL1_, _TH1_, 0x80, TR, MODE, GATE, TimerCounter);
-}
-
 /* Execute at address cpu8051.pc from PGMMem */
 void
 cpu8051_Exec(void)
@@ -405,7 +299,7 @@ cpu8051_Exec(void)
 
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_CheckInterrupts();
-		cpu8051_DoTimers();
+		timers_check();
 		cpu8051.clock++;
 	}
 }

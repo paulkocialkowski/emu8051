@@ -27,6 +27,7 @@ common_SOURCES = \
 	memory.h \
 	psw.c psw.h \
 	sfr.c sfr.h \
+	timers.c timers.h \
 	common.h \
 	reg8051.h
 
