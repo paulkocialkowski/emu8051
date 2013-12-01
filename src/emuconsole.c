@@ -269,7 +269,7 @@ console_main(void)
 		"  Display Registers content... DR",
 		"  Execute..................... EM [address"
 		" [number of instructions]]",
-		"  Help........................ H",
+		"  Help........................ H or ?",
 		"  Modify External Data Memory. ME address value",
 		"  Modify Internal Data Memory. MI address value",
 		"  Modify Program Memory....... MP address value",
@@ -394,7 +394,9 @@ console_main(void)
 				goto syntax_error;
 			break;
 		case 'H':
-			if (STREQ(Command, "H") && (strlen(Parameter1) == 0) &&
+		case '?':
+			if ((STREQ(Command, "H") || STREQ(Command, "?")) &&
+			    (strlen(Parameter1) == 0) &&
 			    (strlen(Parameter2) == 0)) {
 				Index = 0;
 				while (Menu[Index] != 0)
