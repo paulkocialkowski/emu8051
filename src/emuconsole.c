@@ -69,7 +69,7 @@ console_exec(char *Address, char *NumberInst)
 		return;
 	}
 
-	if (STREQ(Address, "PC"))
+	if (!STREQ(Address, "PC"))
 		cpu8051.pc = Ascii2Hex(Address, strlen(Address));
 
 	if (NumberInst)
