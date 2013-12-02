@@ -25,13 +25,14 @@ TESTS = \
 
 # Tell make how to generate a .sh file after a .hex file is generated:
 .hex.sh:
-	@ln -sf opcodes.sh $@
+	@ln -sf $(srcdir)/opcodes.sh $@
 
 # Tell make how to generate a .hex file from a .asm source file.
 # Warning: make distcheck will fail because asem doesn't have option to specify
 # output filename (and path):
 .asm.hex:
 	$(AS51) $<
+
 else
 TESTS =
 endif
