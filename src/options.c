@@ -45,7 +45,6 @@ static const char args_doc[] = "[FILENAME]";
 /* The options we understand. */
 static struct argp_option argp_options[] = {
 	{"debug", 'd', "level", 0,  "Produce debugging output" },
-	{"iram",  'i', "size",  0,  "Set internal ram size" },
 	{"pram",  'p', "size",  0,  "Set program memory size" },
 	{"xram",  'x', "size",  0,  "Set external ram size (default is 1024)" },
 	{"stop",  's', "addr",  0,  "Automatically run program and stop at address" },
