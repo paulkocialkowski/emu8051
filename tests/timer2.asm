@@ -26,7 +26,7 @@ TOS     EQU     60h     ; Adresse du dessus de la pile.
 	MOV	TH1,#0F4h       ; Reload value
 	MOV	TL0,#00h        ; Set initial value of timer0
        	MOV	TL1,#28h        ; Set initial value of timer1
-        CALL    DELAY
+        LCALL   DELAY
 
         MOV     00h, TH0         ; Save value of timer 0
         MOV     01h, TL0
@@ -37,7 +37,7 @@ TOS     EQU     60h     ; Adresse du dessus de la pile.
         ;;  Second test: overflow
 	MOV	TL0,#0F0h        ; Set initial value of timer0
 	MOV	TL1,#0EFh        ; Set initial value of timer1
-        CALL    DELAY
+        LCALL   DELAY
 
         LJMP    0FFF0h
 

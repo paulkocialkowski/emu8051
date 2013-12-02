@@ -25,7 +25,7 @@ TOS     EQU     60h     ; Adresse du dessus de la pile.
         ;;  First test: no overflow
 	MOV	TH0,#2
 	MOV	TL0,#55h        ; Set initial value of timer0 to $0255
-        CALL    DELAY
+        LCALL   DELAY
 
         MOV     00h, TH0         ; Save value of timer 0
         MOV     01h, TL0
@@ -38,7 +38,7 @@ TOS     EQU     60h     ; Adresse du dessus de la pile.
 	MOV	TL0,#01h        ; Set initial value of timer0 to $F001
 	MOV	Th1,#0FFh
 	MOV	TL1,#03h        ; Set initial value of timer1 to $FF03
-        CALL    DELAY
+        LCALL   DELAY
 
         LJMP    0FFF0h
 
