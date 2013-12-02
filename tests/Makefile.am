@@ -4,7 +4,18 @@ AS51 = asem
 
 SUFFIXES = .hex .asm .sh
 
-# Should find a way to automatically generate each symlink here:
+# Do not remove intermediate .hex files
+.SECONDARY:
+
+ASM_SRC = \
+    mul1.asm mul2.asm \
+    div.asm \
+    orl.asm anl.asm \
+    mov.asm \
+    timer0.asm timer1.asm timer2.asm
+
+if RUN_TESTS
+
 TESTS = \
     mul1.sh mul2.sh \
     div.sh \
@@ -12,25 +23,20 @@ TESTS = \
     mov.sh \
     timer0.sh timer1.sh timer2.sh
 
-mul1.sh: mul1.hex
-mul2.sh: mul2.hex
-div.sh: div.hex
-orl.sh: orl.hex
-anl.sh: anl.hex
-mov.sh: mov.hex
-timer0.sh: timer0.hex
-timer1.sh: timer1.hex
-timer2.sh: timer2.hex
-
 # Tell make how to generate a .sh file after a .hex file is generated:
 .hex.sh:
-	ln -sf opcodes.sh $@
+	@ln -sf opcodes.sh $@
 
-# Tell make how to generate a .hex file from a .asm source file:
+# Tell make how to generate a .hex file from a .asm source file.
+# Warning: make distcheck will fail because asem doesn't have option to specify
+# output filename (and path):
 .asm.hex:
 	$(AS51) $<
+else
+TESTS =
+endif
 
-EXTRA_DIST = $(TESTS) *.asm *.hex
+EXTRA_DIST = opcodes.sh $(ASM_SRC)
 
 CLEANFILES = *~ *.lst *.hex $(TESTS)
 

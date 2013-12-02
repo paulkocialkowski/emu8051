@@ -2,11 +2,7 @@
 
 AUTOMAKE_OPTIONS = gnu
 
-SUBDIRS = src data doc
-
-if RUN_TESTS
-SUBDIRS += tests
-endif
+SUBDIRS = src data doc tests
 
 ## We want these in the dist tarball
 EXTRA_DIST = autogen.sh \

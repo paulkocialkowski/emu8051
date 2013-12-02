@@ -47,31 +47,17 @@ fi
 
 AM_CONDITIONAL([USE_GTK], [test x${ac_cv_enable_gui} = xyes])
 
-dnl Check if tests are enabled (disabled by default)
-AC_ARG_ENABLE([tests],
-              [AS_HELP_STRING([--enable-tests],[Run test suite])],
-              [run_tests=${enableval}],
-              [run_tests="no"])
-
-dnl If tests are enabled, try to locate asem 8051 compiler
-if test x"${run_tests}" = xyes; then
-    dnl Tests for 8051 assembler to generate hex test files
-    dnl TODO: add argument to specify location of asem executable...
-    AC_CHECK_PROG(ASEM_CHECK,asem,yes)
-    if test x"$ASEM_CHECK" != x"yes" ; then
-	 AC_MSG_ERROR([Please install asem (http://plit.de/asem-51) to run test suite.])
-    fi
+dnl Try to locate asem 8051 compiler to generate test files (.hex)
+AC_CHECK_PROG(ASEM_CHECK,asem,yes)
+if test x"$ASEM_CHECK" != x"yes" ; then
+    AC_MSG_WARN([Please install asem (http://plit.de/asem-51) to run test suite.])
 fi
 
-AM_CONDITIONAL([RUN_TESTS],[test "x$run_tests" = "xyes"])
+AM_CONDITIONAL([RUN_TESTS],[test x"$ASEM_CHECK" = x"yes"])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 
 dnl Creating output file(s)
-AC_OUTPUT(Makefile src/Makefile data/Makefile doc/Makefile)
-
-if test x"${run_tests}" = xyes; then
-    AC_OUTPUT(tests/Makefile)
-fi
+AC_OUTPUT(Makefile src/Makefile data/Makefile doc/Makefile tests/Makefile)
