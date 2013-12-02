@@ -7,7 +7,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/cpu8051.c)
 AM_CONFIG_HEADER(config.h:config-h.in)
 dnl Checking if the NEWS file has been updated to reflect the current version.
-AM_INIT_AUTOMAKE(check-news)
+AM_INIT_AUTOMAKE(check-news -Wall std-options)
 AM_SILENT_RULES([yes])
 
 dnl Testing the C compiler.
@@ -53,24 +53,3 @@ AC_SUBST(ac_aux_dir)
 
 dnl Creating output file(s)
 AC_OUTPUT(Makefile src/Makefile data/Makefile doc/Makefile)
-
-echo \
-"---------------------------------------------------------------------------
-Configuration:
-
-  Install path:        ${prefix}
-  Compiler:            ${CC}
-  Compiler flags:      ${CFLAGS}
-  Linker flags:        ${LIBS}"
-
-echo -n "  Build GUI:           "
-if test x"${ac_cv_enable_gui}" = xyes; then
-  echo "yes"
-else
-  echo "no"
-fi
-
-echo \
-"
-  See config.h for further configuration information.
----------------------------------------------------------------------------"
