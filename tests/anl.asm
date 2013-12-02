@@ -8,8 +8,6 @@
 ; Test output: PSW = $E0
 ; Test output: TCON = $01
 
-        CSEG
-
         ORG     0000h           ; Reset vector
 
         MOV     PSW, #0E0h

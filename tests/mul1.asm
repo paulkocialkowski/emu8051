@@ -7,8 +7,6 @@
 ; Test output: B = $00
 ; Test output: PSW = $01
 
-        CSEG
-
         ORG     0000h           ; Reset vector
 
         MOV     A, #061h

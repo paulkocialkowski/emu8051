@@ -9,8 +9,6 @@
 ; Test output: DPTR = $9876
 ; Test output: R0 = $66
 
-        CSEG
-
         ORG     0000h           ; Reset vector
 
         MOV     A, #099h

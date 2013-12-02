@@ -15,8 +15,6 @@
 
 TOS     EQU     60h     ; Adresse du dessus de la pile.
 
-        CSEG
-
         ORG     0000h           ; Reset vector
         MOV     SP,#TOS         ; Init stack pointer
 
