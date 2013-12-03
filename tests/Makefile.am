@@ -1,5 +1,6 @@
 # Regression tests for emu8051
 
+AS504 = as504
 AS51 = asem
 
 SUFFIXES = .hex .asm .sh
@@ -28,10 +29,18 @@ TESTS = \
 	@ln -sf $(srcdir)/opcodes.sh $@
 
 # Tell make how to generate a .hex file from a .asm source file.
-# Warning: make distcheck will fail because asem doesn't have option to specify
-# output filename (and path):
+# Warning: make distcheck will fail because asem nor as504 have option to
+# specify output filename (and path):
 .asm.hex:
+if USE_AS504
+	$(AS504) -Fhex $<
+else
+if USE_AS51
 	$(AS51) $<
+else
+	echo error
+endif
+endif
 
 else
 TESTS =

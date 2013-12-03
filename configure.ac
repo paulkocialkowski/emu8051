@@ -50,13 +50,26 @@ fi
 
 AM_CONDITIONAL([USE_GTK], [test x${ac_cv_enable_gui} = xyes])
 
-dnl Try to locate asem 8051 compiler to generate test files (.hex)
-AC_CHECK_PROG(ASEM_CHECK,asem,yes)
-if test x"$ASEM_CHECK" != x"yes" ; then
-    AC_MSG_WARN([Please install asem (http://plit.de/asem-51) to run test suite.])
+dnl Try to locate valid 8051 assembler to generate test files (.hex)
+run_tests=no
+
+AC_CHECK_PROG(AS504_CHECK,as504,yes)
+if test x"$AS504_CHECK" = x"yes" ; then
+    run_tests=yes
 fi
 
-AM_CONDITIONAL([RUN_TESTS],[test x"$ASEM_CHECK" = x"yes"])
+AC_CHECK_PROG(ASEM51_CHECK,asem,yes)
+if test x"$ASEM51_CHECK" = x"yes" ; then
+    run_tests=yes
+fi
+
+if test x"$run_tests" != x"yes" ; then
+    AC_MSG_WARN([Please install as504 (http://www.vanwal.nl/as504/) or ASEM-51 (http://plit.de/asem-51) to run test suite.])
+fi
+
+AM_CONDITIONAL([RUN_TESTS],[test x"$run_tests" = x"yes"])
+AM_CONDITIONAL([USE_AS504],[test x"$AS504_CHECK" = x"yes"])
+AM_CONDITIONAL([USE_AS51],[test x"$ASEM51_CHECK" = x"yes"])
 
 AC_SUBST(CFLAGS)
 AC_SUBST(LIBS)
