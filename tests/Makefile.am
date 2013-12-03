@@ -30,8 +30,11 @@ TESTS = \
 
 # Tell make how to generate a .hex file from a .asm source file.
 # Warning: make distcheck will fail because asem nor as504 have option to
-# specify output filename (and path):
+# specify output filename (and path), except patched version of as504:
 .asm.hex:
+if USE_AS504HV
+	$(AS504) -Fhex -O$@ $<
+else
 if USE_AS504
 	$(AS504) -Fhex $<
 else
@@ -39,6 +42,7 @@ if USE_AS51
 	$(AS51) $<
 else
 	echo error
+endif
 endif
 endif
 

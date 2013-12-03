@@ -56,6 +56,13 @@ run_tests=no
 AC_CHECK_PROG(AS504_CHECK,as504,yes)
 if test x"$AS504_CHECK" = x"yes" ; then
     run_tests=yes
+
+    dnl Check if as504 has been patched to support option -O:
+    dnl See http://www.hugovil.com/repository/hvlinux/patches/as504-add-output-file-option.patch
+    AS504HV_CHECK=no
+    if as504 2>&1 | grep -q Ooutfile; then
+        AS504HV_CHECK=yes
+    fi
 fi
 
 AC_CHECK_PROG(ASEM51_CHECK,asem,yes)
@@ -68,6 +75,7 @@ if test x"$run_tests" != x"yes" ; then
 fi
 
 AM_CONDITIONAL([RUN_TESTS],[test x"$run_tests" = x"yes"])
+AM_CONDITIONAL([USE_AS504HV],[test x"$AS504HV_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS504],[test x"$AS504_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS51],[test x"$ASEM51_CHECK" = x"yes"])
 
