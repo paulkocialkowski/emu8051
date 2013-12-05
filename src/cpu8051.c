@@ -226,8 +226,8 @@ cpu8051_ReadB(uint8_t bit_address)
 static void
 cpu8051_process_interrupt(int pc, int pri)
 {
-	stack_push16(pc);
-	cpu8051.pc = 0x0B;
+	stack_push16(cpu8051.pc);
+	cpu8051.pc = pc;
 	cpu8051.active_priority = pri;
 }
 
