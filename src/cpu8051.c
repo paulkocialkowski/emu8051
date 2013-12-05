@@ -223,6 +223,21 @@ cpu8051_ReadB(uint8_t bit_address)
 	return BitValue;
 }
 
+static int
+cpu8051_interrupt_fire(int interrupt_no, int priority)
+{
+	if (cpu8051_ReadD(_IP_) & INTERRUPT_MASK(interrupt_no))
+		return priority;
+	else
+		return !priority;
+}
+
+static int
+cpu8051_interrupt_enabled(int interrupt_no)
+{
+	return (cpu8051_ReadD(_IE_) & INTERRUPT_MASK(interrupt_no)) ? 1 : 0;
+}
+
 static void
 cpu8051_process_interrupt(int pc, int pri)
 {
@@ -241,20 +256,20 @@ cpu8051_CheckInterrupts(void)
 	if ((cpu8051_ReadD(_IE_) & 0x80) == 0)
 		return;
 
-	for (i = 1; i >= 0; i--) {
+	for (i = INTERRUPT_PRIORITY_HIGH; i >= INTERRUPT_PRIORITY_LOW; i--) {
 		if (cpu8051.active_priority < i) {
 			/* Interrupt timer 0 */
-			if ((cpu8051_ReadD(_IE_) & 0x02) &&
-			    ((cpu8051_ReadD(_IP_ & 0x02) ? i : !i) &&
-			     (cpu8051_ReadD(_TCON_) & 0x20))) {
+			if (cpu8051_interrupt_enabled(INTERRUPT_1) &&
+			    cpu8051_interrupt_fire(INTERRUPT_1, i) &&
+			     (cpu8051_ReadD(_TCON_) & 0x20)) {
 				cpu8051_WriteD(_TCON_,
 					       cpu8051_ReadD(_TCON_) & 0xDF);
 				cpu8051_process_interrupt(0x0B, i);
 				return;
 			}
 			/* Interrupt timer 1 */
-			if ((cpu8051_ReadD(_IE_) & 0x08) &&
-			    ((cpu8051_ReadD(_IP_) & 0x08) ? i : !i) &&
+			if (cpu8051_interrupt_enabled(INTERRUPT_3) &&
+			    cpu8051_interrupt_fire(INTERRUPT_3, i) &&
 			    (cpu8051_ReadD(_TCON_) & 0x80)) {
 				cpu8051_WriteD(_TCON_,
 					       cpu8051_ReadD(_TCON_) & 0x7F);
@@ -262,15 +277,15 @@ cpu8051_CheckInterrupts(void)
 				return;
 			}
 			/* Serial Interrupts */
-			if ((cpu8051_ReadD(_IE_) & 0x10) &&
-			    ((cpu8051_ReadD(_IP_) & 0x10) ? i : !i) &&
+			if (cpu8051_interrupt_enabled(INTERRUPT_4) &&
+			    cpu8051_interrupt_fire(INTERRUPT_4, i) &&
 			    (cpu8051_ReadD(_SCON_) & 0x03)) {
 				cpu8051_process_interrupt(0x23, i);
 				return;
 			}
 			/* Interrupt timer 2 */
-			if ((cpu8051_ReadD(_IE_) & 0x20) &&
-			    ((cpu8051_ReadD(_IP_) & 0x20) ? i : !i) &&
+			if (cpu8051_interrupt_enabled(INTERRUPT_5) &&
+			    cpu8051_interrupt_fire(INTERRUPT_5, i) &&
 			    (cpu8051_ReadD(_T2CON_) & 0x80)) {
 				cpu8051_process_interrupt(0x2B, i);
 				return;
