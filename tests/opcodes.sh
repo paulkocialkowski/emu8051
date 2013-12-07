@@ -12,7 +12,7 @@ name=$(basename ${test_name} .sh)
 hexfile=${name}.hex
 
 echo "Testing ${name}.hex" > ${lf}
-../src/emu8051-cli -d 2 --xram=${XRAM_SIZE} -s ${STOP_ADDRESS} ${hexfile} >> ${lf}
+../src/cli/emu8051-cli -d 2 --xram=${XRAM_SIZE} -s ${STOP_ADDRESS} ${hexfile} >> ${lf}
 if test $? -ne 0 ; then
     return 1
 fi
