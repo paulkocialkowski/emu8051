@@ -11,7 +11,6 @@ AM_INIT_AUTOMAKE(check-news -Wall std-options color-tests parallel-tests)
 AM_SILENT_RULES([yes])
 
 dnl Testing the C compiler.
-AM_PROG_CC_C_O
 AC_LANG_C
 
 dnl Checking for typedefs, structures, and compiler characteristics.
