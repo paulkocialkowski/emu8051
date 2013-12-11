@@ -3,15 +3,6 @@
 *~
 /aclocal.m4
 /autom4te.cache
-/build-aux/compile
-/build-aux/config.guess
-/build-aux/config.rpath
-/build-aux/config.sub
-/build-aux/depcomp
-/build-aux/install-sh
-/build-aux/missing
-/build-aux/test-driver
-/build-aux/ar-lib
 /config.cache
 /config.log
 /config.status
