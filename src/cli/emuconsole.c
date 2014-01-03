@@ -305,6 +305,7 @@ console_main(void)
 	while (!QuitRequest) {
 		int slen;
 		size_t len = 0;
+		int rc;
 		char Command[256];
 		char Args[256];
 		char Parameter1[256];
@@ -314,7 +315,10 @@ console_main(void)
 		Parameter2[0] = '\0';
 
 		printf("%s", prompt);
-		(void) getline(&line, &len, stdin);
+		rc = getline(&line, &len, stdin);
+		if (rc < 0)
+			goto syntax_error;
+
 		Capitalize(line);
 		RemoveSpaces(line);
 
