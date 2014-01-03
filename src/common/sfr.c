@@ -39,12 +39,16 @@
 static unsigned int
 regwin_read_pc(int dummy)
 {
+	(void) dummy; /* Remove compiler warning about unused variable. */
+
 	return cpu8051.pc;
 }
 
 static void
 regwin_write_pc(int param, int val)
 {
+	(void) param; /* Remove compiler warning about unused variable. */
+
 	cpu8051.pc = (u_int16_t) val;
 }
 
@@ -71,6 +75,8 @@ regwin_read_bank_offset(void)
 static unsigned int
 regwin_read_bank(int dummy)
 {
+	(void) dummy; /* Remove compiler warning about unused variable. */
+
 	return regwin_read_bank_offset() >> 3;
 }
 
@@ -78,6 +84,8 @@ static void
 regwin_write_bank(int param, int bank_number)
 {
 	u_int8_t psw = memory_sfr_read8(_PSW_);
+
+	(void) param; /* Remove compiler warning about unused variable. */
 
 	if ((bank_number < 0) || (bank_number > 3)) {
 		log_info("Error: invalid bank number: %d", bank_number);

@@ -44,6 +44,8 @@
 static void
 HelpCommandsEvent(gchar *string)
 {
+	(void) string; /* Remove compiler warning about unused variables. */
+
 	ShowMessage("Command Line Options", COMMAND_LINE_OPTIONS,
 		    GTK_JUSTIFY_LEFT, MESSAGE_DIALOG_FIXED_FONT);
 }
@@ -51,6 +53,10 @@ HelpCommandsEvent(gchar *string)
 static void
 HelpAboutEvent(GtkWidget *widget, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) data;
+
 	const char *authors[] = {
 		"Hugo Villeneuve <hugo@hugovil.com>",
 		"Jonathan St-André",

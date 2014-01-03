@@ -63,6 +63,10 @@ FileOpenEvent(GtkObject *object, gpointer data)
 	char *dir;
 	char *cwd = NULL;
 
+	/* Remove compiler warning about unused variables. */
+	(void) object;
+	(void) data;
+
 	log_info("FileOpenEvent()");
 
 	/* Create a new file selection widget. */
@@ -107,6 +111,9 @@ FileOpenEvent(GtkObject *object, gpointer data)
 static void
 FileQuitEvent(gchar *string)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) string;
+
 	emugtk_quit_gui();
 }
 

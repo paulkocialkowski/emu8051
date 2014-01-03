@@ -89,6 +89,8 @@ emugtk_stop_running()
 static gboolean
 emugtk_running(gpointer data)
 {
+	(void) data; /* Remove compiler warning about unused variable. */
+
 	cpu8051_Exec();
 	if (IsBreakpoint(cpu8051.pc)) {
 		log_info("Breakpoint Hit");
@@ -139,6 +141,11 @@ emugtk_Reset(void)
 static void
 emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) event;
+	(void) data;
+
 	log_info("ResetEvent()");
 	emugtk_stop_running();
 	emugtk_Reset();
@@ -156,6 +163,11 @@ emugtk_Step(void)
 static void
 emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) event;
+	(void) data;
+
 	log_info("RunEvent()");
 
 	if (running)
@@ -168,6 +180,11 @@ emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) event;
+	(void) data;
+
 	log_info("StopEvent()");
 	emugtk_stop_running();
 }
@@ -176,6 +193,11 @@ emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 static void
 emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) event;
+	(void) data;
+
 	log_info("StepEvent()");
 	emugtk_stop_running();
 	emugtk_Step();
@@ -241,6 +263,10 @@ AddMenu(void)
 static int
 mainwin_configure_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
+	/* Remove compiler warning about unused variables. */
+	(void) window;
+	(void) data;
+
 	cfg->win_width = event->configure.width;
 	cfg->win_height = event->configure.height;
 
@@ -257,6 +283,10 @@ hpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
 	GtkWidget *paned = data;
 
+	/* Remove compiler warning about unused variables. */
+	(void) window;
+	(void) event;
+
 	cfg->hpane_pos = gtk_paned_get_position(GTK_PANED(paned));
 }
 
@@ -265,6 +295,10 @@ vpaned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
 	GtkWidget *paned = data;
 
+	/* Remove compiler warning about unused variables. */
+	(void) window;
+	(void) event;
+
 	cfg->vpane_pos = gtk_paned_get_position(GTK_PANED(paned));
 }
 
@@ -272,6 +306,10 @@ static void
 main_paned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 {
 	GtkWidget *paned = data;
+
+	/* Remove compiler warning about unused variables. */
+	(void) window;
+	(void) event;
 
 	cfg->main_pane_pos = gtk_paned_get_position(GTK_PANED(paned));
 }

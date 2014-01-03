@@ -61,6 +61,8 @@ void toggle_bits_per_row(GtkWidget *widget, gpointer data)
 
 void toggle_int_memory(GtkWidget *widget, gpointer data)
 {
+	(void) data; /* Remove compiler warning about unused variables. */
+
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  View internal memory");
 		cfg->view_int_memory = 1;
@@ -73,6 +75,8 @@ void toggle_int_memory(GtkWidget *widget, gpointer data)
 
 void toggle_sfr_memory(GtkWidget *widget, gpointer data)
 {
+	(void) data; /* Remove compiler warning about unused variables. */
+
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  View SFR memory");
 		cfg->view_sfr_memory = 1;
@@ -85,6 +89,8 @@ void toggle_sfr_memory(GtkWidget *widget, gpointer data)
 
 void toggle_ext_memory(GtkWidget *widget, gpointer data)
 {
+	(void) data; /* Remove compiler warning about unused variables. */
+
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  View external memory");
 		cfg->view_ext_memory = 1;

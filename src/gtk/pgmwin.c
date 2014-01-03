@@ -128,6 +128,11 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	GtkTreeModel     *model;
 	GtkTreeIter       iter;
 
+	/* Remove compiler warning about unused variables. */
+	(void) widget;
+	(void) event;
+	(void) data;
+
 	log_debug("pgmwin_sel_changed_event()");
 
 	/* This will only work in single or browse selection mode! */

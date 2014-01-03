@@ -82,6 +82,8 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	char *str;
 	struct regwin_infos_t *regwin_infos;
 
+	(void) cell; /* Remove compiler warning about unused variables. */
+
 	if (!model) {
 		g_error("Unable to get model from cell renderer");
 	}
