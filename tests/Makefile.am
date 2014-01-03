@@ -9,6 +9,7 @@ SUFFIXES = .hex .asm .sh
 .SECONDARY:
 
 ASM_SRC = \
+    add.asm \
     mul1.asm mul2.asm \
     div.asm \
     orl.asm anl.asm \
@@ -18,6 +19,7 @@ ASM_SRC = \
 if RUN_TESTS
 
 TESTS = \
+    add.sh \
     mul1.sh mul2.sh \
     div.sh \
     orl.sh anl.sh \
