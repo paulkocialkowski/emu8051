@@ -15,6 +15,7 @@ libemu8051_a_SOURCES = \
 	memory.c memory.h \
 	psw.c psw.h \
 	sfr.c sfr.h \
+	operations.c operations.h \
 	timers.c timers.h \
 	common.h \
 	reg8051.h

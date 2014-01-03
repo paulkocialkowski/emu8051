@@ -68,6 +68,7 @@ print INST_IMP "#include \"reg8051.h\"\n";
 print INST_IMP "#include \"cpu8051.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
 print INST_IMP "#include \"psw.h\"\n";
+print INST_IMP "#include \"operations.h\"\n";
 print INST_IMP "#include \"instructions_8051.h\"\n\n\n";
 
 # Header for disasm.h
@@ -444,27 +445,7 @@ for ($i=0 ; $i< 256; $i++) {
 
 	# ADD
 	if ($insttype[$i] == 13) {
-	    cfw("psw_clr_cy();");
-	    cfw("psw_clr_ac();");
-	    cfw("psw_clr_ov();");
-            # The Overflow (OV) bit is set if there is a carry-out of bit 6 or
-            # out of bit 7, but not both. In other words, if the addition of the
-            # Accumulator, operand and (in the case of ADDC) the Carry flag
-            # treated as signed values results in a value that is out of the
-            # range of a signed byte (-128 through +127) the Overflow flag is
-            # set. Otherwise, the Overflow flag is cleared.
-	    cfw("if ( destination + source > 0xFF ) {");
-            # Carry from bit 7
-	    cfw("   psw_set_cy();");
-            # If no carry from bit 6, set OV
-	    cfw("   if (((destination & 0x7F) + (source & 0x7F)) < 0x80)");
-	    cfw("       psw_set_ov();");
-            # If no carry from bit 7, but caary from bit 6, set OV
-	    cfw("} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )");
-	    cfw("   psw_set_ov();");
-	    cfw("if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)");
-	    cfw("   psw_set_ac();");
-	    cfw("destination += source;");
+	    cfw("destination = addition(destination, source, 0);");
 	}
 
 	# JNB
@@ -491,18 +472,7 @@ for ($i=0 ; $i< 256; $i++) {
         # add the Carry flag to the result.
 	if ($insttype[$i] == 17) {
 	    cfw("unsigned char carryflag = psw_read_cy();");
-	    cfw("psw_clr_cy();");
-	    cfw("psw_clr_ac();");
-	    cfw("psw_clr_ov();");
-	    cfw("if ( destination + source + carryflag > 0xFF ) {");
-	    cfw("   psw_set_cy();");
-	    cfw("   if (((destination & 0x7F) + (source & 0x7F) + carryflag) < 0x80)");
-	    cfw("       psw_set_ov();");
-	    cfw("} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)");
-	    cfw("   psw_set_ov();");
-	    cfw("if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)");
-	    cfw("   psw_set_ac();");
-	    cfw("destination += source + carryflag;");
+	    cfw("destination = addition(destination, source, carryflag);");
 	}
 
 	# JC
