@@ -460,8 +460,10 @@ for ($i=0 ; $i< 256; $i++) {
 	    cfw("   if (((destination & 0x7F) + (source & 0x7F)) < 0x80)");
 	    cfw("       psw_set_ov();");
             # If no carry from bit 7, but caary from bit 6, set OV
-	    cfw("} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )  psw_set_ov();");
-	    cfw("if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)  psw_set_ac();");
+	    cfw("} else if (((destination & 0x7F) + (source & 0x7F)) > 0x7F )");
+	    cfw("   psw_set_ov();");
+	    cfw("if (((destination & 0x0F) + (source & 0x0F)) > 0x0F)");
+	    cfw("   psw_set_ac();");
 	    cfw("destination += source;");
 	}
 
@@ -484,6 +486,9 @@ for ($i=0 ; $i< 256; $i++) {
 	}
 
 	# ADDC
+        # ADD and ADDC function identically except that ADDC adds the value of
+        # operand as well as the value of the Carry flag whereas ADD does not
+        # add the Carry flag to the result.
 	if ($insttype[$i] == 17) {
 	    cfw("unsigned char carryflag = psw_read_cy();");
 	    cfw("psw_clr_cy();");
@@ -493,8 +498,10 @@ for ($i=0 ; $i< 256; $i++) {
 	    cfw("   psw_set_cy();");
 	    cfw("   if (((destination & 0x7F) + (source & 0x7F) + carryflag) < 0x80)");
 	    cfw("       psw_set_ov();");
-	    cfw("} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)  psw_set_ov();");
-	    cfw("if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)  psw_set_ac();");
+	    cfw("} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)");
+	    cfw("   psw_set_ov();");
+	    cfw("if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)");
+	    cfw("   psw_set_ac();");
 	    cfw("destination += source + carryflag;");
 	}
 
