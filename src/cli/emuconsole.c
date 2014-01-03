@@ -40,7 +40,7 @@ extern struct options_t options;
 static void
 Capitalize(char *buffer)
 {
-	int k;
+	size_t k;
 
 	for (k = 0; k < strlen(buffer); k++)
 		buffer[k] = toupper(buffer[k]);
@@ -50,7 +50,7 @@ Capitalize(char *buffer)
 static void
 RemoveSpaces(char *buffer)
 {
-	int k = 0;
+	size_t k = 0;
 
 	while ((k < strlen(buffer)) && isblank(buffer[k]))
 		k++;
