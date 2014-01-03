@@ -1,7 +1,7 @@
 # This file is processed by GNU automake to generate Makefile.in
 
 AM_CPPFLAGS = \
-	-Wall \
+	$(WARNINGCFLAGS) \
 	-I$(top_srcdir)
 
 noinst_LIBRARIES = libemu8051.a

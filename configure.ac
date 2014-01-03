@@ -22,8 +22,8 @@ AC_C_CONST
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 
-dnl Basic CFLAGS values
-CFLAGS="${CFLAGS} -Wall"
+dnl Basic warning CFLAGS values
+WARNINGCFLAGS="-Wall -Wextra -Wformat -Wformat-security"
 
 PKG_CHECK_MODULES(GLIB, [glib-2.0 >= 2.26.0])
 AC_SUBST(GLIB_CFLAGS)
@@ -82,7 +82,7 @@ AM_CONDITIONAL([USE_AS504HV],[test x"$AS504HV_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS504],[test x"$AS504_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS51],[test x"$ASEM51_CHECK" = x"yes"])
 
-AC_SUBST(CFLAGS)
+AC_SUBST(WARNINGCFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 
