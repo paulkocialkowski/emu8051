@@ -313,7 +313,7 @@ console_main(void)
 		Parameter1[0] = '\0';
 		Parameter2[0] = '\0';
 
-		printf(prompt);
+		printf("%s", prompt);
 		(void) getline(&line, &len, stdin);
 		Capitalize(line);
 		RemoveSpaces(line);
