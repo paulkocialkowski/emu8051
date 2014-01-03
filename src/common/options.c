@@ -44,11 +44,13 @@ static const char args_doc[] = "[FILENAME]";
 
 /* The options we understand. */
 static struct argp_option argp_options[] = {
-	{"debug", 'd', "level", 0,  "Produce debugging output" },
-	{"pram",  'p', "size",  0,  "Set program memory size" },
-	{"xram",  'x', "size",  0,  "Set external ram size (default is 1024)" },
-	{"stop",  's', "addr",  0,  "Automatically run program and stop at address" },
-	{ 0 }
+	{"debug", 'd', "level", 0,  "Produce debugging output", 0},
+	{"pram",  'p', "size",  0,  "Set program memory size", 0},
+	{"xram",  'x', "size",  0,
+	 "Set external ram size (default is 1024)", 0},
+	{"stop",  's', "addr",  0,
+	 "Automatically run program and stop at address", 0},
+	{NULL, 0, NULL, 0, NULL, 0}
 };
 
 struct options_t options;
@@ -162,7 +164,8 @@ parse_opt(int key, char *arg, struct argp_state *state)
 }
 
 /* Our argp parser. */
-static struct argp argp = { argp_options, parse_opt, args_doc, str_doc };
+static struct argp argp = {argp_options, parse_opt, args_doc, str_doc,
+			   NULL, NULL, NULL};
 
 /* Initializes the different options passed as arguments on the command line. */
 void
