@@ -495,7 +495,7 @@ for ($i=0 ; $i< 256; $i++) {
 	    cfw("       psw_set_ov();");
 	    cfw("} else if (((destination & 0x7F) + (source & 0x7F) + carryflag) > 0x7F)  psw_set_ov();");
 	    cfw("if (((destination & 0x0F) + (source & 0x0F) + carryflag) > 0x0F)  psw_set_ac();");
-	    cfw("destination += source;");
+	    cfw("destination += source + carryflag;");
 	}
 
 	# JC
