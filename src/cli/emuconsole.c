@@ -80,22 +80,12 @@ console_exec(char *Address, char *NumberInst)
 
 	log_info("Program executing...");
 
-	do {
-		cpu8051_Exec();
-		if (NbInst > 0)
-			NbInst--;
-	} while (!IsBreakpoint(cpu8051.pc) && !IsStoppoint(cpu8051.pc) &&
-		 (NbInst != 0) && !kbhit());
+	cpu8051_run(NbInst, kbhit);
+
 	if (kbhit()) {
 		(void) getch(); /* Flush key */
 		log_info("Caught break signal!");
 	}
-	if (NbInst == 0)
-		log_info("Number of instructions reached! Stopping!");
-	if (IsBreakpoint(cpu8051.pc))
-		log_info("Breakpoint hit at %.4X! Stopping!", cpu8051.pc);
-	if (IsStoppoint(cpu8051.pc))
-		log_info("Stoppoint hit at %.4X! Stopping!", cpu8051.pc);
 
 	ResetUnixKB();
 }

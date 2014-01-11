@@ -24,7 +24,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 
+#include "common.h"
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "memory.h"
@@ -317,6 +319,53 @@ cpu8051_Exec(void)
 		timers_check();
 		cpu8051.clock++;
 	}
+}
+
+/*
+ * Run specified number of instructions, or when encountering a
+ * breakpoint or a stop point.
+ * Set instr_count to -1 to disable running for a specific number
+ * of instructions.
+ *
+ * Returns TRUE when a breakpoint is encountered.
+ */
+int
+cpu8051_run(int instr_count, int (*interface_stop)(void))
+{
+	int stop = false;
+	int breakpoint_hit = false;
+
+	while (stop == false) {
+		cpu8051_Exec();
+
+		if (instr_count > 0)
+			instr_count--;
+
+		if (instr_count == 0) {
+			stop = true;
+			log_info("Number of instructions reached! Stopping!");
+		}
+
+		if (IsBreakpoint(cpu8051.pc)) {
+			stop = true;
+			breakpoint_hit = true;
+			log_info("Breakpoint hit at %.4X! Stopping!", cpu8051.pc);
+		}
+
+		if (IsStoppoint(cpu8051.pc)) {
+			stop = true;
+			log_info("Stoppoint hit at %.4X! Stopping!", cpu8051.pc);
+		}
+
+		if (interface_stop != NULL) {
+			if (interface_stop()) {
+				stop = true;
+				log_info("Caught break signal!");
+			}
+		}
+	}
+
+	return breakpoint_hit;
 }
 
 /*

@@ -80,6 +80,9 @@ cpu8051_init(void);
 void
 cpu8051_Exec(void);
 
+int
+cpu8051_run(int instr_count, int (*interface_stop)(void));
+
 void
 cpu8051_Reset(void);
 

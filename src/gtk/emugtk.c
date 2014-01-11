@@ -89,13 +89,14 @@ emugtk_stop_running()
 static gboolean
 emugtk_running(gpointer data)
 {
+	int breakpoint_hit;
+
 	(void) data; /* Remove compiler warning about unused variable. */
 
-	cpu8051_Exec();
-	if (IsBreakpoint(cpu8051.pc)) {
-		log_info("Breakpoint Hit");
+	breakpoint_hit = cpu8051_run(1, NULL);
+
+	if (breakpoint_hit)
 		emugtk_stop_running();
-	}
 
 	return TRUE;
 }
