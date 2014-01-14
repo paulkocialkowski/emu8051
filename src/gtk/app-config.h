@@ -52,7 +52,7 @@ struct app_config_t
 	int view_int_memory;
 	int view_sfr_memory;
 	int view_ext_memory;
-	int bits_per_row; /* 8 or 16 */
+	int bytes_per_row; /* 8 or 16 */
 };
 
 int

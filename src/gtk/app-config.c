@@ -62,7 +62,7 @@ app_config_init(void)
 	cfg->view_int_memory = 1;
 	cfg->view_sfr_memory = 1;
 	cfg->view_ext_memory = 1;
-	cfg->bits_per_row = 16; /* 8 or 16 */
+	cfg->bytes_per_row = 16; /* 8 or 16 */
 }
 
 static int
@@ -108,8 +108,8 @@ app_config_load_from_key_file(GKeyFile *kf)
 				    &cfg->view_sfr_memory);
 	app_config_key_file_get_int(kf, "view", "ext_memory",
 				    &cfg->view_ext_memory);
-	app_config_key_file_get_int(kf, "view", "bits_per_row",
-				    &cfg->bits_per_row);
+	app_config_key_file_get_int(kf, "view", "bytes_per_row",
+				    &cfg->bytes_per_row);
 }
 
 static char *
@@ -201,8 +201,8 @@ app_config_save(void)
 				       cfg->view_sfr_memory);
 		g_string_append_printf(buf, "ext_memory=%d\n",
 				       cfg->view_ext_memory);
-		g_string_append_printf(buf, "bits_per_row=%d\n",
-				       cfg->bits_per_row);
+		g_string_append_printf(buf, "bytes_per_row=%d\n",
+				       cfg->bytes_per_row);
 
 		file_path = app_config_get_file_path();
 

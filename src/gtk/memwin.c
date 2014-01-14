@@ -162,7 +162,7 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 
-	for (i = COL_DATA0; i < (COL_DATA0 + cfg->bits_per_row); i++) {
+	for (i = COL_DATA0; i < (COL_DATA0 + cfg->bytes_per_row); i++) {
 		char col_name[8];
 
 		/* Create new renderer for each editable cell. */
@@ -183,7 +183,7 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 				  GUINT_TO_POINTER(memory_id));
 
 		/* Use two digits only if DATA_ROWS > 10 */
-		if (cfg->bits_per_row < 10)
+		if (cfg->bytes_per_row < 10)
 			sprintf(col_name, "B%1d", i - COL_DATA0);
 		else
 			sprintf(col_name, "B%02d", i - COL_DATA0);
@@ -211,10 +211,10 @@ compute_data_rows(int memory_id)
 	u_int32_t *crc;
 
 	if (memory_id == INT_MEM_ID) {
-		data_rows = options.iram_size / cfg->bits_per_row;
+		data_rows = options.iram_size / cfg->bytes_per_row;
 		crc = crc_internal;
 	} else if (memory_id == EXT_MEM_ID) {
-		data_rows = options.xram_size / cfg->bits_per_row;
+		data_rows = options.xram_size / cfg->bytes_per_row;
 		crc = crc_external;
 	} else {
 		log_fail("Invalid memory type");
@@ -246,7 +246,7 @@ memwin_init(char *title, int memory_id)
 	GtkWidget *memlist;
 	int data_rows;
 
-	COL_ASCII = cfg->bits_per_row + 1;
+	COL_ASCII = cfg->bytes_per_row + 1;
 	N_COLUMNS = COL_ASCII + 1;
 
 	frame = gtk_frame_new(title);
@@ -320,7 +320,7 @@ memwin_refresh(int memory_id)
 
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
 
-	for (row = 0; row < data_rows; row++, Address += cfg->bits_per_row) {
+	for (row = 0; row < data_rows; row++, Address += cfg->bytes_per_row) {
 		int valid;
 		GtkTreeIter iter;
 		char str[4+1]; /* Maximum str len is for address column (4 digits) */
@@ -358,7 +358,7 @@ memwin_refresh(int memory_id)
 		 */
 		buf8 = memory_getbuf(memory_id, Address);
 		crc_new = crc32(0L, Z_NULL, 0);
-		crc_new = crc32(crc_new, buf8, cfg->bits_per_row);
+		crc_new = crc32(crc_new, buf8, cfg->bytes_per_row);
 
 		if (crc_new == crc_old[row]) {
 			continue;
@@ -372,7 +372,7 @@ memwin_refresh(int memory_id)
 
 		gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
 
-		for (col = 0; col < cfg->bits_per_row; col++) {
+		for (col = 0; col < cfg->bytes_per_row; col++) {
 			u_int8_t data;
 
 			data = memory_read8(memory_id, Address + col);

@@ -46,15 +46,15 @@ void toggle_layout(GtkWidget *widget, gpointer data)
 	}
 }
 
-void toggle_bits_per_row(GtkWidget *widget, gpointer data)
+void toggle_bytes_per_row(GtkWidget *widget, gpointer data)
 {
-	int bits_per_row;
+	int bytes_per_row;
 
-        bits_per_row = GPOINTER_TO_UINT(data);
+        bytes_per_row = GPOINTER_TO_UINT(data);
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
-		log_info("  Bits per row = %d", bits_per_row);
-		cfg->bits_per_row = bits_per_row;
+		log_info("  Bytes per row = %d", bytes_per_row);
+		cfg->bytes_per_row = bytes_per_row;
 		emugtk_restart_gui();
 	}
 }
@@ -135,7 +135,7 @@ view_add_layout_submenu(GtkWidget *parent)
 }
 
 void
-view_add_bits_per_row_submenu(GtkWidget *parent)
+view_add_bytes_per_row_submenu(GtkWidget *parent)
 {
 	GtkWidget *submenu;
 	GtkWidget *item;
@@ -145,21 +145,21 @@ view_add_bits_per_row_submenu(GtkWidget *parent)
 
 	submenu = gtk_menu_new();
 
-	item  = gtk_menu_item_new_with_label("Bits per row");
+	item  = gtk_menu_item_new_with_label("Bytes per row");
 
 	item1 = gtk_radio_menu_item_new_with_label(group, "8");
 	group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(item1));
 	item2 = gtk_radio_menu_item_new_with_label(group, "16");
 
-	if (cfg->bits_per_row == 8)
+	if (cfg->bytes_per_row == 8)
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item1), TRUE);
 	else
 		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item2), TRUE);
 
 	g_signal_connect(G_OBJECT(item1), "activate",
-			 G_CALLBACK(toggle_bits_per_row), (gpointer) 8);
+			 G_CALLBACK(toggle_bytes_per_row), (gpointer) 8);
 	g_signal_connect(G_OBJECT(item2), "activate",
-			 G_CALLBACK(toggle_bits_per_row), (gpointer) 16);
+			 G_CALLBACK(toggle_bytes_per_row), (gpointer) 16);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(item), submenu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(submenu), item1);
@@ -206,8 +206,8 @@ ViewAddMenu(GtkWidget *menu_bar)
 
 	AddMenuSeparator(menu);
 
-	/* Add bits per row submenu */
-	view_add_bits_per_row_submenu(menu);
+	/* Add bytes per row submenu */
+	view_add_bytes_per_row_submenu(menu);
 
 	gtk_menu_item_set_submenu(GTK_MENU_ITEM(view), menu);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), view);
