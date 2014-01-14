@@ -46,6 +46,9 @@ enum mem_id_t {
 void
 memory_init(void);
 
+u_int8_t *
+memory_getbuf(enum mem_id_t id, unsigned long address);
+
 void
 memory_clear(enum mem_id_t id);
 

@@ -82,6 +82,21 @@ AM_CONDITIONAL([USE_AS504HV],[test x"$AS504HV_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS504],[test x"$AS504_CHECK" = x"yes"])
 AM_CONDITIONAL([USE_AS51],[test x"$ASEM51_CHECK" = x"yes"])
 
+dnl zlib required for its crc32 function
+ac_have_zlib=no
+
+PKG_CHECK_MODULES([zlib], [zlib > 1.2.1],
+		  [AC_CHECK_LIB([z], [crc32],
+				[ac_have_zlib=yes],
+				[ac_have_zlib=no])])
+
+if test x"$ac_have_zlib" = x"yes" ; then
+    ZLIB_LIBS='-lz'
+    AC_SUBST(ZLIB_LIBS)
+else
+    AC_MSG_ERROR([Please install zlib and zlib-devel packages])
+fi
+
 AC_SUBST(WARNINGCFLAGS)
 AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)

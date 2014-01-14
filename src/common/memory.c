@@ -75,6 +75,12 @@ memory_init(void)
 	}
 }
 
+u_int8_t *
+memory_getbuf(enum mem_id_t id, unsigned long address)
+{
+	return &mem_infos[id].buf[address];
+}
+
 void
 memory_clear(enum mem_id_t id)
 {

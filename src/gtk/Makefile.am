@@ -15,6 +15,7 @@ AM_CPPFLAGS = \
 LDADD = \
     $(top_builddir)/src/common/libemu8051.a \
     @GTK_LIBS@ \
+    @ZLIB_LIBS@ \
     @GLIB_LIBS@
 
 bin_PROGRAMS = emu8051-gtk
