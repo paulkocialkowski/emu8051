@@ -24,6 +24,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdbool.h>
 #include <ctype.h> /* For isprint */
 #include <zlib.h> /* For crc32 routine */
 
@@ -49,14 +50,17 @@ enum
 	COL_DATA0,
 };
 
-static GtkWidget *memlist_internal;
-static GtkWidget *memlist_external;
+/* Contains informations for the two different memory window types. */
+struct memwin_infos_t {
+	GtkWidget *memlist;
+	int data_rows;
+	u_int32_t *crc;
+	int crc_init;
+};
 
-static int data_rows_internal;
-static int data_rows_external;
-
-static u_int32_t *crc_internal;
-static u_int32_t *crc_external;
+static struct memwin_infos_t memwin_infos_internal;
+static struct memwin_infos_t memwin_infos_external;
+static struct memwin_infos_t *memwin_infos;
 
 /* Creating a model */
 static GtkListStore *
@@ -204,37 +208,35 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 	gtk_tree_view_append_column(GTK_TREE_VIEW(listview), column);
 }
 
-static int
-compute_data_rows(int memory_id)
+static void
+memwin_infos_select(int memory_id)
 {
-	int data_rows;
-	u_int32_t *crc;
-
 	if (memory_id == INT_MEM_ID) {
-		data_rows = options.iram_size / cfg->bytes_per_row;
-		crc = crc_internal;
+		log_debug("memory ID = INTERNAL");
+		memwin_infos = &memwin_infos_internal;
 	} else if (memory_id == EXT_MEM_ID) {
-		data_rows = options.xram_size / cfg->bytes_per_row;
-		crc = crc_external;
+		log_debug("memory ID = EXTERNAL");
+		memwin_infos = &memwin_infos_external;
 	} else {
 		log_fail("Invalid memory type");
 		exit(1);
 	}
+}
 
-	if (crc)
-		free(crc);
-
-	crc = malloc(data_rows * sizeof(u_int32_t));
-
+static void
+compute_data_rows(int memory_id)
+{
 	if (memory_id == INT_MEM_ID) {
-		data_rows_internal = data_rows;
-		crc_internal = crc;
+		memwin_infos->data_rows = options.iram_size / cfg->bytes_per_row;
 	} else if (memory_id == EXT_MEM_ID) {
-		data_rows_external = data_rows;
-		crc_external = crc;
+		memwin_infos->data_rows = options.xram_size / cfg->bytes_per_row;
 	}
 
-	return data_rows;
+	if (memwin_infos->crc)
+		free(memwin_infos->crc);
+
+	memwin_infos->crc = malloc(memwin_infos->data_rows * sizeof(u_int32_t));
+	memwin_infos->crc_init = false;
 }
 
 GtkWidget *
@@ -243,8 +245,6 @@ memwin_init(char *title, int memory_id)
 	GtkWidget *frame;
 	GtkWidget *scrollwin;
 	GtkListStore *store;
-	GtkWidget *memlist;
-	int data_rows;
 
 	COL_ASCII = cfg->bytes_per_row + 1;
 	N_COLUMNS = COL_ASCII + 1;
@@ -262,26 +262,18 @@ memwin_init(char *title, int memory_id)
 
 	gtk_container_add(GTK_CONTAINER(frame), scrollwin);
 
-	data_rows = compute_data_rows(memory_id);
+	memwin_infos_select(memory_id);
+	compute_data_rows(memory_id);
 
 	/* Creating a model */
-	store = memwin_init_store(data_rows);
+	store = memwin_init_store(memwin_infos->data_rows);
 
 	/* Creating the view component */
-	memlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(memlist), TRUE);
-	gtk_container_add(GTK_CONTAINER(scrollwin), memlist);
+	memwin_infos->memlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
+	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(memwin_infos->memlist), TRUE);
+	gtk_container_add(GTK_CONTAINER(scrollwin), memwin_infos->memlist);
 
-	if (memory_id == INT_MEM_ID) {
-		memlist_internal = memlist;
-	} else if (memory_id == EXT_MEM_ID) {
-		memlist_external = memlist;
-	} else {
-		log_fail("Invalid memory type");
-		exit(1);
-	}
-
-	memwin_init_columns(memlist, memory_id);
+	memwin_init_columns(memwin_infos->memlist, memory_id);
 
 	/*
 	 * The tree view has acquired its own reference to the model, so we can
@@ -293,42 +285,55 @@ memwin_init(char *title, int memory_id)
 	return frame;
 }
 
+/*
+ * Use CRC to detect which rows have changed. This is only to
+ * improve performance when using stepping mode, as we then only update
+ * rows which have been modified.
+ */
+static int
+memwin_row_changed(int memory_id, int row, unsigned int address)
+{
+	int row_changed;
+	u_int32_t crc_new = 0;
+	u_int8_t *buf8;
+
+	buf8 = memory_getbuf(memory_id, address);
+	crc_new = crc32(0L, Z_NULL, 0);
+	crc_new = crc32(crc_new, buf8, cfg->bytes_per_row);
+
+	if ((memwin_infos->crc_init != false) &&
+	    (crc_new == memwin_infos->crc[row])) {
+		row_changed = false;
+	} else {
+		memwin_infos->crc_init = true;
+		memwin_infos->crc[row] = crc_new;
+		log_debug("    Row %02d value(s) change", row);
+		row_changed = true;
+	}
+
+	return row_changed;
+}
+
 /* Dump internal or external memory. */
 void
 memwin_refresh(int memory_id)
 {
 	int row;
-	unsigned int Address;
+	unsigned int Address = 0;
 	GtkListStore *store;
-	GtkWidget *memlist;
-	int data_rows;
 
-	Address = 0;
+	memwin_infos_select(memory_id);
 
-	if (memory_id == INT_MEM_ID) {
-		log_debug("memory ID = INTERNAL");
-		memlist = memlist_internal;
-		data_rows = data_rows_internal;
-	} else if (memory_id == EXT_MEM_ID) {
-		log_debug("memory ID = EXTERNAL");
-		memlist = memlist_external;
-		data_rows = data_rows_external;
-	} else {
-		log_fail("Invalid memory type");
-		exit(1);
-	}
+	store = GTK_LIST_STORE(gtk_tree_view_get_model(
+				       GTK_TREE_VIEW(memwin_infos->memlist)));
 
-	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(memlist)));
-
-	for (row = 0; row < data_rows; row++, Address += cfg->bytes_per_row) {
+	for (row = 0; row < memwin_infos->data_rows;
+	     row++, Address += cfg->bytes_per_row) {
 		int valid;
 		GtkTreeIter iter;
 		char str[4+1]; /* Maximum str len is for address column (4 digits) */
 		char ascii_str[16+1]; /* Maximum 16 data columns. */
 		int col;
-		u_int32_t crc_new = 0;
-		u_int32_t *crc_old = NULL;
-		u_int8_t *buf8;
 
 		if (row == 0) {
 			/* Get first row in list store */
@@ -345,50 +350,31 @@ memwin_refresh(int memory_id)
 			return;
 		}
 
-		if (memory_id == INT_MEM_ID) {
-			crc_old = crc_internal;
-		} else if (memory_id == EXT_MEM_ID) {
-			crc_old = crc_external;
+		/* Only update row if it has been modified. */
+		if (memwin_row_changed(memory_id, row, Address)) {
+			/* Display base address. */
+			int2asciihex(Address, str, 4);
+
+			gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
+
+			for (col = 0; col < cfg->bytes_per_row; col++) {
+				u_int8_t data;
+
+				data = memory_read8(memory_id, Address + col);
+
+				/* Display hex data */
+				int2asciihex(data, str, 2);
+
+				gtk_list_store_set(store, &iter, col + 1, str, -1);
+
+				/* Append to ASCII string (if applicable). */
+				if (!isprint(data))
+					data = '.';
+				sprintf(&ascii_str[col], "%c", data);
+			}
+
+			/* Display ASCII characters. */
+			gtk_list_store_set(store, &iter, COL_ASCII, ascii_str, -1);
 		}
-
-		/*
-		 * Use CRC to detect which rows have changed. This is only to
-		 * improve performance when using stepping mode, as we then only update
-		 * rows which have been modified.
-		 */
-		buf8 = memory_getbuf(memory_id, Address);
-		crc_new = crc32(0L, Z_NULL, 0);
-		crc_new = crc32(crc_new, buf8, cfg->bytes_per_row);
-
-		if (crc_new == crc_old[row]) {
-			continue;
-		} else {
-			crc_old[row] = crc_new;
-			log_debug("    Row %02d value(s) change", row);
-		}
-
-		/* Display base address. */
-		int2asciihex(Address, str, 4);
-
-		gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
-
-		for (col = 0; col < cfg->bytes_per_row; col++) {
-			u_int8_t data;
-
-			data = memory_read8(memory_id, Address + col);
-
-			/* Display hex data */
-			int2asciihex(data, str, 2);
-
-			gtk_list_store_set(store, &iter, col + 1, str, -1);
-
-			/* Append to ASCII string (if applicable). */
-			if (!isprint(data))
-				data = '.';
-			sprintf(&ascii_str[col], "%c", data);
-		}
-
-		/* Display ASCII characters. */
-		gtk_list_store_set(store, &iter, COL_ASCII, ascii_str, -1);
 	}
 }
