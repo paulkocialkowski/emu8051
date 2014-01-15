@@ -1,3 +1,51 @@
+
+2014-01-14: emu8051-2.0.0 has been released
+
+        Fix error with ADDC instruction: the carry flag was not added to the
+        result.
+
+        Fix bug when processing interrupts
+
+        Fix bug with timers mode 0 (8 bits with 5-bit prescaler)
+
+        Fix error with timer1 being written to timer0
+
+        Fix error with EM command in CLI mode
+
+        Add option to automatically run and stop CLI emulator for
+        regression testing
+
+        Add parity bit update each instruction cycle
+
+        Fix bug with MOV DPTR,#data16 instruction
+
+        Fix bugs with ORL and ANL instructions
+
+        Fix error with ADD instruction and AC bit
+
+        Fix error with JMP @A,DPTR instruction
+
+        Fix error with RETI instruction
+
+        Add Timers 0 and 1 to SFR window
+
+        Add option to specify memory sizes
+
+        Add live option to change windows layout (8 or 16 bytes width)
+
+        Add external memory window
+
+        Memory and register windows values can now be edited
+
+        Save paned positions and main window size to config file
+        Add support for saving UI settings to config file
+
+        Replace fixed frames with scrollable and resizable windows
+
+        Update code to compile with GTK3
+
+        See the file 'ChangeLog' for further details.
+
 2013-09-07: emu8051-1.1.2 has been released
         Fix error with CJNE instruction.
 

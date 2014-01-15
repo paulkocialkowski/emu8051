@@ -1,8 +1,23 @@
+Original authors of emu8051:
 
-Hugo Villeneuve
+  Hugo Villeneuve
+  Jonathan St-AndrÃ©
+  Pascal Fecteau
+  Jimmy Ringuette
 
-Jonathan St-André
 
-Pascal Fecteau
+Actual maintainer:
 
-Jimmy Ringuette
+  Hugo Villeneuve
+
+
+Debian package maintainer:
+
+  Bhavani Shankar
+
+
+Additional contributors / bugs fixing:
+
+  Anthony Liu
+  Pierre Ferrari
+  Tobias Diedrich

@@ -1,7 +1,7 @@
 # configure.ac -- Process this file with autoconf to produce configure
 
 dnl Initialization stuff.
-AC_INIT([emu8051], [1.1.2], [hugo@hugovil.com], [emu8051],
+AC_INIT([emu8051], [2.0.0], [hugo@hugovil.com], [emu8051],
 	[http://www.hugovil.com/fr/emu8051/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/common/cpu8051.c)
