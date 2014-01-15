@@ -1,5 +1,7 @@
 ## Makefile.am -- Process this file with automake to produce Makefile.in
 
+.PHONY: changelog
+
 AUTOMAKE_OPTIONS = gnu
 
 SUBDIRS = src/common src/cli src/gtk data doc tests
@@ -15,10 +17,20 @@ CLEANFILES = *~
 DISTCLEANFILES = .deps/*.P
 
 MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in \
-                       stamp-h.in $(ac_aux_dir)/depcomp \
+                       stamp-h.in ChangeLog $(ac_aux_dir)/depcomp \
                        $(ac_aux_dir)/install-sh $(ac_aux_dir)/missing \
                        $(ac_aux_dir)/mkinstalldirs $(ac_aux_dir)/config.guess \
                        $(ac_aux_dir)/config.sub $(ac_aux_dir)/ltmain.sh \
                        $(ac_aux_dir)/compile \
                        $(ac_aux_dir)/test-driver \
                        $(ac_aux_dir)/ar-lib
+
+changelog:
+	@if test -d $(srcdir)/.git; then          \
+	  $(srcdir)/build-aux/gitlog-to-changelog \
+	    --format='%s%n%n%b%n'                 \
+	    --no-cluster                          \
+	    --strip-tab                           \
+	    --strip-cherry-pick                   \
+	    >ChangeLog;                           \
+	fi
