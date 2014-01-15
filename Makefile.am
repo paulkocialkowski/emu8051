@@ -7,8 +7,7 @@ AUTOMAKE_OPTIONS = gnu
 SUBDIRS = src/common src/cli src/gtk data doc tests
 
 ## We want these in the dist tarball
-EXTRA_DIST = autogen.sh \
-             pixmaps
+EXTRA_DIST = pixmaps
 
 ACLOCAL = aclocal -I $(ac_aux_dir)
 
