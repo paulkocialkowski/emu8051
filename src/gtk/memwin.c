@@ -246,6 +246,8 @@ memwin_init(char *title, int memory_id)
 	GtkWidget *scrollwin;
 	GtkListStore *store;
 
+	log_debug("memwin_init");
+
 	COL_ASCII = cfg->bytes_per_row + 1;
 	N_COLUMNS = COL_ASCII + 1;
 
@@ -305,9 +307,8 @@ memwin_row_changed(int memory_id, int row, unsigned int address)
 	    (crc_new == memwin_infos->crc[row])) {
 		row_changed = false;
 	} else {
-		memwin_infos->crc_init = true;
 		memwin_infos->crc[row] = crc_new;
-		log_debug("    Row %02d value(s) change", row);
+		log_debug("  Row %02d value(s) change", row);
 		row_changed = true;
 	}
 
@@ -321,6 +322,8 @@ memwin_refresh(int memory_id)
 	int row;
 	unsigned int Address = 0;
 	GtkListStore *store;
+
+	log_debug("memwin_refresh");
 
 	memwin_infos_select(memory_id);
 
@@ -377,4 +380,7 @@ memwin_refresh(int memory_id)
 			gtk_list_store_set(store, &iter, COL_ASCII, ascii_str, -1);
 		}
 	}
+
+	/* At this point we know all rows crc have been initialized. */
+	memwin_infos->crc_init = true;
 }
