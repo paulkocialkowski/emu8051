@@ -42,7 +42,10 @@ void toggle_layout(GtkWidget *widget, gpointer data)
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  Switching to layout %d", id);
 		cfg->layout = id;
-		emugtk_restart_gui();
+
+		ShowMessage("Notice",
+			    "You must restart for the changes to take effect",
+			    GTK_JUSTIFY_LEFT, MESSAGE_DIALOG_NORMAL_FONT);
 	}
 }
 

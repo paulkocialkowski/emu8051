@@ -51,7 +51,6 @@
 
 static int running;
 static int running_function_tag;
-static int restart_gui = true;
 
 static int emugtk_window_init_complete;
 static GtkWidget *vpaned1;
@@ -321,21 +320,9 @@ main_paned_notify_event(GtkWindow *window, GdkEvent *event, gpointer data)
 }
 
 void
-emugtk_restart_gui(void)
-{
-	emugtk_stop_running();
-
-	gtk_widget_destroy(mainwin);
-
-	restart_gui = true;
-}
-
-void
 emugtk_quit_gui(void)
 {
 	gtk_main_quit();
-
-	restart_gui = false;
 }
 
 static void
@@ -612,13 +599,10 @@ main(int argc, char **argv)
 
 	cpu8051_Reset();
 
-	while (restart_gui == true) {
-		log_info("Init GUI");
-
-		emugtk_window_init();
-		emugtk_UpdateDisplay();
-		gtk_main();
-	}
+	log_info("Init GUI");
+	emugtk_window_init();
+	emugtk_UpdateDisplay();
+	gtk_main();
 
 	log_info("Terminate");
 

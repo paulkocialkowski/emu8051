@@ -34,9 +34,6 @@ void
 emugtk_UpdateDisplay(void);
 
 void
-emugtk_restart_gui(void);
-
-void
 emugtk_quit_gui(void);
 
 void
