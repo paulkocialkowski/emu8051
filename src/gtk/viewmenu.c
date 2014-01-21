@@ -73,20 +73,6 @@ void toggle_int_memory(GtkWidget *widget, gpointer data)
 	emugtk_restart_gui();
 }
 
-void toggle_sfr_memory(GtkWidget *widget, gpointer data)
-{
-	(void) data; /* Remove compiler warning about unused variables. */
-
-	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
-		log_info("  View SFR memory");
-		cfg->view_sfr_memory = 1;
-	} else {
-		cfg->view_sfr_memory = 0;
-	}
-
-	emugtk_restart_gui();
-}
-
 void toggle_ext_memory(GtkWidget *widget, gpointer data)
 {
 	(void) data; /* Remove compiler warning about unused variables. */
@@ -184,13 +170,6 @@ ViewAddMenu(GtkWidget *menu_bar)
 				       cfg->view_int_memory);
 	g_signal_connect(G_OBJECT(item), "activate",
 			 G_CALLBACK(toggle_int_memory), NULL);
-
-	item = gtk_check_menu_item_new_with_label("SFR Memory");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item),
-				       cfg->view_sfr_memory);
-	g_signal_connect(G_OBJECT(item), "activate",
-			 G_CALLBACK(toggle_sfr_memory), NULL);
 
 	item = gtk_check_menu_item_new_with_label("External Memory");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);

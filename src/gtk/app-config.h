@@ -50,7 +50,6 @@ struct app_config_t
 	/* View menu options */
 	int layout; /* UI Layout 1 or 2 */
 	int view_int_memory;
-	int view_sfr_memory;
 	int view_ext_memory;
 	int bytes_per_row; /* 8 or 16 */
 };
