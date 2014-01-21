@@ -53,6 +53,11 @@ static int running;
 static int running_function_tag;
 static int restart_gui = true;
 
+static int emugtk_window_init_complete;
+static GtkWidget *vpaned1;
+static GtkWidget *scrollwin_int;
+static GtkWidget *scrollwin_ext;
+
 GtkWidget *mainwin;
 
 extern struct app_config_t *cfg;
@@ -66,10 +71,10 @@ emugtk_UpdateDisplay(void)
 	pgmwin_refresh();
 	pswwin_refresh();
 
-	if (cfg->view_int_memory)
+	if (cfg->view_int_memory && scrollwin_int)
 		memwin_refresh(INT_MEM_ID);
 
-	if (cfg->view_ext_memory)
+	if (cfg->view_ext_memory && scrollwin_ext)
 		memwin_refresh(EXT_MEM_ID);
 }
 
@@ -333,36 +338,88 @@ emugtk_quit_gui(void)
 	restart_gui = false;
 }
 
+static void
+emugtk_show_memory_paned(void)
+{
+	gtk_widget_show_all(mainwin);
+	emugtk_UpdateDisplay();
+}
+
+void
+emugtk_create_int_memory_paned(void)
+{
+	scrollwin_int = memwin_init("Internal memory (IRAM)",
+				    INT_MEM_ID);
+	gtk_paned_pack1(GTK_PANED(vpaned1), scrollwin_int,
+			FALSE, FALSE);
+	if (emugtk_window_init_complete == true)
+		emugtk_show_memory_paned();
+}
+
+void
+emugtk_destroy_int_memory_paned(void)
+{
+	if (scrollwin_int == NULL)
+		return;
+
+	gtk_widget_destroy(scrollwin_int);
+	scrollwin_int = NULL;
+}
+
+void
+emugtk_create_ext_memory_paned(void)
+{
+	scrollwin_ext = memwin_init("External memory (XRAM)",
+				    EXT_MEM_ID);
+
+	gtk_paned_pack2(GTK_PANED(vpaned1), scrollwin_ext,
+			TRUE, FALSE);
+
+	if (emugtk_window_init_complete == true)
+		emugtk_show_memory_paned();
+}
+
+void
+emugtk_destroy_ext_memory_paned(void)
+{
+	if (scrollwin_ext == NULL)
+		return;
+
+	gtk_widget_destroy(scrollwin_ext);
+	scrollwin_ext = NULL;
+}
+
+void
+emugtk_recreate_memory_paned(void)
+{
+	if (cfg->view_int_memory) {
+		emugtk_destroy_int_memory_paned();
+		emugtk_create_int_memory_paned();
+	}
+
+	if (cfg->view_ext_memory) {
+		emugtk_destroy_ext_memory_paned();
+		emugtk_create_ext_memory_paned();
+	}
+
+	if (emugtk_window_init_complete == true)
+		emugtk_show_memory_paned();
+}
+
 static GtkWidget *
 emugtk_create_memory_paned(void)
 {
-	GtkWidget *vpaned;
-	GtkWidget *scrollwin;
-
 	/* Create vpaned (memory windows) only if necessary. */
 	if (cfg->view_int_memory || cfg->view_ext_memory) {
-		vpaned = gtk_vpaned_new();
-		gtk_paned_set_position(GTK_PANED(vpaned), cfg->vpane_pos);
-		g_signal_connect(G_OBJECT(vpaned), "notify::position",
-				 G_CALLBACK(vpaned_notify_event), vpaned);
+		vpaned1 = gtk_vpaned_new();
 
-		/* Internal memory dump frame. */
-		if (cfg->view_int_memory) {
-			scrollwin = memwin_init("Internal memory (IRAM)",
-						INT_MEM_ID);
-			gtk_paned_pack1(GTK_PANED(vpaned), scrollwin,
-					FALSE, FALSE);
-		}
+		gtk_paned_set_position(GTK_PANED(vpaned1), cfg->vpane_pos);
+		g_signal_connect(G_OBJECT(vpaned1), "notify::position",
+				 G_CALLBACK(vpaned_notify_event), vpaned1);
 
-		/* External memory dump frame. */
-		if (cfg->view_ext_memory) {
-			scrollwin = memwin_init("External memory (XRAM)",
-						EXT_MEM_ID);
-			gtk_paned_pack2(GTK_PANED(vpaned), scrollwin,
-					TRUE, FALSE);
-		}
+		emugtk_recreate_memory_paned();
 
-		return vpaned;
+		return vpaned1;
 	} else
 		return NULL;
 }
@@ -439,6 +496,8 @@ emugtk_window_init(void)
 	GtkWidget *vpaned;
 	GtkWidget *main_paned;
 
+	emugtk_window_init_complete = false;
+
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
 	gtk_window_set_default_size(GTK_WINDOW(mainwin),
@@ -510,6 +569,8 @@ emugtk_window_init(void)
 	g_signal_connect(mainwin, "destroy", G_CALLBACK(emugtk_quit_gui), NULL);
 
 	gtk_widget_show_all(mainwin);
+
+	emugtk_window_init_complete = true;
 }
 
 void

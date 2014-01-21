@@ -55,7 +55,9 @@ void toggle_bytes_per_row(GtkWidget *widget, gpointer data)
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  Bytes per row = %d", bytes_per_row);
 		cfg->bytes_per_row = bytes_per_row;
-		emugtk_restart_gui();
+		emugtk_destroy_int_memory_paned();
+		emugtk_destroy_ext_memory_paned();
+		emugtk_recreate_memory_paned();
 	}
 }
 
@@ -66,11 +68,11 @@ void toggle_int_memory(GtkWidget *widget, gpointer data)
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  View internal memory");
 		cfg->view_int_memory = 1;
+		emugtk_create_int_memory_paned();
 	} else {
 		cfg->view_int_memory = 0;
+		emugtk_destroy_int_memory_paned();
 	}
-
-	emugtk_restart_gui();
 }
 
 void toggle_ext_memory(GtkWidget *widget, gpointer data)
@@ -80,11 +82,11 @@ void toggle_ext_memory(GtkWidget *widget, gpointer data)
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  View external memory");
 		cfg->view_ext_memory = 1;
+		emugtk_create_ext_memory_paned();
 	} else {
 		cfg->view_ext_memory = 0;
+		emugtk_destroy_ext_memory_paned();
 	}
-
-	emugtk_restart_gui();
 }
 
 void

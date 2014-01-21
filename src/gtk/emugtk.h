@@ -39,4 +39,19 @@ emugtk_restart_gui(void);
 void
 emugtk_quit_gui(void);
 
+void
+emugtk_create_int_memory_paned(void);
+
+void
+emugtk_destroy_int_memory_paned(void);
+
+void
+emugtk_create_ext_memory_paned(void);
+
+void
+emugtk_destroy_ext_memory_paned(void);
+
+void
+emugtk_recreate_memory_paned(void);
+
 #endif /* EMUGTK_H */
