@@ -1,20 +1,54 @@
                   Emu8051
 
-Emu8051 is a simulator/emulator for the Intel 8051 family of microcontrollers. It is
-available in two versions: a console (text-only) version and a graphical version (using
-the GTK+ toolkit). This is an Open-Source project. The program can load Intel HEX files.
-Once loaded, a program can be run (it will run indefinitely or until a breakpoint is
-encountered). You can also use the STEP button to execute only a single instruction at
-a time and see the effects on registers and memory. It is written in C++, and uses Perl
-scripts to generate automatically C++ functions corresponding to each assembly instruction
-of the 8051 microcontroller.
-
-Project website:
-	http://www.hugovil.com/en/emu8051
-
-This program was tested on the following systems:
-	"Linux From Scratch 4.0"
-	
-For installation instructions, see the INSTALL file.
+Emu8051 is a simulator/emulator for the Intel 8051 family of microcontrollers.
+It is available in two versions: a console (text-only) version and a graphical
+version (using the GTK+ toolkit). This is an Open-Source project. The program
+can load Intel HEX files. Once loaded, a program can be run (it will run
+indefinitely or until a breakpoint is encountered). You can also use the STEP
+button to execute only a single instruction at a time and see the effects on
+registers and memory. It is written in C, and uses Perl scripts to generate
+automatically C functions corresponding to each assembly instruction of the
+8051 microcontroller.
 
 For recent project news, see the NEWS file.
+
+
+Project website:
+
+  http://www.hugovil.com/en/emu8051
+
+
+Installation:
+
+  For installation instructions, see the INSTALL file.
+
+
+Regression testing:
+
+  Emu8051 now supports automatic regression tests. This feature is mainly for
+  developers who want to make sure that whatever features they implement or
+  whatever bug they fix don't create additional or new problems.
+
+  To support that feature, you must have a compatible 8051 assembler installed.
+  At the moment, these two assemblers are supported:
+
+    as504   -- http://www.vanwal.nl/as504
+    ASEM-51 -- http://plit.de/asem-51
+
+  I recommend to compile as504 with this patch to support option "-O":
+    http://www.hugovil.com/repository/hvlinux/patches/as504-add-output-file-option.patch
+  as504 doesn't come with an installation script so compile and install it with:
+    $> make
+    $> sudo install as504 /usr/local/bin
+
+  Then reconfigure emu8051 so that as504 can be detected and regression testing
+  enabled.
+  You can run regression testing by issuing:
+    $> make check
+
+  Adding a new test case implies adding a new asm source file inside the tests
+  subdirectory and adding its name to two variables in tests/Makefile.am.
+
+
+This program was tested on the following systems:
+  "Linux From Scratch 4.0"
