@@ -21,6 +21,10 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H 1
 
+#define PACKAGE_COPYRIGHT "(c) Hugo Villeneuve"
+
+#define PACKAGE_DESCRIPTION "Emulator for 8051 family microcontrollers"
+
 #define COMMAND_LINE_OPTIONS \
   "Usage: " PACKAGE " [OPTION]... [FILENAME]\n" \
   "Simulator/emulator for 8051 family microcontrollers.\n\n" \
@@ -38,8 +42,5 @@ struct options_t {
 
 void
 parse_command_line_options(int argc, char *argv[]);
-
-const char *
-get_package_description(void);
 
 #endif /* OPTIONS_H */

@@ -39,8 +39,6 @@
 #include "messagebox.h"
 #include "helpmenu.h"
 
-#define PACKAGE_COPYRIGHT "(c) Hugo Villeneuve"
-
 static void
 HelpCommandsEvent(gchar *string)
 {
@@ -87,7 +85,7 @@ HelpAboutEvent(GtkWidget *widget, gpointer data)
 		"title", "About Dialog",
 		"version", PACKAGE_VERSION,
 		"logo-icon-name", PACKAGE_TARNAME,
-		"comments", get_package_description(),
+		"comments", PACKAGE_DESCRIPTION,
 		"authors", authors,
 		"website", PACKAGE_URL,
 		"copyright", PACKAGE_COPYRIGHT,

@@ -31,15 +31,16 @@
 const char *argp_program_version = PACKAGE_VERSION;
 const char *argp_program_bug_address = PACKAGE_BUGREPORT;
 
-#define PACKAGE_DOC_LENGTH 128
+/*
+ * Program documentation.
+ * Adjacent string constants are concatenated as one string constant.
+ */
+static const char str_doc[] = PACKAGE_NAME " -- " PACKAGE_DESCRIPTION;
 
-/* Program documentation. */
-static char str_doc[PACKAGE_DOC_LENGTH];
-
-/* How many arguments we accept. */
+/* How many non-option arguments we accept. */
 #define ARGS_COUNT 1
 
-/* A description of the arguments we accept. */
+/* A description of the non-option arguments we accept. */
 static const char args_doc[] = "[FILENAME]";
 
 /* The options we understand. */
@@ -54,12 +55,6 @@ static struct argp_option argp_options[] = {
 };
 
 struct options_t options;
-
-const char *
-get_package_description(void)
-{
-	return "Emulator for 8051 family microcontrollers";
-}
 
 static void
 decode_debug_option(char *arg, struct argp_state *state)
@@ -171,9 +166,6 @@ static struct argp argp = {argp_options, parse_opt, args_doc, str_doc,
 void
 parse_command_line_options(int argc, char *argv[])
 {
-	snprintf(str_doc, PACKAGE_DOC_LENGTH, "%s -- %s", PACKAGE_NAME,
-		 get_package_description());
-
 	/* Setting default values. */
 	options.filename = NULL;
 	options.pram_size = PGM_MEM_DEFAULT_SIZE;
