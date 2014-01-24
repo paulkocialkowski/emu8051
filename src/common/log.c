@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "options.h"
+#include "log.h"
 
 #define PREFIX_PACKAGE_NAME 1
 #define ADD_LINEFEED        1
