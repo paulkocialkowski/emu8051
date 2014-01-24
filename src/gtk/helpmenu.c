@@ -40,15 +40,6 @@
 #include "helpmenu.h"
 
 static void
-HelpCommandsEvent(gchar *string)
-{
-	(void) string; /* Remove compiler warning about unused variables. */
-
-	ShowMessage("Command Line Options", COMMAND_LINE_OPTIONS,
-		    GTK_JUSTIFY_LEFT, MESSAGE_DIALOG_FIXED_FONT);
-}
-
-static void
 HelpAboutEvent(GtkWidget *widget, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
@@ -101,14 +92,6 @@ HelpAddMenu(GtkWidget *menu_bar)
 	GtkWidget *menu;
 
 	menu = gtk_menu_new();
-
-	/* Create the 'Help Command Line Options' item. */
-	item = gtk_menu_item_new_with_label("Command Line Options");
-	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
-	/* Attach the callback functions to the activate signal. */
-	g_signal_connect(item, "activate", G_CALLBACK(HelpCommandsEvent), NULL);
-
-	AddMenuSeparator(menu);
 
 	/* Create the 'Help About' item. */
 	item = gtk_menu_item_new_with_label("About " PACKAGE);

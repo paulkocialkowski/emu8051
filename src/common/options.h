@@ -25,12 +25,6 @@
 
 #define PACKAGE_DESCRIPTION "Emulator for 8051 family microcontrollers"
 
-#define COMMAND_LINE_OPTIONS \
-  "Usage: " PACKAGE " [OPTION]... [FILENAME]\n" \
-  "Simulator/emulator for 8051 family microcontrollers.\n\n" \
-  "  -h                    display this help and exit\n" \
-  "  -version              display version information and exit\n"
-
 struct options_t {
 	int pram_size; /* Maximum program memory size. */
 	int iram_size; /* Maximum internal ram size. */
