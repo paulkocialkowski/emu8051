@@ -1,7 +1,8 @@
 /*
- * timers.h
+ * timerwin.h
  *
- * Copyright (C) 2013 Hugo Villeneuve <hugo@hugovil.com>
+ * Copyright (C) 1999 Jonathan St-André
+ * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,21 +19,15 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-#ifndef TIMERS_H
-#define TIMERS_H 1
+#ifndef TIMERWIN_H
+#define TIMERWIN_H 1
 
-#include <stdint.h>
+#include <gtk/gtk.h>
+
+GtkWidget *
+timerwin_init(void);
 
 void
-gp_timer_reset(void);
+timerwin_update(void);
 
-void
-gp_timer_increment(int count);
-
-int
-gp_timer_read(void);
-
-int
-timers_check(void);
-
-#endif /* TIMERS_H */
+#endif /* TIMERWIN_H */

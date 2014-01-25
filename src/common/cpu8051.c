@@ -114,6 +114,8 @@ cpu8051_init(void)
 {
 	memory_init();
 
+	gp_timer_reset();
+
 	cpu8051.pc = 0;
 	cpu8051.clock = 0;
 	cpu8051.active_priority = -1;
@@ -313,6 +315,8 @@ cpu8051_Exec(void)
 	 * cycle to establish even parity in the accumulator.
 	 */
 	psw_compute_parity_bit();
+
+	gp_timer_increment(insttiming);
 
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_CheckInterrupts();

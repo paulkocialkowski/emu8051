@@ -32,7 +32,29 @@
 #include "options.h"
 #include "instructions_8051.h"
 
+static int gp_timer_value;
+
 extern struct options_t options;
+
+void
+gp_timer_reset(void)
+{
+	log_debug("gp timer reset");
+	gp_timer_value = 0;
+}
+
+void
+gp_timer_increment(int count)
+{
+	log_debug("gp timer increment");
+	gp_timer_value += count;
+}
+
+int
+gp_timer_read(void)
+{
+	return gp_timer_value;
+}
 
 static void
 timer_increment_check_overflow(uint8_t counter_address, uint8_t tf_mask)
@@ -115,7 +137,7 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 	}
 }
 
-/* Run timers */
+/* Run 8051 timers */
 void
 timers_check(void)
 {

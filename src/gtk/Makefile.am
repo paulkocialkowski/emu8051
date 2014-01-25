@@ -27,6 +27,7 @@ emu8051_gtk_SOURCES = \
     pgmwin.c pgmwin.h \
     regwin.c regwin.h \
     pswwin.c pswwin.h \
+    timerwin.c timerwin.h \
     filemenu.c filemenu.h \
     viewmenu.c viewmenu.h \
     helpmenu.c helpmenu.h \

@@ -45,6 +45,7 @@
 #include "pgmwin.h"
 #include "memwin.h"
 #include "pswwin.h"
+#include "timerwin.h"
 #include "app-config.h"
 
 #define BUTTONS_BORDER 2
@@ -69,6 +70,7 @@ emugtk_UpdateDisplay(void)
 	regwin_refresh();
 	pgmwin_refresh();
 	pswwin_refresh();
+	timerwin_update();
 
 	if (cfg->view_int_memory && scrollwin_int)
 		memwin_refresh(INT_MEM_ID);
@@ -505,6 +507,9 @@ emugtk_window_init(void)
 	buttons_bar = AddButtons();
 
 	scrollwin = pswwin_init();
+	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 100);
+
+	scrollwin = timerwin_init();
 	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 100);
 
 	/* hpaned will contain registers and disassembly windows. */
