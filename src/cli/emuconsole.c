@@ -323,6 +323,11 @@ console_main(void)
 				break;
 		}
 
+		if (strlen(line) == 0) {
+			/* Empty line, this is not an error. */
+			continue;
+		}
+
 		/* Keep only the Command part from the input line */
 		memcpy(Command, &line[0], Index);
 		Command[Index] = '\0';
