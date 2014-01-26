@@ -91,9 +91,9 @@ void
 memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
-		printf("Error writing to memory ID: %d\n", id);
-		printf("  Address (%lu) greater than maximum memory size\n",
-		       address);
+		log_err("Error writing to memory ID: %d\n"
+			"  Address (%lu) greater than maximum memory size",
+			id, address);
 		return;
 	} else
 		mem_infos[id].buf[address] = value;
@@ -117,9 +117,9 @@ u_int8_t
 memory_read8(enum mem_id_t id, unsigned long address)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
-		printf("Error reading from memory ID: %d\n", id);
-		printf("  Address (%lu) greater than maximum memory size\n",
-		       address);
+		log_err("Error reading from memory ID: %d\n"
+			"  Address (%lu) greater than maximum memory size",
+			id, address);
 		return 0;
 	} else
 		return mem_infos[id].buf[address];

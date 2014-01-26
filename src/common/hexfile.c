@@ -85,8 +85,8 @@ Ascii2Hex(char *istring, int length)
 			result <<= 4;
 			result += ascii_code;
 		} else {
-			printf("%s: In Ascii2Hex(), syntax error.\n", PACKAGE);
-			printf("  str=%s, length=%d\n", istring, length);
+			log_fail("Error converting ASCII string <%s> to hex"
+				 " (len=%d)", istring, length);
 		}
 	}
 	return result;
@@ -102,18 +102,14 @@ LoadHexFile(const char *filename)
 	int status;
 	char line[LINE_BUFFER_LEN];
 
-	if (filename == NULL) {
-		printf("%s: No file specified\n", PACKAGE);
-		exit(EXIT_FAILURE);
-	}
+	if (filename == NULL)
+		log_fail("No file specified");
 
 	/* Trying to open the file. */
 	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		perror(filename);
-		/*ErrorLocation(__FILE__, __LINE__);*/
-		exit(EXIT_FAILURE);
-	}
+	if (fp == NULL)
+		log_fail("Error opening hex file <%s>: %s", filename,
+			 strerror(errno));
 
 	/* Reading one line of data from the hex file. */
 	/* char *fgets(char *s, int size, FILE *stream);
@@ -126,7 +122,7 @@ LoadHexFile(const char *filename)
 		Checksum = 0;
 
 		if (line[i++] != ':') {
-			printf("%s: line not beginning with \":\"\n", PACKAGE);
+			log_err("hexfile line not beginning with \":\"");
 			goto close_file;
 		}
 
@@ -148,8 +144,7 @@ LoadHexFile(const char *filename)
 			Checksum &= 0x000000FF;
 
 			if (Checksum) {
-				/* Error. */
-				printf("%s: Invalid format\n", PACKAGE);
+				log_err("hexfile invalid format");
 				goto close_file;
 			} else {
 				/* OK */
@@ -171,16 +166,13 @@ LoadHexFile(const char *filename)
 		Checksum &= 0x000000FF;
 
 		if (Checksum) {
-			printf("%s: Invalid format\n", PACKAGE);
+			log_err("hexfile checksum mismatch");
 			goto close_file;
 		}
 	}
 
 close_file:
 	status = fclose(fp);
-	if (status != EXIT_SUCCESS) {
-		fprintf(stderr, "%s: Error closing hex file.\n", PACKAGE);
-		/*ErrorLocation(__FILE__, __LINE__);*/
-		exit(EXIT_FAILURE);
-	}
+	if (status != EXIT_SUCCESS)
+		log_fail("Error closing hex file");
 }

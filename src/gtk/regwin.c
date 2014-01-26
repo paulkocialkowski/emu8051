@@ -239,7 +239,7 @@ regwin_refresh(void)
 		}
 
 		if (!valid) {
-			printf("Invalid iter...\n");
+			log_err("Tree model: invalid iter");
 			return;
 		}
 

@@ -349,7 +349,7 @@ memwin_refresh(int memory_id)
 		}
 
 		if (!valid) {
-			printf("Invalid iter...\n");
+			log_err("Tree model: invalid iter");
 			return;
 		}
 

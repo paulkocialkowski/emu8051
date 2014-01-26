@@ -230,7 +230,7 @@ pswwin_refresh(void)
 		GTK_TREE_MODEL(store), &iter);
 
 	if (!valid) {
-		printf("Invalid iter...\n");
+		log_err("Tree model: invalid iter");
 		return;
 	}
 
