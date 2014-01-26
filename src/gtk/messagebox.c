@@ -28,71 +28,32 @@
 #include "common.h"
 #include "messagebox.h"
 
-#define MESSAGE_DIALOG_BORDER 25
-
-#define BUTTON_TEXT_BORDER 3
-
 extern GtkWidget *mainwin;
 
 void
-ShowMessage(gchar *title, gchar *message, int justification, int font_style)
+message_show_error(char *message)
 {
 	GtkWidget *dialog;
-	GtkWidget *label;
-	GtkWidget *label_window;
 
-	/* Keep the dialog on top of the main window, and centered. */
-	dialog = gtk_dialog_new_with_buttons(
-		title, GTK_WINDOW(mainwin),
-		GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK,
-		GTK_RESPONSE_NONE, NULL);
+	dialog = gtk_message_dialog_new(GTK_WINDOW(mainwin),
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_ERROR,
+					GTK_BUTTONS_CLOSE,
+					message, NULL);
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_destroy (dialog);
+}
 
-	/*
-	 * The GtkLabel widget is one of a few GTK+ widgets that don't create
-	 * their own window to render themselves into. Instead, they draw
-	 * themselves directly onto their parents window. This means that in
-	 * order to set a property for a GtkLabel widget, you need to change the
-	 * property of its parent, i.e. the object that you pack it into.
-	 * Another solution (short term workaround) is to put the label widget
-	 * inside another widget that does get its own window, like the
-	 * 'ViewPort' or 'EventBox' widget.
-	 */
+void
+message_show_information(char *message)
+{
+	GtkWidget *dialog;
 
-	/*
-	 * Using workaround described above to set the border width of 'label'
-	 * widget.
-	 */
-	label_window = gtk_event_box_new();
-
-	/* Creating our label. */
-	label = gtk_label_new(message);
-	gtk_label_set_justify(GTK_LABEL(label), justification);
-
-	if (font_style == MESSAGE_DIALOG_FIXED_FONT) {
-		PangoFontDescription *pango_font;
-
-		pango_font = pango_font_description_from_string(FIXED_FONT);
-		gtk_widget_modify_font(label, pango_font);
-	}
-
-	/* Adding label widget to label_window widget. */
-	gtk_container_add(GTK_CONTAINER(label_window), label);
-
-	/*
-	 * Changing border width of the label widget by way of label_window
-	 * widget.
-	 */
-	gtk_container_set_border_width(GTK_CONTAINER(label_window),
-				       MESSAGE_DIALOG_BORDER);
-
-	/* Ensure that the dialog box is destroyed when the user responds */
-	g_signal_connect_swapped(dialog, "response",
-				 G_CALLBACK(gtk_widget_destroy), dialog);
-
-	/* Add the label_window to the dialog window. */
-	gtk_container_add(GTK_CONTAINER(GTK_DIALOG(dialog)->vbox),
-			  label_window);
-
-	/* Show everything we've added to the dialog. */
-	gtk_widget_show_all(dialog);
+	dialog = gtk_message_dialog_new(GTK_WINDOW(mainwin),
+					GTK_DIALOG_DESTROY_WITH_PARENT,
+					GTK_MESSAGE_INFO,
+					GTK_BUTTONS_CLOSE,
+					message, NULL);
+	gtk_dialog_run (GTK_DIALOG (dialog));
+	gtk_widget_destroy (dialog);
 }

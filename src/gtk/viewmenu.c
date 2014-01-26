@@ -43,9 +43,8 @@ void toggle_layout(GtkWidget *widget, gpointer data)
 		log_info("  Switching to layout %d", id);
 		cfg->layout = id;
 
-		ShowMessage("Notice",
-			    "You must restart for the changes to take effect",
-			    GTK_JUSTIFY_LEFT, MESSAGE_DIALOG_NORMAL_FONT);
+		message_show_information(
+			"You must restart for the changes to take effect");
 	}
 }
 

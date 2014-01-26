@@ -31,7 +31,7 @@ asciihex2int(char *str);
 unsigned int
 Ascii2Hex(char *istring, int length);
 
-void
+int
 LoadHexFile(const char *filename);
 
 #endif /* HEXFILE_H */

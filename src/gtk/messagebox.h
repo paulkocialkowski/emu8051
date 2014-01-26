@@ -24,10 +24,10 @@
 
 #include <gtk/gtk.h>
 
-#define MESSAGE_DIALOG_NORMAL_FONT 0
-#define MESSAGE_DIALOG_FIXED_FONT  1
+void
+message_show_error(char *message);
 
 void
-ShowMessage(gchar *title, gchar *message, int justification, int font_style);
+message_show_information(char *message);
 
 #endif /* MESSAGEBOX_H */

@@ -41,6 +41,7 @@
 #include "filemenu.h"
 #include "viewmenu.h"
 #include "helpmenu.h"
+#include "messagebox.h"
 #include "regwin.h"
 #include "pgmwin.h"
 #include "memwin.h"
@@ -577,19 +578,26 @@ AddMenuSeparator(GtkWidget *menu)
 void
 emugtk_new_file(char *file)
 {
+	int rc;
+
 	emugtk_stop_running();
 
-	LoadHexFile(file);
+	rc = LoadHexFile(file);
+	if (rc == false) {
+		message_show_error("Error parsing hex file");
+	} else {
+		if (cfg->clear_ram_on_file_load)
+			emugtk_Reset();
 
-	if (cfg->clear_ram_on_file_load)
-		emugtk_Reset();
-
-	emugtk_UpdateDisplay();
+		emugtk_UpdateDisplay();
+	}
 }
 
 int
 main(int argc, char **argv)
 {
+	int rc_load_hexfile = true;
+
 	parse_command_line_options(argc, argv);
 	app_config_load();
 
@@ -600,13 +608,17 @@ main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 
 	if (options.filename != NULL)
-		LoadHexFile(options.filename);
+		rc_load_hexfile = LoadHexFile(options.filename);
 
 	cpu8051_Reset();
 
 	log_info("Init GUI");
 	emugtk_window_init();
 	emugtk_UpdateDisplay();
+
+	if (rc_load_hexfile == false)
+		message_show_error("Error parsing hex file");
+
 	gtk_main();
 
 	log_info("Terminate");

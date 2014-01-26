@@ -21,6 +21,7 @@
 
 #define _GNU_SOURCE /* For getline() */
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h> /* For isblank, toupper() */
 #include "config.h"
@@ -512,12 +513,17 @@ TooMuchParameters:
 int
 main(int argc, char **argv)
 {
+	int rc;
+
 	parse_command_line_options(argc, argv);
 
 	cpu8051_init();
 
-	if (options.filename != NULL)
-		LoadHexFile(options.filename);
+	if (options.filename != NULL) {
+		rc = LoadHexFile(options.filename);
+		if (rc == false)
+			exit(1);
+	}
 
 	console_main();
 

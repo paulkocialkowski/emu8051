@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #if STDC_HEADERS
 #  include <string.h>
@@ -95,13 +96,21 @@ Ascii2Hex(char *istring, int length)
 	return result;
 }
 
-void
+/*
+ * Return value:
+ *   true:  success
+ *   false: failure
+ */
+int
 LoadHexFile(const char *filename)
 {
 	int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
 	FILE *fp;
 	int status;
 	char line[HEXFILE_LINE_BUFFER_LEN];
+	int valid = false;
+
+	log_debug("LoadHexFile");
 
 	if (filename == NULL)
 		log_fail("No file specified");
@@ -165,6 +174,7 @@ LoadHexFile(const char *filename)
 			log_debug("hex record: data");
 		} else if (RecType == 1) {
 			log_debug("hex record: End Of File");
+			valid = true;
 			goto close_file;
 		} else {
 			log_warn("hex record: Unsupported ($%02X)", RecType);
@@ -175,4 +185,10 @@ close_file:
 	status = fclose(fp);
 	if (status != EXIT_SUCCESS)
 		log_fail("Error closing hex file");
+
+	if (valid == false) {
+		log_err("Error parsing hex file");
+	}
+
+	return valid;
 }
