@@ -260,7 +260,7 @@ console_main(void)
 		"  Dump Internal Data Memory... DI [address] [size]",
 		"  Dump Program Memory......... DP [address] [size]",
 		"  Display Registers content... DR",
-		"  Execute..................... EM [address"
+		"  Execute (Run)............... EM [address"
 		" [number of instructions]]",
 		"  Help........................ H or ?",
 		"  Modify External Data Memory. ME address value",
@@ -268,7 +268,7 @@ console_main(void)
 		"  Modify Program Memory....... MP address value",
 		"  Modify Register............. MR register value",
 		"  Quit Emulator............... Q",
-		"  Trace mode.................. T [address]",
+		"  Trace mode (step)........... T [address]",
 		"  Unassemble.................. U [address]"
 		" [number of instructions]",
 		"  Reset processor............. Z", 0 };
@@ -277,7 +277,7 @@ console_main(void)
 
 	if (options.stop_address != 0) {
 		/* Automatically run program and stop at specified address. */
-		console_exec("0000", NULL);
+		console_exec("PC", NULL);
 		console_show_registers();
 		QuitRequest = 1;
 	} else {
@@ -390,7 +390,17 @@ console_main(void)
 				goto syntax_error;
 			break;
 		case 'E':
-			if (STREQ(Command, "EM"))
+			if (STREQ(Command, "EM") &&
+			    (strlen(Parameter1) == 0) &&
+			    (strlen(Parameter2) == 0))
+				console_exec("PC", NULL);
+			else if (STREQ(Command, "EM") &&
+				 (strlen(Parameter1) != 0) &&
+				 (strlen(Parameter2) == 0))
+				console_exec(Parameter1, NULL);
+			else if (STREQ(Command, "EM") &&
+				 (strlen(Parameter1) != 0) &&
+				 (strlen(Parameter2) != 0))
 				console_exec(Parameter1, Parameter2);
 			else
 				goto syntax_error;
