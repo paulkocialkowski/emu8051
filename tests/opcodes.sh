@@ -17,8 +17,12 @@ if test $? -ne 0 ; then
     return 1
 fi
 
+test_output_found=0
+
 while read line; do
     if echo ${line} | grep -q "; Test output"; then
+        test_output_found=1
+
         test_str=$(echo ${line} | sed "s/^; Test output: //")
 
         if ! grep -q "${test_str}" ${lf}; then
@@ -27,5 +31,10 @@ while read line; do
         fi
     fi
 done < ${name}.asm
+
+if [ x"${test_output_found}" == x0 ]; then
+    # Need at least one test output condition to verify correct operation
+    exit 1
+fi
 
 exit 0
