@@ -140,35 +140,34 @@ LoadHexFile(const char *filename)
 		i += 2;
 		Checksum += RecType;
 
-		if (RecType == 1) {
-			Checksum += Ascii2Hex(&line[i], 2);
-			Checksum &= 0x000000FF;
-
-			if (Checksum) {
-				log_err("hexfile invalid format");
-				goto close_file;
-			} else {
-				/* OK */
-				goto close_file;
+		if (RecType == 0) {
+			for (j = 0; j < RecLength; j++) {
+				Data = Ascii2Hex(&line[i], 2);
+				memory_write8(PGM_MEM_ID,
+					      (unsigned int)(LoadOffset + j),
+					      (unsigned char)Data);
+				i += 2;
+				Checksum += Data;
 			}
 		}
 
-		for (j = 0; j < RecLength; j++) {
-			Data = Ascii2Hex(&line[i], 2);
-			memory_write8(PGM_MEM_ID,
-				      (unsigned int)(LoadOffset + j),
-				      (unsigned char)Data);
-			i += 2;
-			Checksum += Data;
-		}
-
-		RecType = Ascii2Hex(&line[i], 2);
-		Checksum += RecType;
+		/* Read and add checksum value */
+		Checksum += Ascii2Hex(&line[i], 2);
 		Checksum &= 0x000000FF;
 
+		/* Make sure line checksum is valid */
 		if (Checksum) {
 			log_err("hexfile checksum mismatch");
 			goto close_file;
+		}
+
+		if (RecType == 0) {
+			log_debug("hex record: data");
+		} else if (RecType == 1) {
+			log_debug("hex record: End Of File");
+			goto close_file;
+		} else {
+			log_warn("hex record: Unsupported ($%02X)", RecType);
 		}
 	}
 
