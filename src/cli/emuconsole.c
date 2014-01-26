@@ -31,6 +31,7 @@
 #include "reg8051.h"
 #include "sfr.h"
 #include "memory.h"
+#include "timers.h"
 #include "options.h"
 #include "hexfile.h"
 #include "keyboard.h"
@@ -205,6 +206,9 @@ console_dump_sfr_registers_compact(void)
 	printf("|    |\n");
 	printf("---------------------------------------------------------------"
 	       "-------\n");
+
+	printf("| General-purpose Timer: %08d |\n", gp_timer_read());
+	printf("-----------------------------------\n");
 }
 
 /* Show CPU registers */
@@ -272,7 +276,8 @@ console_main(void)
 		"  Trace mode (step)........... T [address]",
 		"  Unassemble.................. U [address]"
 		" [number of instructions]",
-		"  Reset processor............. Z", 0 };
+		"  Reset processor............. Z",
+		"  Reset general-purpose timer. ZT", 0 };
 
 	console_reset();
 
@@ -488,6 +493,10 @@ console_main(void)
 			if (STREQ(Command, "Z") && (strlen(Parameter1) == 0) &&
 			    (strlen(Parameter2) == 0))
 				cpu8051_Reset();
+			else if (STREQ(Command, "ZT") &&
+				 (strlen(Parameter1) == 0) &&
+				 (strlen(Parameter2) == 0))
+				gp_timer_reset();
 			else
 				goto syntax_error;
 			break;
