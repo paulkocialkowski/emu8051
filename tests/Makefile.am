@@ -11,9 +11,10 @@ SUFFIXES = .hex .asm .sh
 ASM_SRC = \
     add.asm \
     mul1.asm mul2.asm \
-    div.asm \
+    div.asm div32u.asm \
     orl.asm anl.asm \
     mov.asm \
+    sqroot.asm \
     timer0.asm timer1.asm timer2.asm
 
 if RUN_TESTS
@@ -21,9 +22,10 @@ if RUN_TESTS
 TESTS = \
     add.sh \
     mul1.sh mul2.sh \
-    div.sh \
+    div.sh div32u.sh \
     orl.sh anl.sh \
     mov.sh \
+    sqroot.sh \
     timer0.sh timer1.sh timer2.sh
 
 # Tell make how to generate a .sh file after a .hex file is generated:
