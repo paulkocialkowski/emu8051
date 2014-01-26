@@ -36,6 +36,9 @@
 #include "common.h"
 #include "memory.h"
 
+/* Maximum of 75 digits with 32-bytes data records. */
+#define HEXFILE_LINE_BUFFER_LEN 128
+
 /* Convert integer to ASCII hex string. */
 void
 int2asciihex(int val, char *str, int width)
@@ -96,11 +99,9 @@ void
 LoadHexFile(const char *filename)
 {
 	int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
-
-#define LINE_BUFFER_LEN 256
 	FILE *fp;
 	int status;
-	char line[LINE_BUFFER_LEN];
+	char line[HEXFILE_LINE_BUFFER_LEN];
 
 	if (filename == NULL)
 		log_fail("No file specified");
@@ -117,7 +118,7 @@ LoadHexFile(const char *filename)
 	   stored into the buffer.  A '\0'  is  stored after the last character
 	   in the buffer.
 	*/
-	while (fgets(line, LINE_BUFFER_LEN, fp) != NULL) {
+	while (fgets(line, HEXFILE_LINE_BUFFER_LEN, fp) != NULL) {
 		i = 0;
 		Checksum = 0;
 
