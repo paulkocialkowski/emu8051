@@ -277,7 +277,7 @@ console_main(void)
 
 	if (options.stop_address != 0) {
 		/* Automatically run program and stop at specified address. */
-		console_exec("0x0000", NULL);
+		console_exec("0000", NULL);
 		console_show_registers();
 		QuitRequest = 1;
 	} else {
