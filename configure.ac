@@ -17,6 +17,10 @@ dnl Testing for libtool support.
 AC_PROG_RANLIB
 AM_PROG_AR
 
+dnl Testing for Lex/Yacc
+AC_PROG_LEX
+AC_PROG_YACC
+
 dnl Checking for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_TYPE_PID_T

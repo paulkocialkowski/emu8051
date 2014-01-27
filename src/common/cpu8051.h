@@ -72,6 +72,9 @@ void
 ClearBreakpoint(unsigned int Address);
 
 void
+ClearAllBreakpoints(void);
+
+void
 ToggleBreakpoint(unsigned int Address);
 
 void

@@ -99,6 +99,13 @@ ClearBreakpoint(unsigned int address)
 	}
 }
 
+/* Clear all breakpoints */
+void
+ClearAllBreakpoints(void)
+{
+	cpu8051.bp_count = 0;
+}
+
 /* Toggle the breakpoint at Address. */
 void
 ToggleBreakpoint(unsigned int address)

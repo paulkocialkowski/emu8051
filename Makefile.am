@@ -22,7 +22,8 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in \
                        $(ac_aux_dir)/config.sub $(ac_aux_dir)/ltmain.sh \
                        $(ac_aux_dir)/compile \
                        $(ac_aux_dir)/test-driver \
-                       $(ac_aux_dir)/ar-lib
+                       $(ac_aux_dir)/ar-lib \
+                       $(ac_aux_dir)/ylwrap
 
 changelog:
 	@if test -d $(srcdir)/.git; then          \

@@ -205,34 +205,17 @@ pgm_read_addr16(uint16_t base)
 
 /* Dump memory */
 void
-DumpMem(char *Address, char *Asize, int memory_id)
+DumpMem(unsigned int address, int size, int memory_id)
 {
-	unsigned int MemAddress;
-	int size;
 	int Offset, Column;
-
-	if (strlen(Address) != 0) {
-		if (STREQ(Address, "PC"))
-			MemAddress = cpu8051.pc;
-		else
-			MemAddress = Ascii2Hex(Address, strlen(Address));
-	} else {
-		MemAddress = 0;
-	}
-
-	if (strlen(Asize) != 0) {
-		size = Ascii2Hex(Asize, strlen(Asize));
-	} else {
-		size = 256; /* Default size if not specified. */
-	}
 
 	for (Offset = 0; Offset < size; Offset += 16) {
 		unsigned char data[16];
 
-		printf("%.4X ", MemAddress + Offset);
+		printf("%.4X ", address + Offset);
 
 		for (Column = 0; Column < 16; Column++) {
-			data[Column] = memory_read8(memory_id, MemAddress +
+			data[Column] = memory_read8(memory_id, address +
 						    Offset + Column);
 			printf(" %.2X", (int) data[Column]);
 		}
