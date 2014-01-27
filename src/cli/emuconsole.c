@@ -61,37 +61,6 @@ RemoveSpaces(char *buffer)
 		strcpy(buffer, &buffer[k]);
 }
 
-/* CPU exec and Console UI update */
-static void
-console_exec(char *Address, char *NumberInst)
-{
-	int NbInst = -1; /* -1 is infinity */
-	if (strlen(Address) == 0) {
-		log_err("Invalid address");
-		return;
-	}
-
-	if (!STREQ(Address, "PC"))
-		cpu8051.pc = Ascii2Hex(Address, strlen(Address));
-
-	if (NumberInst)
-		if (strlen(NumberInst) != 0)
-			NbInst = Ascii2Hex(NumberInst, strlen(NumberInst));
-
-	InitUnixKB();
-
-	log_info("Program executing...");
-
-	cpu8051_run(NbInst, kbhit);
-
-	if (kbhit()) {
-		(void) getch(); /* Flush key */
-		log_info("Caught break signal!");
-	}
-
-	ResetUnixKB();
-}
-
 /* Disassemble NumberInst instructions at Address */
 static void
 DisasmN(unsigned int Address, int NumberInst)
@@ -230,12 +199,36 @@ console_reset(void)
 	log_info("Done");
 }
 
+/* CPU exec and Console UI update */
+static void
+console_exec(char *NumberInst)
+{
+	int NbInst = -1; /* -1 is infinity */
+
+	if (NumberInst)
+		if (strlen(NumberInst) != 0)
+			NbInst = Ascii2Hex(NumberInst, strlen(NumberInst));
+
+	InitUnixKB();
+
+	log_info("Program executing...");
+
+	cpu8051_run(NbInst, kbhit);
+
+	if (kbhit()) {
+		(void) getch(); /* Flush key */
+		log_info("Caught break signal!");
+	}
+
+	ResetUnixKB();
+	console_show_registers();
+	DisasmN(cpu8051.pc, 1);
+}
+
 /* CPU trace and Console UI update */
 static void
-console_trace(char *Address)
+console_trace()
 {
-	if (strlen(Address) != 0)
-		cpu8051.pc = Ascii2Hex(Address, strlen(Address));
 	cpu8051_Exec();
 	console_show_registers();
 	DisasmN(cpu8051.pc, 1);
@@ -265,15 +258,14 @@ console_main(void)
 		"  Dump Internal Data Memory... DI [address] [size]",
 		"  Dump Program Memory......... DP [address] [size]",
 		"  Display Registers content... DR",
-		"  Execute (Run)............... EM [address"
-		" [number of instructions]]",
+		"  Execute (Run)............... EM [number of instructions]",
 		"  Help........................ H or ?",
 		"  Modify External Data Memory. ME address value",
 		"  Modify Internal Data Memory. MI address value",
 		"  Modify Program Memory....... MP address value",
 		"  Modify Register............. MR register value",
 		"  Quit Emulator............... Q",
-		"  Trace mode (step)........... T [address]",
+		"  Trace (step)................ T",
 		"  Unassemble.................. U [address]"
 		" [number of instructions]",
 		"  Reset processor............. Z",
@@ -283,8 +275,7 @@ console_main(void)
 
 	if (options.stop_address != 0) {
 		/* Automatically run program and stop at specified address. */
-		console_exec("PC", NULL);
-		console_show_registers();
+		console_exec(NULL);
 		QuitRequest = 1;
 	} else {
 		Index = 0;
@@ -397,17 +388,11 @@ console_main(void)
 			break;
 		case 'E':
 			if (STREQ(Command, "EM") &&
-			    (strlen(Parameter1) == 0) &&
-			    (strlen(Parameter2) == 0))
-				console_exec("PC", NULL);
+			    (strlen(Parameter1) == 0))
+				console_exec(NULL);
 			else if (STREQ(Command, "EM") &&
-				 (strlen(Parameter1) != 0) &&
-				 (strlen(Parameter2) == 0))
-				console_exec(Parameter1, NULL);
-			else if (STREQ(Command, "EM") &&
-				 (strlen(Parameter1) != 0) &&
-				 (strlen(Parameter2) != 0))
-				console_exec(Parameter1, Parameter2);
+				 (strlen(Parameter1) != 0))
+				console_exec(Parameter1);
 			else
 				goto syntax_error;
 			break;
@@ -475,11 +460,12 @@ console_main(void)
 				goto syntax_error;
 			break;
 		case 'T':
-			if (strlen(Parameter2) != 0)
+			if ((strlen(Parameter1) != 0) ||
+			    (strlen(Parameter2) != 0))
 				printf("Wrong Number of Parameters!\n");
 
 			if (STREQ(Command, "T"))
-				console_trace(Parameter1);
+				console_trace();
 			else
 				goto syntax_error;
 			break;
