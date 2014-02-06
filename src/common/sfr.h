@@ -34,7 +34,7 @@ struct regwin_infos_t {
 int
 regwin_read(int row);
 
-void
+int
 regwin_write(struct regwin_infos_t *p, int new);
 
 struct regwin_infos_t *

@@ -317,9 +317,20 @@ regwin_read(int row)
 	return val;
 }
 
-void
+int
 regwin_write(struct regwin_infos_t *p, int new)
 {
+	int max_value;
+
+	max_value = (1 << (4 * p->w)) - 1; /* 16^w - 1 */
+
+	/* Check that the new value is not too large for the register type. */
+	if (new > max_value) {
+		/* Display message for CLI version */
+		printf("Value out of range\n");
+		return -1;
+	}
+
 	if (p->write_func == NULL) {
 		/*
 		 * Write register value using generic 8 or 16 bits write
@@ -330,6 +341,8 @@ regwin_write(struct regwin_infos_t *p, int new)
 		/* Write register value using custom function pointer. */
 		p->write_func(p->param, new);
 	}
+
+	return 0;
 }
 
 struct regwin_infos_t *
@@ -342,7 +355,7 @@ sfr_get_infos(const char *regname)
 			return &regwin_infos[row];
 	}
 
-	return NULL; /* Programming error. */
+	return NULL; /* Register not found. */
 }
 
 struct regwin_infos_t *

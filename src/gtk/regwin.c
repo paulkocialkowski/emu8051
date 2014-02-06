@@ -80,6 +80,7 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	int old;
 	int new;
 	char *str;
+	int rc;
 	struct regwin_infos_t *regwin_infos;
 
 	(void) cell; /* Remove compiler warning about unused variables. */
@@ -96,47 +97,30 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	log_info("Register: %s", str);
 	regwin_infos = sfr_get_infos(str);
+	log_info("  width:     %d bits", 4 * regwin_infos->w);
 
 	/* Read current (old) value. */
 	gtk_tree_model_get(model, &iter, COL_VAL, &str, -1);
 
 	old = asciihex2int(str);
-
-	if (regwin_infos->w == 2)
-		log_info("  old value: $%02X", old);
-	else if (regwin_infos->w == 4)
-		log_info("  old value: $%04X", old);
+	log_info("  old value: $%04X", old);
 
 	new = asciihex2int(new_str);
+	log_info("  new value: $%04X", new);
 
-	if (regwin_infos->w == 2) {
-		if ((new < 0) || (new > 0xFF)) {
-			log_info("  new value: out of range");
-			new = old; /* Put back old value... */
-		} else {
-			log_info("  new value: $%02X", new);
-		}
-	} else if (regwin_infos->w == 4) {
-		if ((new < 0) || (new > 0xFFFF)) {
-			log_info("  new value: out of range");
-			new = old; /* Put back old value... */
-		} else {
-			log_info("  new value: $%04X", new);
-		}
+	/* Store new value in emulator register (if in range). */
+	rc = regwin_write(regwin_infos, new);
+	if (rc == 0) {
+		/* Store new value in gtk model. */
+		int2asciihex(new, str, regwin_infos->w);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VAL, str, -1);
+
+		/*
+		 * Make sure to update all windows.
+		 * For example, R0-R7 values depends on internal memory values.
+		 */
+		emugtk_UpdateDisplay();
 	}
-
-	/* Store new value in emulator register. */
-	regwin_write(regwin_infos, new);
-
-	/* Store new value in gtk model. */
-	int2asciihex(new, str, regwin_infos->w);
-        gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VAL, str, -1);
-
-	/*
-	 * Make sure to update all windows.
-	 * For example, R0-R7 values depends on internal memory values.
-	 */
-	emugtk_UpdateDisplay();
 };
 
 static void
