@@ -18,16 +18,23 @@ int yylex();
 
 int yyerror(const char *str)
 {
-	fprintf(stderr,"error: %s\n", str);
+        fprintf(stderr,"error: %s\n", str);
         return 0;
 }
 
 %}
 
-%token NUMBER TOK_ENTER TOK_ALL
+%union
+{
+        int number;
+        char *string;
+}
+
+%token <number> NUMBER
+%token <string> WORD
+%token TOK_ENTER TOK_ALL
 %token TOK_SB TOK_RB TOK_DB
 %token TOK_DE TOK_DI TOK_DP TOK_DR
-%token TOK_PC
 %token TOK_HELP
 %token TOK_RUN
 %token TOK_RST TOK_RST_TIMER
@@ -49,19 +56,13 @@ start  :  start command { menu_prompt(); }
    ;
 
 command:
-   pc_set
-   |
    breakpoint_clr
    |
    breakpoint_set
    |
    breakpoint_display
    |
-   dump_ext_mem
-   |
-   dump_int_mem
-   |
-   dump_prog_mem
+   dump_mem
    |
    display_regs
    |
@@ -103,7 +104,7 @@ breakpoint_clr:
 breakpoint_set:
 	TOK_SB TOK_ENTER
 	{
-          log_debug("  Set breakpoint at current PC");
+          log_debug("  Set breakpoint at PC");
           SetBreakpoint(cpu8051.pc);
 	}
         |
@@ -123,23 +124,19 @@ breakpoint_display:
 	}
 	;
 
-dump_ext_mem:
+dump_mem:
 	TOK_DE NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump External Data Memory at $%04X, len %d", $2, $3);
           DumpMem($2, $3, EXT_MEM_ID);
 	}
-	;
-
-dump_int_mem:
+        |
 	TOK_DI NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump Internal Data Memory at $%04X, len %d", $2, $3);
           DumpMem($2, $3, INT_MEM_ID);
 	}
-	;
-
-dump_prog_mem:
+        |
 	TOK_DP NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump Program Memory at $%04X, len %d", $2, $3);
@@ -174,10 +171,9 @@ modify:
           memory_write8(PGM_MEM_ID, $2, $3);
 	}
 	|
-	TOK_MOD_REG "pc" NUMBER TOK_ENTER
+	TOK_MOD_REG WORD NUMBER TOK_ENTER
 	{
-          log_debug("  Modify register");
-          SetRegister("PC", $2);
+          SetRegister($2, $3);
 	}
 	;
 
@@ -200,13 +196,6 @@ run:
 	{
           log_debug("  Run %d instructions", $2);
           console_exec($2);
-	}
-	;
-
-pc_set:
-	TOK_PC NUMBER TOK_ENTER
-	{
-          cpu8051.pc = $2;
 	}
 	;
 

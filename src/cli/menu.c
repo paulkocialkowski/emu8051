@@ -22,6 +22,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "common.h"
 #include "cpu8051.h"
@@ -90,22 +91,34 @@ DisasmN(unsigned int Address, int NumberInst)
 	}
 }
 
+/* Capitalize all letters in buffer */
+static void
+Capitalize(char *buffer)
+{
+	size_t k;
+
+	for (k = 0; k < strlen(buffer); k++)
+		buffer[k] = toupper(buffer[k]);
+}
+
 /* Set NewValue to Register */
 void
-SetRegister(char *Register, int NewValue)
+SetRegister(char *register_name, int new)
 {
-	if (STREQ(Register, "PC"))
-		cpu8051.pc = NewValue;
-	else if (STREQ(Register, "A"))
-		cpu8051_WriteD(_ACC_, NewValue);
-	else if (STREQ(Register, "B"))
-		cpu8051_WriteD(_B_, NewValue);
-	else if (STREQ(Register, "SP"))
-		cpu8051_WriteD(_SP_, NewValue);
-	else {
-		printf("\nInvalid register name!\n");
-		printf("Valid registers are A, B, PC and SP.\n");
+	struct regwin_infos_t *regwin_infos;
+
+	Capitalize(register_name);
+
+	log_debug("  Modify register %s to $%04X", register_name, new);
+
+	regwin_infos = sfr_get_infos(register_name);
+
+	if (regwin_infos == NULL) {
+		printf("Invalid register name\n");
+		return;
 	}
+
+	regwin_write(regwin_infos, new);
 }
 
 /* CPU reset and Console UI update */
