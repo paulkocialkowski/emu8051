@@ -5,8 +5,17 @@
   #include "parser.h"
   #include "hexfile.h"
 %}
+
+digit		[0-9]
+alpha		[a-fA-F]
+hextail		({digit}|{alpha}){1,8}
+hex1		0[xX]{hextail}
+hex2		${hextail}
+
 %%
-[0-9]+      { yylval.number = asciihex2int(yytext); return NUMBER; }
+{hex1}      { yylval.number = asciihex2int(yytext); return NUMBER; }
+{hex2}      { yylval.number = asciihex2int(&yytext[1]); return NUMBER; }
+[0-9]+      { yylval.number = atoi(yytext); return NUMBER; }
 [h?]        return TOK_HELP;
 sb          return TOK_SB;
 rb          return TOK_RB;
