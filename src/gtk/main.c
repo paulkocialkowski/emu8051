@@ -1,5 +1,5 @@
 /*
- * emugtk.c
+ * main.c
  *
  * Copyright (C) 1999 Jonathan St-André
  * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>
@@ -33,7 +33,7 @@
 #include "options.h"
 #include "hexfile.h"
 
-#include "emugtk.h"
+#include "main.h"
 #include "reset.xpm"
 #include "run.xpm"
 #include "stop.xpm"

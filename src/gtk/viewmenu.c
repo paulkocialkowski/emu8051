@@ -26,7 +26,7 @@
 #include <gtk/gtk.h>
 
 #include "common.h"
-#include "emugtk.h" /* For AddMenuSeparator() function. */
+#include "main.h" /* For AddMenuSeparator() function. */
 #include "messagebox.h"
 #include "viewmenu.h"
 #include "app-config.h"

@@ -21,7 +21,7 @@ LDADD = \
 bin_PROGRAMS = emu8051-gtk
 
 emu8051_gtk_SOURCES = \
-    emugtk.c emugtk.h \
+    main.c main.h \
     app-config.c app-config.h \
     memwin.c memwin.h \
     pgmwin.c pgmwin.h \

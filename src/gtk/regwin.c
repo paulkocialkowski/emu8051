@@ -35,7 +35,7 @@
 #include "pgmwin.h"
 #include "instructions_8051.h"
 #include "hexfile.h"
-#include "emugtk.h"
+#include "main.h"
 
 static GtkWidget *reglist;
 

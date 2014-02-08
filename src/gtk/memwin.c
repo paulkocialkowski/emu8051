@@ -34,7 +34,7 @@
 #include "cpu8051.h"
 #include "regwin.h"
 #include "memwin.h"
-#include "emugtk.h"
+#include "main.h"
 #include "options.h"
 #include "app-config.h"
 

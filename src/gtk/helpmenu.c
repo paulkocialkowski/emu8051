@@ -35,7 +35,7 @@
 
 #include "common.h"
 #include "options.h"
-#include "emugtk.h"
+#include "main.h"
 #include "messagebox.h"
 #include "helpmenu.h"
 

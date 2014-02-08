@@ -15,7 +15,7 @@ bin_PROGRAMS = emu8051-cli
 
 emu8051_cli_SOURCES = \
     parser.y scanner.l \
-    emuconsole.c \
+    main.c \
     menu.c menu.h \
     keyboard.c keyboard.h
 

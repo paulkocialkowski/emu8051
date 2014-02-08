@@ -28,7 +28,7 @@
 #include <gtk/gtk.h>
 
 #include "common.h"
-#include "emugtk.h"
+#include "main.h"
 #include "messagebox.h"
 #include "filemenu.h"
 

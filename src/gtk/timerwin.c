@@ -29,7 +29,7 @@
 
 #include "common.h"
 #include "timers.h"
-#include "emugtk.h"
+#include "main.h"
 
 static GtkWidget *label;
 
