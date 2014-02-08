@@ -2,8 +2,13 @@
 %option noinput
 %option nounput
 %{
+  #include "menu.h"
   #include "parser.h"
   #include "hexfile.h"
+
+#undef YY_INPUT
+#define YY_INPUT(buf,result,max_size) result = menu_get_input(buf, max_size);
+
 %}
 
 digit		[0-9]

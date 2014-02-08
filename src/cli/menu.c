@@ -19,10 +19,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef HAVE_LIBREADLINE
+#include <readline/readline.h>
+#include <readline/history.h>
+#endif /* HAVE_LIBREADLINE */
 
 #include "common.h"
 #include "cpu8051.h"
@@ -33,14 +39,59 @@
 #include "options.h"
 #include "hexfile.h"
 #include "keyboard.h"
+#include "scanner.h"
 #include "menu.h"
 
 extern struct options_t options;
 
-void
-menu_prompt(void)
+#define YY_NULL 0
+
+#define MENU_PROMPT "-> "
+
+int
+menu_get_input(char *buf, ssize_t size)
 {
-	printf("-> ");
+        char *line;
+	int max_len;
+
+	max_len = size - 2;
+
+        if (feof(yyin))
+                return YY_NULL;
+
+#ifdef HAVE_LIBREADLINE
+	/* Get the input line, and if non-empty, place it in the history. */
+	line = readline(MENU_PROMPT);
+        if (!line)
+                return YY_NULL;
+
+	if (line && *line)
+		add_history(line);
+
+        if ((int) strlen(line) > max_len) {
+                printf("input line too long");
+                return YY_NULL;
+        }
+
+        strcpy(buf, line);
+
+	/* Readline never gives you the last '\n', so add it back for Lex. */
+        strcat(buf, "\n");
+
+        free(line);
+#else
+	/* It's okay to print a prompt if we are redirecting stdout,
+	 * as long as stdin is still a tty.  Otherwise, don't print
+	 * a prompt at all if stdin is redirected.
+	 */
+	(void) fputs(MENU_PROMPT, stdout);
+	(void) fflush(stdout);	/* for svr4 */
+	line = fgets(buf, max_len, stdin);
+	if (!line)
+		return YY_NULL;
+#endif
+
+        return strlen(buf);
 }
 
 void

@@ -25,8 +25,8 @@
 int
 yyparse(void);
 
-void
-menu_prompt(void);
+int
+menu_get_input(char *buf, ssize_t size);
 
 void
 menu_display_usage(void);

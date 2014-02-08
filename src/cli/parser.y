@@ -45,13 +45,12 @@ int yyerror(const char *str)
 
 %%
 
-start  :  start command { menu_prompt(); }
+start  :  start command
    |  error TOK_ENTER {
          /* In case of error, discard entire line */
          yyerrok;
-         menu_prompt();
       }
-   | start TOK_ENTER { menu_prompt(); }
+   | start TOK_ENTER
    |
    ;
 

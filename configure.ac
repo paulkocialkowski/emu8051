@@ -17,6 +17,23 @@ dnl Testing for libtool support.
 AC_PROG_RANLIB
 AM_PROG_AR
 
+AC_ARG_WITH([readline],
+            [AS_HELP_STRING([--without-readline], [disable support for readline])],
+            [],
+            [with_readline=yes])
+
+LIBREADLINE=
+    AS_IF([test "x$with_readline" != xno],
+	  [AC_CHECK_LIB([readline], [main],
+              [AC_SUBST([LIBREADLINE], ["-lreadline"])
+               AC_DEFINE([HAVE_LIBREADLINE], [1],
+                         [Define if you have libreadline])
+              ],
+              [AC_MSG_FAILURE(
+                  [readline test failed (--without-readline to disable)])],
+              []
+)])
+
 dnl Testing for Lex/Yacc
 AC_PROG_LEX
 AC_PROG_YACC

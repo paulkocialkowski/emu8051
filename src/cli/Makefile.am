@@ -5,10 +5,14 @@ AM_CPPFLAGS = \
     -I@top_srcdir@ \
     -I@top_srcdir@/src/common
 
+# Option -d: produce header file scanner.h
+AM_LFLAGS = --header-file=scanner.h
+
 # Option -d: produce header file parser.h
 AM_YFLAGS = -d
 
 LDADD = \
+    $(LIBREADLINE) \
     $(top_builddir)/src/common/libemu8051.a
 
 bin_PROGRAMS = emu8051-cli

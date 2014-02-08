@@ -19,10 +19,11 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include "config.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 
-#include "config.h"
 #include "common.h"
 #include "cpu8051.h"
 #include "options.h"
@@ -55,7 +56,6 @@ main(int argc, char **argv)
 	} else {
 		menu_display_usage();
 		console_show_registers();
-		menu_prompt();
 		yyparse();
 	}
 
