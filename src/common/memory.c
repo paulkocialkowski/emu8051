@@ -19,6 +19,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -73,6 +74,20 @@ memory_init(void)
 
 		memset(m->buf, 0x00, m->size);
 	}
+}
+
+/* Return true if address is valid, false otherwise. */
+int
+memory_check_address(enum mem_id_t id, unsigned long address, int display_error)
+{
+	if (address >= (unsigned long) mem_infos[id].max_size) {
+		if (display_error == DISPLAY_ERROR_YES)
+			log_err("Address out of range ($%X >= $%X", address,
+				mem_infos[id].max_size - 1);
+		return false;
+	}
+	else
+		return true;
 }
 
 u_int8_t *
@@ -207,7 +222,26 @@ pgm_read_addr16(uint16_t base)
 void
 DumpMem(unsigned int address, int size, int memory_id)
 {
+	int rc;
 	int Offset, Column;
+
+	if (size == 0) {
+		log_err("invalid size: 0");
+		return;
+	}
+
+	/* Validate start address. */
+	rc = memory_check_address(memory_id, address, DISPLAY_ERROR_YES);
+	if (rc != false) {
+		/* Validate end address. */
+		rc = memory_check_address(memory_id, address + (size - 1),
+					  DISPLAY_ERROR_NO);
+		if (rc == false)
+			log_err("Trying to read beyond memory limit");
+	}
+
+	if (rc == false)
+		return;
 
 	for (Offset = 0; Offset < size; Offset += 16) {
 		unsigned char data[16];

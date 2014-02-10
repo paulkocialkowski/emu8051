@@ -80,7 +80,7 @@ ToggleBreakpoint(unsigned int Address);
 void
 cpu8051_init(void);
 
-void
+int
 cpu8051_Exec(void);
 
 int

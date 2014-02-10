@@ -46,11 +46,11 @@ IsBreakpoint(unsigned int address)
 
 	for (k = 0; k < cpu8051.bp_count; k++) {
 		if (cpu8051.bp[k] == address)
-			return 1;
+			return true;
 	}
 
 	/* The address was not found in the list of breakpoints */
-	return 0;
+	return false;
 }
 
 /* Check if the address is a stop point */
@@ -58,9 +58,9 @@ int
 IsStoppoint(unsigned int address)
 {
 	if ((options.stop_address != 0) && (options.stop_address == address))
-		return 1;
+		return true;
 	else
-		return 0;
+		return false;
 }
 
 /* Show Breakpoints list */
@@ -69,18 +69,27 @@ ShowBreakpoints(void)
 {
 	int k;
 
-	for (k = 0; k < cpu8051.bp_count; k++)
-		printf("Breakpoint at address = %.4X\n", cpu8051.bp[k]);
+	if (cpu8051.bp_count) {
+		printf("Breakpoints:\n");
+		for (k = 0; k < cpu8051.bp_count; k++)
+			printf("  $%.4X\n", cpu8051.bp[k]);
+	} else
+		printf("No breakpoints defined\n");
 }
 
 /* Set Breakpoint at address at the end of the breakpoint list */
 void
 SetBreakpoint(unsigned int address)
 {
-	if (IsBreakpoint(address))
-		return; /* Already a breakpoint */
+	int rc;
 
-	if (cpu8051.bp_count < MAXBP)
+	rc = memory_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
+	if (rc == false)
+		return; /* Error */
+
+	/* Check if breakpoint is already defined. */
+	if ((IsBreakpoint(address) == false) &&
+	    (cpu8051.bp_count < MAXBP))
 		cpu8051.bp[cpu8051.bp_count++] = address;
 }
 
@@ -89,6 +98,17 @@ void
 ClearBreakpoint(unsigned int address)
 {
 	int k;
+	int rc;
+
+	rc = memory_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
+	if (rc == false)
+		return; /* Error */
+
+	/* Check if breakpoint is defined. */
+	if (IsBreakpoint(address) == false) {
+		log_err("No breakpoint defined at address $%X", address);
+		return;
+	}
 
 	for (k = 0; k < cpu8051.bp_count; k++) {
 		if (cpu8051.bp[k] == address) {
@@ -306,12 +326,20 @@ cpu8051_CheckInterrupts(void)
 }
 
 /* Execute at address cpu8051.pc from PGMMem */
-void
+int
 cpu8051_Exec(void)
 {
 	int i;
+	int rc;
 	unsigned char opcode;
 	int insttiming;
+
+	/* Basic address check (may fail later if opcode has operands). */
+	rc = memory_check_address(PGM_MEM_ID, cpu8051.pc, DISPLAY_ERROR_NO);
+	if (rc == false) {
+		log_err("Trying to run past program memory limit");
+		return false; /* Error */
+	}
 
 	opcode = memory_read8(PGM_MEM_ID, cpu8051.pc);
 	cpu8051.pc++;
@@ -330,6 +358,8 @@ cpu8051_Exec(void)
 		timers_check();
 		cpu8051.clock++;
 	}
+
+	return true;
 }
 
 /*
@@ -343,35 +373,39 @@ cpu8051_Exec(void)
 int
 cpu8051_run(int instr_count, int (*interface_stop)(void))
 {
+	int rc;
 	int stop = false;
 	int breakpoint_hit = false;
 
 	while (stop == false) {
-		cpu8051_Exec();
-
-		if (instr_count > 0)
-			instr_count--;
-
-		if (instr_count == 0) {
+		rc = cpu8051_Exec();
+		if (rc == false)
 			stop = true;
-			log_info("Number of instructions reached! Stopping!");
-		}
+		else {
+			if (instr_count > 0)
+				instr_count--;
 
-		if (IsBreakpoint(cpu8051.pc)) {
-			stop = true;
-			breakpoint_hit = true;
-			log_info("Breakpoint hit at %.4X! Stopping!", cpu8051.pc);
-		}
-
-		if (IsStoppoint(cpu8051.pc)) {
-			stop = true;
-			log_info("Stoppoint hit at %.4X! Stopping!", cpu8051.pc);
-		}
-
-		if (interface_stop != NULL) {
-			if (interface_stop()) {
+			if (instr_count == 0) {
 				stop = true;
-				log_info("Caught break signal!");
+				log_info("Number of instructions reached");
+			}
+
+			if (IsBreakpoint(cpu8051.pc)) {
+				stop = true;
+				breakpoint_hit = true;
+				log_info("Breakpoint hit at %.4X", cpu8051.pc);
+			}
+
+			if (IsStoppoint(cpu8051.pc)) {
+				stop = true;
+				log_info("Stoppoint hit at %.4X", cpu8051.pc);
+			}
+
+			if (interface_stop != NULL) {
+				if (interface_stop()) {
+					stop = true;
+					log_info("Caught break signal");
+				}
 			}
 		}
 	}

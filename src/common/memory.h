@@ -43,8 +43,14 @@ enum mem_id_t {
 	MEM_ID_COUNT
 };
 
+#define DISPLAY_ERROR_NO  0
+#define DISPLAY_ERROR_YES 1
+
 void
 memory_init(void);
+
+int
+memory_check_address(enum mem_id_t id, unsigned long address, int display_error);
 
 u_int8_t *
 memory_getbuf(enum mem_id_t id, unsigned long address);

@@ -9,6 +9,7 @@
 #include "menu.h"
 #include "memory.h"
 #include "timers.h"
+#include "memory.h"
 #include "cpu8051.h"
 
 /* int yydebug = 1; */
@@ -112,7 +113,7 @@ breakpoint_set:
 	{
           log_debug("  Set breakpoint at $%04X", $2);
           SetBreakpoint($2);
-	}
+        }
 	;
 
 breakpoint_display:
