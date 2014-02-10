@@ -92,6 +92,6 @@ uint16_t
 pgm_read_addr16(uint16_t base);
 
 void
-DumpMem(unsigned int address, int size, int memory_id);
+memory_dump(unsigned int address, int size, int memory_id);
 
 #endif /* MEMORY_H */

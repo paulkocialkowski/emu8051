@@ -220,7 +220,7 @@ pgm_read_addr16(uint16_t base)
 
 /* Dump memory */
 void
-DumpMem(unsigned int address, int size, int memory_id)
+memory_dump(unsigned int address, int size, int memory_id)
 {
 	int rc;
 	int Offset, Column;

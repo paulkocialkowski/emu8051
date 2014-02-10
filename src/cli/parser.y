@@ -128,19 +128,19 @@ dump_mem:
 	TOK_DE NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump External Data Memory at $%04X, len %d", $2, $3);
-          DumpMem($2, $3, EXT_MEM_ID);
+          memory_dump($2, $3, EXT_MEM_ID);
 	}
         |
 	TOK_DI NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump Internal Data Memory at $%04X, len %d", $2, $3);
-          DumpMem($2, $3, INT_MEM_ID);
+          memory_dump($2, $3, INT_MEM_ID);
 	}
         |
 	TOK_DP NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Dump Program Memory at $%04X, len %d", $2, $3);
-          DumpMem($2, $3, PGM_MEM_ID);
+          memory_dump($2, $3, PGM_MEM_ID);
 	}
 	;
 
