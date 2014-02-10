@@ -97,33 +97,32 @@ menu_get_input(char *buf, ssize_t size)
 void
 menu_display_usage(void)
 {
-	printf("      *******************\n"
-	       "      *  8051 Emulator  *\n"
-	       "      *******************\n"
+	printf("  " PACKAGE_NAME " commands, [] = options:\n"
 	       "\n"
-	       "      Available commands, [ ] = options\n"
-	       "\n"
-	       "  Set Breakpoint.............. SB [address]\n"
-	       "  Remove Breakpoint........... RB [address]\n"
-	       "                                  address = all:"
-	       " clear all breakpoints\n"
-	       "  Display Breakpoint(s)....... DB\n"
-	       "  Dump External Data Memory... DE [address] [size]\n"
-	       "  Dump Internal Data Memory... DI [address] [size]\n"
-	       "  Dump Program Memory......... DP [address] [size]\n"
-	       "  Display Registers........... DR\n"
-	       "  Help........................ H or ?\n"
-	       "  Modify External Data Memory. ME address value\n"
-	       "  Modify Internal Data Memory. MI address value\n"
-	       "  Modify Program Memory....... MP address value\n"
-	       "  Modify Register............. MR register value\n"
-	       "  Quit........................ Q\n"
-	       "  Run......................... R [number of instructions]\n"
-	       "  Step........................ S\n"
-	       "  Unassemble.................. U [address]"
-	       " [number of instructions]\n"
-	       "  Reset processor............. Z\n"
-	       "  Reset general-purpose timer. ZT\n");
+	       "  sb [ADDRESS]        Set breakpoint at PC or ADDRESS\n"
+	       "  rb [ADDRESS]        Remove breakpoint at PC or ADDRESS\n"
+	       "                        ADDRESS = all: clear all breakpoints\n"
+	       "  db                  Display breakpoints\n"
+	       "  de ADDRESS NUM      Dump NUM bytes from ADDRESS in external data"
+	       " memory\n"
+	       "  di ADDRESS NUM      Dump NUM bytes from ADDRESS in internal data"
+	       " memory\n"
+	       "  dp ADDRESS NUM      Dump NUM bytes from ADDRESS in program"
+	       " memory\n"
+	       "  dr                  Display registers\n"
+	       "  h or ?              Display this help menu\n"
+	       "  q                   Quit\n"
+	       "  r [NUM]             Run until breakpoint or for NUM "
+	       "instructions\n"
+	       "  s                   Step (execute 1 instruction)\n"
+	       "  u [ADDRESS] [NUM]   Unassemble NUM instructions at ADDRESS\n"
+	       "  we ADDRESS VAL      Write VAL at ADDRESS in external data memory\n"
+	       "  wi ADDRESS VAL      Write VAL at ADDRESS in internal data memory\n"
+	       "  wp ADDRESS VAL      Write VAL at ADDRESS in program memory\n"
+	       "  wr REGISTER VAL     Write VAL at REGISTER (REGISTER is name of"
+	       " register)\n"
+	       "  z                   Reset processor\n"
+	       "  zt                  Reset emulator (not processor) timer\n");
 }
 
 /* Disassemble NumberInst instructions at Address */
@@ -277,8 +276,8 @@ console_dump_sfr_registers_compact(void)
 	printf("---------------------------------------------------------------"
 	       "-------\n");
 
-	printf("| General-purpose Timer: %08d |\n", gp_timer_read());
-	printf("-----------------------------------\n");
+	printf("| Emulator timer: %08d |\n", gp_timer_read());
+	printf("----------------------------\n");
 }
 
 /* Show CPU registers */
