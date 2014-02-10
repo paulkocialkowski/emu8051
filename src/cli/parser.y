@@ -43,6 +43,7 @@ int yyerror(const char *str)
 %token TOK_UNASM
 %token TOK_MOD_EXT TOK_MOD_INT TOK_MOD_PROG TOK_MOD_REG
 %token TOK_QUIT
+%token TOK_A TOK_B TOK_C TOK_D
 
 %%
 
@@ -212,9 +213,24 @@ reset:
           cpu8051_Reset();
 	}
         |
-	TOK_RST_TIMER TOK_ENTER
+	TOK_RST_TIMER TOK_A TOK_ENTER
 	{
-          gp_timer_reset();
+          gp_timer_reset(0);
+	}
+        |
+	TOK_RST_TIMER TOK_B TOK_ENTER
+	{
+          gp_timer_reset(1);
+	}
+        |
+	TOK_RST_TIMER TOK_C TOK_ENTER
+	{
+          gp_timer_reset(2);
+	}
+        |
+	TOK_RST_TIMER TOK_D TOK_ENTER
+	{
+          gp_timer_reset(3);
 	}
         ;
 

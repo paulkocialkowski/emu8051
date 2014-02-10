@@ -31,7 +31,7 @@
 #include "timers.h"
 #include "main.h"
 
-static GtkWidget *label;
+static GtkWidget *label[GP_TIMERS_COUNT];
 
 static GtkWidget *
 button_add_stock(GtkWidget *box, gchar *stock_id, int display_label)
@@ -59,36 +59,44 @@ button_add_stock(GtkWidget *box, gchar *stock_id, int display_label)
 void
 timerwin_update(void)
 {
+	int id;
 	char buf[128];
 
-	/* Display textin bold, with big font size. */
-	sprintf(buf , "<b><big>%08d</big></b> cycles", gp_timer_read());
+	for (id = 0; id < GP_TIMERS_COUNT; id++) {
+		/* Display textin bold, with big font size. */
+		sprintf(buf , "<b><big>%08d</big></b> cycles", gp_timer_read(id));
 
-	gtk_label_set_markup(GTK_LABEL(label), buf);
+		gtk_label_set_markup(GTK_LABEL(label[id]), buf);
+	}
 }
 
 static void
 timer_reset_callback(GtkWidget *widget, gpointer data)
 {
+	int id = GPOINTER_TO_INT(data);
+
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
-	(void) data;
 
-	gp_timer_reset();
+	log_info("timer_reset_callback ID = %d", id);
+
+	gp_timer_reset(id);
 	timerwin_update();
 }
 
 GtkWidget *
-timerwin_init(void)
+timerwin_init(int id)
 {
 	GtkWidget *frame;
 	GtkWidget *hbox;
 	GtkWidget *vbox;
 	GtkWidget *timer_reset_button;
+	char title[100];
 
 	log_debug("timer window init");
 
-	frame = gtk_frame_new("General-purpose Timer");
+	sprintf(title, "Emulator timer %c", 'A' + id);
+	frame = gtk_frame_new(title);
 
 	/* The items of the hbox are NOT given equal space in the box. */
 	hbox = gtk_hbox_new(false, 0);
@@ -101,12 +109,12 @@ timerwin_init(void)
 	vbox = gtk_vbox_new(true, 0);
 	timer_reset_button = button_add_stock(vbox, GTK_STOCK_REFRESH, false);
 	g_signal_connect(G_OBJECT(timer_reset_button), "clicked",
-			 G_CALLBACK(timer_reset_callback), NULL);
+			 G_CALLBACK(timer_reset_callback), GINT_TO_POINTER(id));
 	gtk_box_pack_start(GTK_BOX(hbox), vbox, false, false, 3);
 
-	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label), "<small>Small text</small>");
-	gtk_box_pack_start(GTK_BOX(hbox), label, false, false, 10);
+	label[id] = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(label[id]), "<small>Small text</small>");
+	gtk_box_pack_start(GTK_BOX(hbox), label[id], false, false, 10);
 
 	gtk_container_add(GTK_CONTAINER(frame), hbox);
 

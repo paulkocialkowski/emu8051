@@ -97,6 +97,8 @@ menu_get_input(char *buf, ssize_t size)
 void
 menu_display_usage(void)
 {
+	int id;
+
 	printf("  " PACKAGE_NAME " commands, [] = options:\n"
 	       "\n"
 	       "  sb [ADDRESS]        Set breakpoint at PC or ADDRESS\n"
@@ -122,7 +124,14 @@ menu_display_usage(void)
 	       "  wr REGISTER VAL     Write VAL at REGISTER (REGISTER is name of"
 	       " register)\n"
 	       "  z                   Reset processor\n"
-	       "  zt                  Reset emulator (not processor) timer\n");
+	       "  zt ID               Reset emulator timer ID (");
+
+	for (id = 0; id < GP_TIMERS_COUNT; id++) {
+		printf("%c", 'A' + id);
+		if (id < (GP_TIMERS_COUNT - 1))
+			printf(", ");
+	}
+	printf(")\n");
 }
 
 /* Disassemble NumberInst instructions at Address */
@@ -240,6 +249,7 @@ console_dump_sfr_registers_detailed(void)
 static void
 console_dump_sfr_registers_compact(void)
 {
+	int id;
 	unsigned char PSW = cpu8051_ReadD(_PSW_);
 	int BankSelect = (PSW & 0x18);
 
@@ -276,8 +286,12 @@ console_dump_sfr_registers_compact(void)
 	printf("---------------------------------------------------------------"
 	       "-------\n");
 
-	printf("| Emulator timer: %08d |\n", gp_timer_read());
-	printf("----------------------------\n");
+	for (id = 0; id < GP_TIMERS_COUNT; id++)
+		printf("| Emulator timer %c: %08d |\n", 'A' + id, gp_timer_read(id));
+
+	printf("------------------------------\n");
+
+
 }
 
 /* Show CPU registers */

@@ -40,6 +40,10 @@ wr          return TOK_MOD_REG;
 z           return TOK_RST;
 zt          return TOK_RST_TIMER;
 all         return TOK_ALL;
+a           return TOK_A;
+b           return TOK_B;
+c           return TOK_C;
+d           return TOK_D;
 [a-z0-9]+   { yylval.string = strdup(yytext); return WORD; }
 [\n]        return TOK_ENTER;
 [ \t]+      { /* ignore whitespace */ }

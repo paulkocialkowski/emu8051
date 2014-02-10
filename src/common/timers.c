@@ -31,29 +31,34 @@
 #include "psw.h"
 #include "options.h"
 #include "instructions_8051.h"
+#include "timers.h"
 
-static int gp_timer_value;
+static int gp_timer_value[GP_TIMERS_COUNT];
 
 extern struct options_t options;
 
 void
-gp_timer_reset(void)
+gp_timer_reset(int id)
 {
-	log_debug("gp timer reset");
-	gp_timer_value = 0;
+	log_debug("gp timer %d reset", id);
+	gp_timer_value[id] = 0;
 }
 
 void
-gp_timer_increment(int count)
+gp_timers_increment(int count)
 {
-	log_debug("gp timer increment");
-	gp_timer_value += count;
+	int id;
+
+	log_debug("gp timers increment");
+
+	for (id = 0; id < GP_TIMERS_COUNT; id++)
+		gp_timer_value[id] += count;
 }
 
 int
-gp_timer_read(void)
+gp_timer_read(int id)
 {
-	return gp_timer_value;
+	return gp_timer_value[id];
 }
 
 static void

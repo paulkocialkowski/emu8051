@@ -139,9 +139,12 @@ ToggleBreakpoint(unsigned int address)
 void
 cpu8051_init(void)
 {
+	int id;
+
 	memory_init();
 
-	gp_timer_reset();
+	for (id = 0; id < GP_TIMERS_COUNT; id++)
+		gp_timer_reset(id);
 
 	cpu8051.pc = 0;
 	cpu8051.clock = 0;
@@ -351,7 +354,7 @@ cpu8051_Exec(void)
 	 */
 	psw_compute_parity_bit();
 
-	gp_timer_increment(insttiming);
+	gp_timers_increment(insttiming);
 
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_CheckInterrupts();

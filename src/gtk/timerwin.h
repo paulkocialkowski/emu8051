@@ -25,7 +25,7 @@
 #include <gtk/gtk.h>
 
 GtkWidget *
-timerwin_init(void);
+timerwin_init(int id);
 
 void
 timerwin_update(void);

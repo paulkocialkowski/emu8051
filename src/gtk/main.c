@@ -32,7 +32,7 @@
 #include "memory.h"
 #include "options.h"
 #include "hexfile.h"
-
+#include "timers.h"
 #include "main.h"
 #include "reset.xpm"
 #include "run.xpm"
@@ -478,6 +478,7 @@ emugtk_create_memory_paned(void)
 static void
 emugtk_window_init(void)
 {
+	int id;
 	GtkWidget *vbox;
 	GtkWidget *menu_bar;
 	GtkWidget *buttons_bar;
@@ -508,10 +509,12 @@ emugtk_window_init(void)
 	buttons_bar = AddButtons();
 
 	scrollwin = pswwin_init();
-	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 100);
+	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 50);
 
-	scrollwin = timerwin_init();
-	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 100);
+	for (id = 0; id < GP_TIMERS_COUNT; id++) {
+		scrollwin = timerwin_init(id);
+		gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 15);
+	}
 
 	/* hpaned will contain registers and disassembly windows. */
 	hpaned = gtk_hpaned_new();
