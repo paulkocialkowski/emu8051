@@ -13,13 +13,13 @@
 #include <gtk/gtk.h>
 
 void
-AddMenuSeparator(GtkWidget *menu);
+add_menu_separator(GtkWidget *menu);
 
 void
 emugtk_new_file(char *file);
 
 void
-emugtk_UpdateDisplay(void);
+emugtk_update_display(void);
 
 void
 emugtk_quit_gui(void);

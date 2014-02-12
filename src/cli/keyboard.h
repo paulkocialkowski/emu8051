@@ -17,9 +17,9 @@ int
 getch(void);
 
 void
-InitUnixKB(void);
+keyboard_init(void);
 
 void
-ResetUnixKB(void);
+keyboard_reset(void);
 
 #endif /* _KEYBOARD_H_ */

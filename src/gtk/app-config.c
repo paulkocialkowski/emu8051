@@ -53,19 +53,20 @@ app_config_init(void)
 }
 
 static int
-app_config_key_file_get_int(GKeyFile *kf, const char *grp, const char *key, int *value)
+app_config_key_file_get_int(GKeyFile *kf, const char *grp, const char *key,
+			    int *value)
 {
-    char *str = g_key_file_get_value(kf, grp, key, NULL);
+	char *str = g_key_file_get_value(kf, grp, key, NULL);
 
-    log_debug("key: %s", key);
+	log_debug("key: %s", key);
 
-    if (G_LIKELY(str)) {
-	    *value = atoi(str);
-	    log_debug("  value = %d", *value);
-	    g_free(str);
-    }
+	if (G_LIKELY(str)) {
+		*value = atoi(str);
+		log_debug("  value = %d", *value);
+		g_free(str);
+	}
 
-    return str != NULL;
+	return str != NULL;
 }
 
 static void
@@ -159,10 +160,9 @@ app_config_save(void)
 
 	dir_path = app_config_get_dir_path();
 
-	if (g_mkdir_with_parents(dir_path, 0700) != -1)
-	{
+	if (g_mkdir_with_parents(dir_path, 0700) != -1) {
 		char *file_path;
-		GString* buf = g_string_sized_new(1024);
+		GString *buf = g_string_sized_new(1024);
 
 		g_string_append(buf, "\n[emulation]\n");
 

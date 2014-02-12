@@ -23,18 +23,18 @@ void
 console_show_registers(void);
 
 void
-SetRegister(char *Register, int NewValue);
+register_set(char *name, int value);
 
 void
 console_reset(void);
 
 void
-console_exec(int NbInst);
+console_exec(int num);
 
 void
 console_trace(void);
 
 void
-DisasmN(unsigned int Address, int NumberInst);
+disassemble_num(unsigned int address, int num);
 
 #endif /* _MENU_H_ */

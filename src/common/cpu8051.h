@@ -45,52 +45,49 @@ struct cpu8051_t {
 _SCOPE_ struct cpu8051_t cpu8051;
 
 int
-IsBreakpoint(unsigned int Address);
-
-int
-IsStoppoint(unsigned int address);
+breakpoint_is_defined(unsigned int address);
 
 void
-ShowBreakpoints(void);
+breakpoints_show(void);
 
 void
-SetBreakpoint(unsigned int Address);
+breakpoint_set(unsigned int address);
 
 void
-ClearBreakpoint(unsigned int Address);
+breakpoint_clr(unsigned int address);
 
 void
-ClearAllBreakpoints(void);
+breakpoints_clr_all(void);
 
 void
-ToggleBreakpoint(unsigned int Address);
+breakpoint_toggle(unsigned int address);
 
 void
 cpu8051_init(void);
 
 int
-cpu8051_Exec(void);
+cpu8051_exec(void);
 
 int
 cpu8051_run(int instr_count, int (*interface_stop)(void));
 
 void
-cpu8051_Reset(void);
+cpu8051_reset(void);
 
 void
-cpu8051_WriteD(unsigned int Address, unsigned char Value);
+cpu8051_WriteD(unsigned int address, unsigned char value);
 
 void
-cpu8051_WriteI(unsigned int Address, unsigned char Value);
+cpu8051_WriteI(unsigned int address, unsigned char value);
 
 void
 cpu8051_WriteB(uint8_t bit_address, uint8_t value);
 
 unsigned char
-cpu8051_ReadD(unsigned int Address);
+cpu8051_ReadD(unsigned int address);
 
 unsigned char
-cpu8051_ReadI(unsigned int Address);
+cpu8051_ReadI(unsigned int address);
 
 unsigned char
 cpu8051_ReadB(uint8_t bit_address);
@@ -99,12 +96,12 @@ int
 cpu8051_get_instruction_size(unsigned char opcode);
 
 void
-cpu8051_disasm_mnemonic(unsigned char OpCode, char *buf);
+cpu8051_disasm_mnemonic(unsigned char opcode, char *buf);
 
 void
 cpu8051_disasm_args(unsigned int address, char *buf);
 
 int
-cpu8051_Disasm(unsigned int Address, char *Text);
+cpu8051_disasm(unsigned int address, char *text);
 
 #endif /* CPU8051_H */

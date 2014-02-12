@@ -50,7 +50,8 @@ regwin_read_timer(int timer_low_addr)
 static void
 regwin_write_timer(int timer_low_addr, int val)
 {
-	memory_sfr_write8(timer_low_addr + 2, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+	memory_sfr_write8(timer_low_addr + 2,
+			  (u_int8_t) ((val & 0x0000FFFF) >> 8));
 	memory_sfr_write8(timer_low_addr, (u_int8_t) val);
 }
 
@@ -94,7 +95,8 @@ regwin_read_rx(int offset)
 static void
 regwin_write_rx(int offset, int val)
 {
-	memory_write8(INT_MEM_ID, regwin_read_bank_offset() + offset, (u_int8_t) val);
+	memory_write8(INT_MEM_ID, regwin_read_bank_offset() + offset,
+		      (u_int8_t) val);
 }
 
 /* This array defines how to read value for each register. */
@@ -262,27 +264,29 @@ static struct regwin_infos_t regwin_infos[SFR_REGS] = {
 static unsigned int
 regwin_read_generic(int addr, int width)
 {
-	if (width == 2)
+	if (width == 2) {
 		return memory_sfr_read8(addr);
-	else if (width == 4) {
+	} else if (width == 4) {
 		/* Address is low address. */
 		return (memory_sfr_read8(addr + 1) << 8) |
 			memory_sfr_read8(addr);
-	} else
+	} else {
 		return 0xFFFFFFFF;
+	}
 }
 
 static void
 regwin_write_generic(int addr, int val, int width)
 {
-	if (width == 2)
+	if (width == 2) {
 		memory_sfr_write8(addr, (u_int8_t) val);
-	else if (width == 4) {
+	} else if (width == 4) {
 		/* Address is low address. */
-		memory_sfr_write8(addr + 1, (u_int8_t) ((val & 0x0000FFFF) >> 8));
+		memory_sfr_write8(addr + 1,
+				  (u_int8_t) ((val & 0x0000FFFF) >> 8));
 		memory_sfr_write8(addr, (u_int8_t) val);
 	}
-};
+}
 
 int
 regwin_read(int row)

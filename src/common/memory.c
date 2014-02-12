@@ -73,9 +73,9 @@ memory_check_address(enum mem_id_t id, unsigned long address, int display_error)
 			log_err("Address out of range ($%X >= $%X", address,
 				mem_infos[id].max_size - 1);
 		return false;
-	}
-	else
+	} else {
 		return true;
+	}
 }
 
 u_int8_t *
@@ -98,8 +98,9 @@ memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value)
 			"  Address (%lu) greater than maximum memory size",
 			id, address);
 		return;
-	} else
+	} else {
 		mem_infos[id].buf[address] = value;
+	}
 }
 
 void
@@ -124,8 +125,9 @@ memory_read8(enum mem_id_t id, unsigned long address)
 			"  Address (%lu) greater than maximum memory size",
 			id, address);
 		return 0;
-	} else
+	} else {
 		return mem_infos[id].buf[address];
+	}
 }
 
 u_int8_t
@@ -211,7 +213,7 @@ void
 memory_dump(unsigned int address, int size, int memory_id)
 {
 	int rc;
-	int Offset, Column;
+	int offset, col;
 
 	if (size == 0) {
 		log_err("invalid size: 0");
@@ -220,35 +222,35 @@ memory_dump(unsigned int address, int size, int memory_id)
 
 	/* Validate start address. */
 	rc = memory_check_address(memory_id, address, DISPLAY_ERROR_YES);
-	if (rc != false) {
+	if (!rc) {
 		/* Validate end address. */
 		rc = memory_check_address(memory_id, address + (size - 1),
 					  DISPLAY_ERROR_NO);
-		if (rc == false)
+		if (!rc)
 			log_err("Trying to read beyond memory limit");
 	}
 
-	if (rc == false)
+	if (!rc)
 		return;
 
-	for (Offset = 0; Offset < size; Offset += 16) {
+	for (offset = 0; offset < size; offset += 16) {
 		unsigned char data[16];
 
-		printf("%.4X ", address + Offset);
+		printf("%.4X ", address + offset);
 
-		for (Column = 0; Column < 16; Column++) {
-			data[Column] = memory_read8(memory_id, address +
-						    Offset + Column);
-			printf(" %.2X", (int) data[Column]);
+		for (col = 0; col < 16; col++) {
+			data[col] = memory_read8(memory_id, address +
+						 offset + col);
+			printf(" %.2X", (int) data[col]);
 		}
 		printf("  ");
 
 		/* Display any ASCII characters */
-		for (Column = 0; Column < 16; Column++) {
-			if ((int) data[Column] >= 32 &&
-			    (int) data[Column] <= 126) {
-				printf("%c", data[Column]);
-			} else
+		for (col = 0; col < 16; col++) {
+			if ((int) data[col] >= 32 &&
+			    (int) data[col] <= 126)
+				printf("%c", data[col]);
+			else
 				printf(".");
 		}
 		printf("\n");

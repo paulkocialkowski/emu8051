@@ -28,6 +28,8 @@
 /* Maximum of 75 digits with 32-bytes data records. */
 #define HEXFILE_LINE_BUFFER_LEN 128
 
+static int asciihex2int_error;
+
 /* Convert integer to ASCII hex string. */
 void
 int2asciihex(int val, char *str, int width)
@@ -47,15 +49,21 @@ int
 asciihex2int(char *str)
 {
 	int val;
+	int rc;
 
-	sscanf(str, "%X", &val);
+	rc = sscanf(str, "%X", &val);
+
+	if (rc == 0) {
+		log_err("ASCII to hex conversion failure");
+		asciihex2int_error = true;
+	}
 
 	return val;
 }
 
 /* Convert an ascii string to an hexadecimal number. */
-unsigned int
-Ascii2Hex(char *istring, int length)
+static unsigned int
+asciihex2int_len(char *istring, int length)
 {
 	unsigned int result = 0;
 	int i, ascii_code;
@@ -69,7 +77,7 @@ Ascii2Hex(char *istring, int length)
 			ascii_code &= 0xDF;
 
 		if ((ascii_code >= 0x30 && ascii_code <= 0x39) ||
-		     (ascii_code >= 0x41 && ascii_code <= 0x46)) {
+		    (ascii_code >= 0x41 && ascii_code <= 0x46)) {
 			ascii_code -= 0x30;
 			if (ascii_code > 9)
 				ascii_code -= 7;
@@ -77,8 +85,8 @@ Ascii2Hex(char *istring, int length)
 			result <<= 4;
 			result += ascii_code;
 		} else {
-			log_fail("Error converting ASCII string <%s> to hex"
-				 " (len=%d)", istring, length);
+			log_err("ASCII to hex conversion failure");
+			asciihex2int_error = true;
 		}
 	}
 	return result;
@@ -90,13 +98,14 @@ Ascii2Hex(char *istring, int length)
  *   false: failure
  */
 int
-LoadHexFile(const char *filename)
+hexfile_load(const char *filename)
 {
-	int i, j, RecLength, LoadOffset, RecType, Data, Checksum;
+	int i, j, rec_len, load_offset, rec_type, data, checksum;
 	FILE *fp;
 	int status;
 	char line[HEXFILE_LINE_BUFFER_LEN];
 	int valid = false;
+	int line_num = 1;
 
 	log_debug("LoadHexFile");
 
@@ -117,56 +126,60 @@ LoadHexFile(const char *filename)
 	*/
 	while (fgets(line, HEXFILE_LINE_BUFFER_LEN, fp) != NULL) {
 		i = 0;
-		Checksum = 0;
+		checksum = 0;
 
 		if (line[i++] != ':') {
 			log_err("hexfile line not beginning with \":\"");
 			goto close_file;
 		}
 
-		RecLength = Ascii2Hex(&line[i], 2);
+		rec_len = asciihex2int_len(&line[i], 2);
 		i += 2;
-		Checksum += RecLength;
+		checksum += rec_len;
 
-		LoadOffset = Ascii2Hex(&line[i], 4);
-		Checksum += LoadOffset / 256;
-		Checksum += LoadOffset % 256;
+		load_offset = asciihex2int_len(&line[i], 4);
+		checksum += load_offset / 256;
+		checksum += load_offset % 256;
 		i += 4;
 
-		RecType = Ascii2Hex(&line[i], 2);
+		rec_type = asciihex2int_len(&line[i], 2);
 		i += 2;
-		Checksum += RecType;
+		checksum += rec_type;
 
-		if (RecType == 0) {
-			for (j = 0; j < RecLength; j++) {
-				Data = Ascii2Hex(&line[i], 2);
+		if (rec_type == 0) {
+			for (j = 0; j < rec_len; j++) {
+				data = asciihex2int_len(&line[i], 2);
 				memory_write8(PGM_MEM_ID,
-					      (unsigned int)(LoadOffset + j),
-					      (unsigned char)Data);
+					      (unsigned int) (load_offset + j),
+					      (unsigned char) data);
 				i += 2;
-				Checksum += Data;
+				checksum += data;
 			}
 		}
 
 		/* Read and add checksum value */
-		Checksum += Ascii2Hex(&line[i], 2);
-		Checksum &= 0x000000FF;
+		checksum += asciihex2int_len(&line[i], 2);
+		checksum &= 0x000000FF;
 
-		/* Make sure line checksum is valid */
-		if (Checksum) {
+		if (asciihex2int_error) {
+			log_err("hexfile parse error at line %d", line_num);
+			goto close_file;
+		} else if (checksum) {
 			log_err("hexfile checksum mismatch");
 			goto close_file;
 		}
 
-		if (RecType == 0) {
+		if (rec_type == 0) {
 			log_debug("hex record: data");
-		} else if (RecType == 1) {
+		} else if (rec_type == 1) {
 			log_debug("hex record: End Of File");
 			valid = true;
 			goto close_file;
 		} else {
-			log_warn("hex record: Unsupported ($%02X)", RecType);
+			log_warn("hex record: Unsupported ($%02X)", rec_type);
 		}
+
+		line_num++;
 	}
 
 close_file:
@@ -174,9 +187,8 @@ close_file:
 	if (status != EXIT_SUCCESS)
 		log_fail("Error closing hex file");
 
-	if (valid == false) {
+	if (!valid)
 		log_err("Error parsing hex file");
-	}
 
 	return valid;
 }

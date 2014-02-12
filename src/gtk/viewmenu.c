@@ -25,7 +25,7 @@ void toggle_layout(GtkWidget *widget, gpointer data)
 {
 	int id;
 
-        id = GPOINTER_TO_UINT(data);
+	id = GPOINTER_TO_UINT(data);
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  Switching to layout %d", id);
@@ -40,7 +40,7 @@ void toggle_bytes_per_row(GtkWidget *widget, gpointer data)
 {
 	int bytes_per_row;
 
-        bytes_per_row = GPOINTER_TO_UINT(data);
+	bytes_per_row = GPOINTER_TO_UINT(data);
 
 	if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
 		log_info("  Bytes per row = %d", bytes_per_row);
@@ -97,9 +97,11 @@ view_add_layout_submenu(GtkWidget *parent)
 	layout2 = gtk_radio_menu_item_new_with_label(group, "Layout2");
 
 	if (cfg->layout == UI_LAYOUT1)
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout1), TRUE);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout1),
+					       TRUE);
 	else
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout2), TRUE);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(layout2),
+					       TRUE);
 
 	g_signal_connect(G_OBJECT(layout1), "activate",
 			 G_CALLBACK(toggle_layout), (gpointer) UI_LAYOUT1);
@@ -130,9 +132,11 @@ view_add_bytes_per_row_submenu(GtkWidget *parent)
 	item2 = gtk_radio_menu_item_new_with_label(group, "16");
 
 	if (cfg->bytes_per_row == 8)
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item1), TRUE);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item1),
+					       TRUE);
 	else
-		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item2), TRUE);
+		gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item2),
+					       TRUE);
 
 	g_signal_connect(G_OBJECT(item1), "activate",
 			 G_CALLBACK(toggle_bytes_per_row), (gpointer) 8);
@@ -146,7 +150,7 @@ view_add_bytes_per_row_submenu(GtkWidget *parent)
 }
 
 void
-ViewAddMenu(GtkWidget *menu_bar)
+view_add_menu(GtkWidget *menu_bar)
 {
 	GtkWidget *item;
 	GtkWidget *menu;
@@ -170,12 +174,12 @@ ViewAddMenu(GtkWidget *menu_bar)
 	g_signal_connect(G_OBJECT(item), "activate",
 			 G_CALLBACK(toggle_ext_memory), NULL);
 
-	AddMenuSeparator(menu);
+	add_menu_separator(menu);
 
 	/* Add layout submenu */
 	view_add_layout_submenu(menu);
 
-	AddMenuSeparator(menu);
+	add_menu_separator(menu);
 
 	/* Add bytes per row submenu */
 	view_add_bytes_per_row_submenu(menu);

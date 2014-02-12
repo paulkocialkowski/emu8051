@@ -86,19 +86,19 @@ breakpoint_clr:
 	TOK_RB NUMBER TOK_ENTER
 	{
           log_debug("  Remove breakpoint at $%04X", $2);
-          ClearBreakpoint($2);
+          breakpoint_clr($2);
 	}
         |
 	TOK_RB TOK_ENTER
 	{
           log_debug("  Remove breakpoint at PC");
-          ClearBreakpoint(cpu8051.pc);
+          breakpoint_clr(cpu8051.pc);
 	}
         |
 	TOK_RB TOK_ALL TOK_ENTER
 	{
           log_debug("  Remove all breakpoints");
-          ClearAllBreakpoints();
+          breakpoints_clr_all();
 	}
 	;
 
@@ -106,14 +106,14 @@ breakpoint_set:
 	TOK_SB TOK_ENTER
 	{
           log_debug("  Set breakpoint at PC");
-          SetBreakpoint(cpu8051.pc);
+          breakpoint_set(cpu8051.pc);
 	}
         |
 
 	TOK_SB NUMBER TOK_ENTER
 	{
           log_debug("  Set breakpoint at $%04X", $2);
-          SetBreakpoint($2);
+          breakpoint_set($2);
         }
 	;
 
@@ -121,7 +121,7 @@ breakpoint_display:
 	TOK_DB TOK_ENTER
 	{
           log_debug("  Display breakpoints");
-          ShowBreakpoints();
+          breakpoints_show();
 	}
 	;
 
@@ -174,7 +174,7 @@ modify:
 	|
 	TOK_MOD_REG WORD NUMBER TOK_ENTER
 	{
-          SetRegister($2, $3);
+          register_set($2, $3);
 	}
 	;
 
@@ -210,7 +210,7 @@ help:
 reset:
 	TOK_RST TOK_ENTER
 	{
-          cpu8051_Reset();
+          cpu8051_reset();
 	}
         |
 	TOK_RST_TIMER TOK_A TOK_ENTER
@@ -244,18 +244,18 @@ step:
 unasm:
 	TOK_UNASM NUMBER NUMBER TOK_ENTER
 	{
-          DisasmN($2, $3);
+          disassemble_num($2, $3);
 	}
         |
 	TOK_UNASM NUMBER TOK_ENTER
 	{
-          DisasmN(cpu8051.pc, $2);
+          disassemble_num(cpu8051.pc, $2);
 	}
 	;
         |
 	TOK_UNASM TOK_ENTER
 	{
-          DisasmN(cpu8051.pc, 16);
+          disassemble_num(cpu8051.pc, 16);
 	}
 	;
 

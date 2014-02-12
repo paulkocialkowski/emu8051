@@ -13,12 +13,6 @@
 #include <gtk/gtk.h>
 
 void
-FileOpenEvent(GtkObject *object, gpointer data);
-
-void
-FileResetEvent(GtkObject *object, gpointer data);
-
-void
-FileAddMenu(GtkWidget *menu_bar);
+file_add_menu(GtkWidget *menu_bar);
 
 #endif /* FILEMENU_H */

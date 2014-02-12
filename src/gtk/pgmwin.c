@@ -24,8 +24,7 @@ static GtkWidget *pgmlist;
 #define LIST_VIEW_NAME "Program"
 #define DATA_ROWS 100
 
-enum
-{
+enum {
 	COL_BREAKPT = 0,
 	COL_ADDR,
 	COL_B0,
@@ -72,7 +71,8 @@ pgmwin_init_store(void)
 		if (row == 0)
 			gtk_list_store_set(store, &iter, COL_COLOR, "red", -1);
 		else
-			gtk_list_store_set(store, &iter, COL_COLOR, "black", -1);
+			gtk_list_store_set(store, &iter, COL_COLOR, "black",
+					   -1);
 	}
 
 	return store;
@@ -137,7 +137,7 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 		log_debug("  row address is: $%04X", val);
 
-		ToggleBreakpoint(val);
+		breakpoint_toggle(val);
 		pgmwin_refresh();
 
 		g_free(str_addr);
@@ -183,7 +183,7 @@ pgmwin_init(void)
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_BROWSE);
 
 	g_signal_connect(selection, "changed",
-		G_CALLBACK(pgmwin_sel_changed_event), NULL);
+			 G_CALLBACK(pgmwin_sel_changed_event), NULL);
 
 	pgmwin_init_columns();
 
@@ -203,9 +203,9 @@ pgmwin_refresh(void)
 {
 	int row;
 	GtkListStore *store;
-	unsigned int Address;
+	unsigned int address;
 
-	Address = cpu8051.pc;
+	address = cpu8051.pc;
 
 	store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(pgmlist)));
 
@@ -215,8 +215,8 @@ pgmwin_refresh(void)
 		char str[128];
 		int k;
 		int col_id;
-		int InstSize;
-		unsigned char OpCode;
+		int inst_size;
+		unsigned char opcode;
 
 		if (row == 0) {
 			/* Get first row in list store */
@@ -233,7 +233,7 @@ pgmwin_refresh(void)
 			return;
 		}
 
-		if (Address > 0xFFFF) {
+		if (address > 0xFFFF) {
 			/*
 			 * Not the most elegant solution, but it works to not
 			 * display instructions past last address, 0xFFFF.
@@ -250,7 +250,7 @@ pgmwin_refresh(void)
 					   -1);
 		} else {
 			/* Display breakpoints. */
-			if (IsBreakpoint(Address))
+			if (breakpoint_is_defined(address))
 				sprintf(str, "*");
 			else
 				str[0] = '\0';
@@ -258,35 +258,36 @@ pgmwin_refresh(void)
 			gtk_list_store_set(store, &iter, COL_BREAKPT, str, -1);
 
 			/* Display base address. */
-			int2asciihex(Address, str, 4);
+			int2asciihex(address, str, 4);
 
 			gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
 
-			OpCode = memory_read8(PGM_MEM_ID, Address);
-			InstSize = cpu8051_get_instruction_size(OpCode);
+			opcode = memory_read8(PGM_MEM_ID, address);
+			inst_size = cpu8051_get_instruction_size(opcode);
 
 			/* Display instruction hex bytes. */
 			for (k = 0, col_id = COL_B0; k < 3; k++, col_id++) {
-				if (k < InstSize)
+				if (k < inst_size)
 					int2asciihex(memory_read8(PGM_MEM_ID,
-								  Address + k),
+								  address + k),
 						     str, 2);
 				else
 					str[0] = '\0';
 
-				gtk_list_store_set(store, &iter, col_id, str, -1);
+				gtk_list_store_set(store, &iter, col_id, str,
+						   -1);
 			}
 
 			/* Display instruction menmonic. */
-			cpu8051_disasm_mnemonic(OpCode, str);
+			cpu8051_disasm_mnemonic(opcode, str);
 			gtk_list_store_set(store, &iter, COL_INST, str, -1);
 
 			/* Display instruction arguments (if applicable). */
 			str[0] = '\0';
-			cpu8051_disasm_args(Address, str);
+			cpu8051_disasm_args(address, str);
 			gtk_list_store_set(store, &iter, COL_ARGS, str, -1);
 
-			Address += InstSize;
+			address += inst_size;
 		}
 	}
 }

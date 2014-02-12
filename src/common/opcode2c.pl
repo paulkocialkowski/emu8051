@@ -23,15 +23,7 @@ sub write_header
     print $fd " * Copyright (C) 1999 Jonathan St-André\n";
     print $fd " * Copyright (C) 1999 Hugo Villeneuve <hugo@hugovil.com>\n";
     print $fd " *\n";
-    print $fd " * This program is free software; you can redistribute it and/or modify\n";
-    print $fd " * it under the terms of the GNU General Public License as published by\n";
-    print $fd " * the Free Software Foundation; either version 2 of the License, or\n";
-    print $fd " * (at your option) any later version.\n";
-    print $fd " *\n";
-    print $fd " * This program is distributed in the hope that it will be useful,\n";
-    print $fd " * but WITHOUT ANY WARRANTY; without even the implied warranty of\n";
-    print $fd " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n";
-    print $fd " * GNU General Public License for more details.\n";
+    print $fd " * This file is released under the GPLv2\n";
     print $fd " */\n\n";
 }
 

@@ -13,6 +13,6 @@
 #include <gtk/gtk.h>
 
 void
-ViewAddMenu(GtkWidget *menu_bar);
+view_add_menu(GtkWidget *menu_bar);
 
 #endif /* VIEWMENU_H */

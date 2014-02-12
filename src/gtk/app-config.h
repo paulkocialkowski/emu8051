@@ -23,8 +23,7 @@ enum layout_t {
 	UI_LAYOUT2,
 };
 
-struct app_config_t
-{
+struct app_config_t {
 	/* Emulation options */
 	int clear_ram_on_file_load;
 

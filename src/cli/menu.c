@@ -39,34 +39,34 @@ extern struct options_t options;
 int
 menu_get_input(char *buf, ssize_t size)
 {
-        char *line;
+	char *line;
 	int max_len;
 
 	max_len = size - 2;
 
-        if (feof(yyin))
-                return YY_NULL;
+	if (feof(yyin))
+		return YY_NULL;
 
 #ifdef HAVE_LIBREADLINE
 	/* Get the input line, and if non-empty, place it in the history. */
 	line = readline(MENU_PROMPT);
-        if (!line)
-                return YY_NULL;
+	if (!line)
+		return YY_NULL;
 
 	if (line && *line)
 		add_history(line);
 
-        if ((int) strlen(line) > max_len) {
-                printf("input line too long");
-                return YY_NULL;
-        }
+	if ((int) strlen(line) > max_len) {
+		printf("input line too long");
+		return YY_NULL;
+	}
 
-        strcpy(buf, line);
+	strcpy(buf, line);
 
 	/* Readline never gives you the last '\n', so add it back for Lex. */
-        strcat(buf, "\n");
+	strcat(buf, "\n");
 
-        free(line);
+	free(line);
 #else
 	/* It's okay to print a prompt if we are redirecting stdout,
 	 * as long as stdin is still a tty.  Otherwise, don't print
@@ -79,7 +79,7 @@ menu_get_input(char *buf, ssize_t size)
 		return YY_NULL;
 #endif
 
-        return strlen(buf);
+	return strlen(buf);
 }
 
 void
@@ -124,23 +124,23 @@ menu_display_usage(void)
 
 /* Disassemble NumberInst instructions at Address */
 void
-DisasmN(unsigned int Address, int NumberInst)
+disassemble_num(unsigned int address, int num)
 {
-	char TextTmp[255];
-	int Row;
+	char str[255];
+	int row;
 
-	for (Row = 0; Row < NumberInst ; Row++) {
-		Address += cpu8051_Disasm(Address, TextTmp);
-		printf("%s\n", TextTmp);
+	for (row = 0; row < num; row++) {
+		address += cpu8051_disasm(address, str);
+		printf("%s\n", str);
 
-		if (Address > 0xFFFF)
+		if (address > 0xFFFF)
 			return;
 	}
 }
 
 /* Capitalize all letters in buffer */
 static void
-Capitalize(char *buffer)
+uppercase(char *buffer)
 {
 	size_t k;
 
@@ -150,22 +150,22 @@ Capitalize(char *buffer)
 
 /* Set NewValue to Register */
 void
-SetRegister(char *register_name, int new)
+register_set(char *name, int value)
 {
 	struct regwin_infos_t *regwin_infos;
 
-	Capitalize(register_name);
+	uppercase(name);
 
-	log_debug("  Modify register %s to $%04X", register_name, new);
+	log_debug("  Modify register %s to $%04X", name, value);
 
-	regwin_infos = sfr_get_infos(register_name);
+	regwin_infos = sfr_get_infos(name);
 
 	if (regwin_infos == NULL) {
 		printf("Invalid register name\n");
 		return;
 	}
 
-	regwin_write(regwin_infos, new);
+	regwin_write(regwin_infos, value);
 }
 
 /* CPU reset and Console UI update */
@@ -173,40 +173,41 @@ void
 console_reset(void)
 {
 	log_info("Resetting...");
-	cpu8051_Reset();
+	cpu8051_reset();
 	log_info("Done");
 }
 
 /*
  * CPU exec and Console UI update
- * NbInst = -1: run to infinity
+ * num = number of instructions to execute.
+ *       set to -1: run to infinity
  */
 void
-console_exec(int NbInst)
+console_exec(int num)
 {
-	InitUnixKB();
+	keyboard_init();
 
 	log_info("Program executing...");
 
-	cpu8051_run(NbInst, kbhit);
+	cpu8051_run(num, kbhit);
 
 	if (kbhit()) {
 		(void) getch(); /* Flush key */
 		log_info("Caught break signal!");
 	}
 
-	ResetUnixKB();
+	keyboard_reset();
 	console_show_registers();
-	DisasmN(cpu8051.pc, 1);
+	disassemble_num(cpu8051.pc, 1);
 }
 
 /* CPU trace and Console UI update */
 void
 console_trace(void)
 {
-	cpu8051_Exec();
+	cpu8051_exec();
 	console_show_registers();
-	DisasmN(cpu8051.pc, 1);
+	disassemble_num(cpu8051.pc, 1);
 }
 
 /* Show CPU registers, one per line */
@@ -239,47 +240,39 @@ console_dump_sfr_registers_compact(void)
 {
 	int id;
 	unsigned char PSW = cpu8051_ReadD(_PSW_);
-	int BankSelect = (PSW & 0x18);
+	int bank_sel = (PSW & 0x18);
 
-	printf("---------------------------------------------------------------"
-	       "-------\n");
-	printf("|  PC  | SP | DPTR | ACC |  B | PSW:  CY  AC  F0 RS1 RS0  OV"
-	       "   -   P |\n");
+	printf("----------------------------------------------------------------------\n");
+	printf("|  PC  | SP | DPTR | ACC |  B | PSW:  CY  AC  F0 RS1 RS0  OV   -   P |\n");
 	printf("| %.4X | %.2X | %.4X |  %.2X | %.2X |", cpu8051.pc,
-	       cpu8051_ReadD(_SP_),
-	       memory_sfr_read_dptr(),
+	       cpu8051_ReadD(_SP_), memory_sfr_read_dptr(),
 	       cpu8051_ReadD(_ACC_), cpu8051_ReadD(_B_));
 	printf("        %d   %d   %d   %d   %d   %d   %d   %d |",
 	       (PSW >> 7) & 1, (PSW >> 6) & 1, (PSW >> 5) & 1, (PSW >> 4) & 1,
 	       (PSW >> 3) & 1, (PSW >> 2) & 1, (PSW >> 1) & 1, PSW & 1);
 	printf("\n");
-	printf("---------------------------------------------------------------"
-	       "-------\n");
+	printf("----------------------------------------------------------------------\n");
 
-	printf("| TCON | TMOD | IE | IP | R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7"
-	       " |    |\n");
+	printf("| TCON | TMOD | IE | IP | R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 |    |\n");
 	printf("|   %.2X |   %.2X | %.2X | %.2X ", cpu8051_ReadD(_TCON_),
 	       cpu8051_ReadD(_TMOD_), cpu8051_ReadD(_IE_), cpu8051_ReadD(_IP_));
 	printf("| %.2X | %.2X | %.2X | %.2X ",
-	       cpu8051_ReadD(BankSelect + _R0_),
-	       cpu8051_ReadD(BankSelect + _R1_),
-	       cpu8051_ReadD(BankSelect + _R2_),
-	       cpu8051_ReadD(BankSelect + _R3_));
+	       cpu8051_ReadD(bank_sel + _R0_),
+	       cpu8051_ReadD(bank_sel + _R1_),
+	       cpu8051_ReadD(bank_sel + _R2_),
+	       cpu8051_ReadD(bank_sel + _R3_));
 	printf("| %.2X | %.2X | %.2X | %.2X ",
-	       cpu8051_ReadD(BankSelect + _R4_),
-	       cpu8051_ReadD(BankSelect + _R5_),
-	       cpu8051_ReadD(BankSelect + _R6_),
-	       cpu8051_ReadD(BankSelect + _R7_));
+	       cpu8051_ReadD(bank_sel + _R4_),
+	       cpu8051_ReadD(bank_sel + _R5_),
+	       cpu8051_ReadD(bank_sel + _R6_),
+	       cpu8051_ReadD(bank_sel + _R7_));
 	printf("|    |\n");
-	printf("---------------------------------------------------------------"
-	       "-------\n");
+	printf("----------------------------------------------------------------------\n");
 
 	for (id = 0; id < GP_TIMERS_COUNT; id++)
 		printf("| Emulator timer %c: %08d |\n", 'A' + id, gp_timer_read(id));
 
 	printf("------------------------------\n");
-
-
 }
 
 /* Show CPU registers */

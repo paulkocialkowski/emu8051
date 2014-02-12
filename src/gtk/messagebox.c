@@ -28,8 +28,8 @@ message_show_error(char *message)
 					GTK_MESSAGE_ERROR,
 					GTK_BUTTONS_CLOSE,
 					message, NULL);
-	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }
 
 void
@@ -42,6 +42,6 @@ message_show_information(char *message)
 					GTK_MESSAGE_INFO,
 					GTK_BUTTONS_CLOSE,
 					message, NULL);
-	gtk_dialog_run (GTK_DIALOG (dialog));
-	gtk_widget_destroy (dialog);
+	gtk_dialog_run(GTK_DIALOG(dialog));
+	gtk_widget_destroy(dialog);
 }

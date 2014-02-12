@@ -38,7 +38,8 @@ void
 memory_init(void);
 
 int
-memory_check_address(enum mem_id_t id, unsigned long address, int display_error);
+memory_check_address(enum mem_id_t id, unsigned long address,
+		     int display_error);
 
 u_int8_t *
 memory_getbuf(enum mem_id_t id, unsigned long address);

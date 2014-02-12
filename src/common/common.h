@@ -38,10 +38,6 @@
 /* Returns TRUE if the first 'c' characters of strings 'a' and 'b' are equal. */
 #define STREQ_LEN(a, b, c) (strncasecmp((a), (b), (c)) == 0)
 
-
-inline void
-ErrorLocation(const char *file, int line);
-
 void *
 xmalloc(size_t size, const char *filename, int line_number);
 

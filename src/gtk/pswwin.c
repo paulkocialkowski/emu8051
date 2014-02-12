@@ -29,8 +29,8 @@ static GtkWidget *pswlist;
 
 #define DATA_ROWS 1
 #define LIST_VIEW_NAME "PSW"
-enum
-{
+
+enum {
 	COL_CY = 0,
 	COL_AC,
 	COL_F0,
@@ -88,18 +88,17 @@ pswwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	char str[10];
 	int bit_index;
 
-	if (!model) {
-		g_error("Unable to get model from cell renderer");
-	}
+	if (!model)
+		log_err("Unable to get model from cell renderer");
 
 	/* Column number is passed as renderer object data */
-        columnptr = g_object_get_data(G_OBJECT(cell), "column");
-        column = GPOINTER_TO_UINT(columnptr);
+	columnptr = g_object_get_data(G_OBJECT(cell), "column");
+	column = GPOINTER_TO_UINT(columnptr);
 
 	log_info("column = $%02X", column);
 
 	/* Get the iterator */
-        gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+	gtk_tree_model_get_iter_from_string(model, &iter, path_string);
 
 	bit_index = 7 - column;
 
@@ -124,13 +123,13 @@ pswwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	int2asciihex(new, str, 1);
 
 	/* Store new value in gtk model. */
-        gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, str, -1);
+	gtk_list_store_set(GTK_LIST_STORE(model), &iter, column, str, -1);
 
 	/*
 	 * Make sure to update all registers and memory.
 	 * For example, BANKed registers depends on internal memory.
 	 */
-	emugtk_UpdateDisplay();
+	emugtk_update_display();
 };
 
 static void
@@ -151,7 +150,8 @@ pswwin_init_columns(void)
 
 		g_signal_connect(renderer, "edited",
 				 G_CALLBACK(pswwin_cell_edited),
-				 gtk_tree_view_get_model(GTK_TREE_VIEW(pswlist)));
+				 gtk_tree_view_get_model(
+					 GTK_TREE_VIEW(pswlist)));
 
 		/* Add column index, used when editing the cell. */
 		g_object_set_data(G_OBJECT(renderer), "column",
@@ -164,7 +164,8 @@ pswwin_init_columns(void)
 		g_object_set(column, "alignment", 0.5, NULL);
 
 		/* Hardcoded width... */
-		gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+		gtk_tree_view_column_set_sizing(column,
+						GTK_TREE_VIEW_COLUMN_FIXED);
 		gtk_tree_view_column_set_fixed_width(column, 35);
 
 		gtk_tree_view_append_column(GTK_TREE_VIEW(pswlist), column);
@@ -185,7 +186,8 @@ pswwin_init(void)
 	/* Creating the view component */
 	pswlist = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
 
-	gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(pswlist), GTK_TREE_VIEW_GRID_LINES_BOTH);
+	gtk_tree_view_set_grid_lines(GTK_TREE_VIEW(pswlist),
+				     GTK_TREE_VIEW_GRID_LINES_BOTH);
 
 	gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(pswlist), TRUE);
 	gtk_container_add(GTK_CONTAINER(frame), pswlist);

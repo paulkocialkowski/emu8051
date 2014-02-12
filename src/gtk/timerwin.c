@@ -27,9 +27,10 @@ button_add_stock(GtkWidget *box, gchar *stock_id, int display_label)
 	GtkWidget *button;
 
 	/* Create the button. */
-	if (display_label != false)
+	if (display_label) {
+		/* By default, a label is appended to stock buttons. */
 		button = gtk_button_new_from_stock(stock_id);
-	else {
+	} else {
 		GtkWidget *icon;
 
 		button = gtk_button_new();
@@ -52,7 +53,8 @@ timerwin_update(void)
 
 	for (id = 0; id < GP_TIMERS_COUNT; id++) {
 		/* Display textin bold, with big font size. */
-		sprintf(buf , "<b><big>%08d</big></b> cycles", gp_timer_read(id));
+		sprintf(buf , "<b><big>%08d</big></b> cycles",
+			gp_timer_read(id));
 
 		gtk_label_set_markup(GTK_LABEL(label[id]), buf);
 	}

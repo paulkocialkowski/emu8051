@@ -18,7 +18,4 @@ pgmwin_init(void);
 void
 pgmwin_refresh(void);
 
-int
-pgmwin_IsBreakpoint(unsigned int address);
-
 #endif /* PGMWIN_H */

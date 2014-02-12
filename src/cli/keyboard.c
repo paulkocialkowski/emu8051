@@ -18,17 +18,21 @@ kbhit(void)
 {
 	char ch;
 	int nread;
+
 	if (peek != -1)
 		return 1;
+
 	newtio.c_cc[VMIN] = 0;
 	tcsetattr(0, TCSANOW, &newtio);
 	nread = read(0, &ch, 1);
 	newtio.c_cc[VMIN] = 1;
 	tcsetattr(0, TCSANOW, &newtio);
+
 	if (nread == 1) {
 		peek = ch;
 		return 1;
 	}
+
 	return 0;
 }
 
@@ -36,17 +40,20 @@ int
 getch(void)
 {
 	char ch;
+
 	if (peek != -1) {
 		ch = peek;
 		peek = -1;
 		return ch;
 	}
+
 	read(0, &ch, 1);
+
 	return ch;
 }
 
 void
-InitUnixKB(void)
+keyboard_init(void)
 {
 	tcgetattr(0, &orig);
 	newtio = orig;
@@ -59,7 +66,7 @@ InitUnixKB(void)
 }
 
 void
-ResetUnixKB(void)
+keyboard_reset(void)
 {
 	tcsetattr(0, TCSANOW, &orig);
 }

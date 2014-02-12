@@ -13,6 +13,6 @@
 #include <gtk/gtk.h>
 
 void
-HelpAddMenu(GtkWidget *menu_bar);
+help_add_menu(GtkWidget *menu_bar);
 
 #endif /* HELPMENU_H */

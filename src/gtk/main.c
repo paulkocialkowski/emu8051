@@ -53,9 +53,9 @@ extern struct app_config_t *cfg;
 extern struct options_t options;
 
 void
-emugtk_UpdateDisplay(void)
+emugtk_update_display(void)
 {
-	log_debug("UpdateDisplay()");
+	log_debug("update display");
 	regwin_refresh();
 	pgmwin_refresh();
 	pswwin_refresh();
@@ -73,10 +73,10 @@ static void
 emugtk_stop_running()
 {
 	if (running) {
-		log_info("StopRunning()");
+		log_info("stop running");
 		g_source_remove(running_function_tag);
 		running = 0;
-		emugtk_UpdateDisplay();
+		emugtk_update_display();
 	}
 }
 
@@ -101,7 +101,7 @@ static void
 emugtk_start_running(void)
 {
 	if (!running) {
-		log_info("StartRunning()");
+		log_info("start running");
 		running_function_tag = g_idle_add(emugtk_running, 0);
 		running = 1;
 	}
@@ -127,15 +127,15 @@ button_add_pix(GtkWidget *box, char **xpm)
 
 /* CPU reset and Gtk UI update */
 static void
-emugtk_Reset(void)
+emugtk_reset(void)
 {
-	cpu8051_Reset();
-	emugtk_UpdateDisplay();
+	cpu8051_reset();
+	emugtk_update_display();
 }
 
 /* Signal ResetEvent (ResetButton) */
 static void
-emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+emugtk_reset_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
@@ -144,20 +144,20 @@ emugtk_ResetEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 	log_info("ResetEvent()");
 	emugtk_stop_running();
-	emugtk_Reset();
+	emugtk_reset();
 }
 
 /* CPU Step and Gtk UI update */
 static void
-emugtk_Step(void)
+emugtk_step(void)
 {
-	cpu8051_Exec();
-	emugtk_UpdateDisplay();
+	cpu8051_exec();
+	emugtk_update_display();
 }
 
 /* Signal RunEvent (RunButton) */
 static void
-emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+emugtk_run_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
@@ -174,7 +174,7 @@ emugtk_RunEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 /* Signal StopEvent (StopButton) */
 static void
-emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+emugtk_stop_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
@@ -187,7 +187,7 @@ emugtk_StopEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 /* Signal StepEvent (StepButton) */
 static void
-emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
+emugtk_step_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
@@ -196,12 +196,12 @@ emugtk_StepEvent(GtkWidget *widget, GdkEvent *event, gpointer data)
 
 	log_info("StepEvent()");
 	emugtk_stop_running();
-	emugtk_Step();
+	emugtk_step();
 }
 
 /* Creates the Reset, Run, Stop and Step buttons. */
 static GtkWidget *
-AddButtons(void)
+add_buttons(void)
 {
 	GtkWidget *button_hbox;
 	GtkWidget *button;
@@ -212,32 +212,32 @@ AddButtons(void)
 	/* Creating the RESET button. */
 	button = button_add_pix(button_hbox, reset_xpm);
 	g_signal_connect(button, "clicked",
-			 G_CALLBACK(emugtk_ResetEvent),
+			 G_CALLBACK(emugtk_reset_event),
 			 NULL);
 
 	/* Creating the RUN button. */
 	button = button_add_pix(button_hbox, run_xpm);
 	g_signal_connect(button, "clicked",
-			 G_CALLBACK(emugtk_RunEvent),
+			 G_CALLBACK(emugtk_run_event),
 			 NULL);
 
 	/* Creating STOP button. */
 	button = button_add_pix(button_hbox, stop_xpm);
 	g_signal_connect(GTK_OBJECT(button), "clicked",
-			 G_CALLBACK(emugtk_StopEvent),
+			 G_CALLBACK(emugtk_stop_event),
 			 NULL);
 
 	/* Creating STEP button. */
 	button = button_add_pix(button_hbox, step_xpm);
 	g_signal_connect(GTK_OBJECT(button), "clicked",
-			 G_CALLBACK(emugtk_StepEvent),
+			 G_CALLBACK(emugtk_step_event),
 			 NULL);
 
 	return button_hbox;
 }
 
 static GtkWidget *
-AddMenu(void)
+add_menu(void)
 {
 	GtkWidget *menu_bar;
 
@@ -245,13 +245,13 @@ AddMenu(void)
 	menu_bar = gtk_menu_bar_new();
 
 	/* Adding the 'File' submenu */
-	FileAddMenu(menu_bar);
+	file_add_menu(menu_bar);
 
 	/* Adding the 'View' submenu */
-	ViewAddMenu(menu_bar);
+	view_add_menu(menu_bar);
 
 	/* Adding the 'Help' submenu */
-	HelpAddMenu(menu_bar);
+	help_add_menu(menu_bar);
 
 	return menu_bar;
 }
@@ -320,7 +320,7 @@ static void
 emugtk_show_memory_paned(void)
 {
 	gtk_widget_show_all(mainwin);
-	emugtk_UpdateDisplay();
+	emugtk_update_display();
 }
 
 void
@@ -330,7 +330,7 @@ emugtk_create_int_memory_paned(void)
 				    INT_MEM_ID);
 	gtk_paned_pack1(GTK_PANED(vpaned1), scrollwin_int,
 			FALSE, FALSE);
-	if (emugtk_window_init_complete == true)
+	if (emugtk_window_init_complete)
 		emugtk_show_memory_paned();
 }
 
@@ -353,7 +353,7 @@ emugtk_create_ext_memory_paned(void)
 	gtk_paned_pack2(GTK_PANED(vpaned1), scrollwin_ext,
 			TRUE, FALSE);
 
-	if (emugtk_window_init_complete == true)
+	if (emugtk_window_init_complete)
 		emugtk_show_memory_paned();
 }
 
@@ -380,7 +380,7 @@ emugtk_recreate_memory_paned(void)
 		emugtk_create_ext_memory_paned();
 	}
 
-	if (emugtk_window_init_complete == true)
+	if (emugtk_window_init_complete)
 		emugtk_show_memory_paned();
 }
 
@@ -398,8 +398,9 @@ emugtk_create_memory_paned(void)
 		emugtk_recreate_memory_paned();
 
 		return vpaned1;
-	} else
+	} else {
 		return NULL;
+	}
 }
 
 /*
@@ -491,17 +492,18 @@ emugtk_window_init(void)
 			 G_CALLBACK(mainwin_configure_event), NULL);
 
 	/* Creating the menu bar. */
-	menu_bar = AddMenu();
+	menu_bar = add_menu();
 
 	/* Creating the buttons bar. */
-	buttons_bar = AddButtons();
+	buttons_bar = add_buttons();
 
 	scrollwin = pswwin_init();
 	gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 50);
 
 	for (id = 0; id < GP_TIMERS_COUNT; id++) {
 		scrollwin = timerwin_init(id);
-		gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin, FALSE, FALSE, 15);
+		gtk_box_pack_start(GTK_BOX(buttons_bar), scrollwin,
+				   FALSE, FALSE, 15);
 	}
 
 	/* hpaned will contain registers and disassembly windows. */
@@ -558,7 +560,7 @@ emugtk_window_init(void)
 }
 
 void
-AddMenuSeparator(GtkWidget *menu)
+add_menu_separator(GtkWidget *menu)
 {
 	GtkWidget *item;
 
@@ -573,14 +575,14 @@ emugtk_new_file(char *file)
 
 	emugtk_stop_running();
 
-	rc = LoadHexFile(file);
-	if (rc == false) {
+	rc = hexfile_load(file);
+	if (!rc) {
 		message_show_error("Error parsing hex file");
 	} else {
 		if (cfg->clear_ram_on_file_load)
-			emugtk_Reset();
+			emugtk_reset();
 
-		emugtk_UpdateDisplay();
+		emugtk_update_display();
 	}
 }
 
@@ -599,15 +601,15 @@ main(int argc, char **argv)
 	gtk_init(&argc, &argv);
 
 	if (options.filename != NULL)
-		rc_load_hexfile = LoadHexFile(options.filename);
+		rc_load_hexfile = hexfile_load(options.filename);
 
-	cpu8051_Reset();
+	cpu8051_reset();
 
 	log_info("Init GUI");
 	emugtk_window_init();
-	emugtk_UpdateDisplay();
+	emugtk_update_display();
 
-	if (rc_load_hexfile == false)
+	if (!rc_load_hexfile)
 		message_show_error("Error parsing hex file");
 
 	gtk_main();

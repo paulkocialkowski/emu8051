@@ -44,8 +44,8 @@ remember_current_folder(GtkFileChooser *chooser)
 	}
 }
 
-void
-FileOpenEvent(GtkObject *object, gpointer data)
+static void
+file_open_event(GtkObject *object, gpointer data)
 {
 	GtkWidget *file_dialog;
 	char *dir;
@@ -55,7 +55,7 @@ FileOpenEvent(GtkObject *object, gpointer data)
 	(void) object;
 	(void) data;
 
-	log_info("FileOpenEvent()");
+	log_info("file_open_event()");
 
 	/* Create a new file selection widget. */
 	file_dialog = gtk_file_chooser_dialog_new(
@@ -97,7 +97,7 @@ FileOpenEvent(GtkObject *object, gpointer data)
 }
 
 static void
-FileQuitEvent(gchar *string)
+file_quit_event(gchar *string)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) string;
@@ -106,7 +106,7 @@ FileQuitEvent(gchar *string)
 }
 
 void
-FileAddMenu(GtkWidget *menu_bar)
+file_add_menu(GtkWidget *menu_bar)
 {
 	GtkWidget *item;
 	GtkWidget *menu;
@@ -117,14 +117,14 @@ FileAddMenu(GtkWidget *menu_bar)
 	item = gtk_menu_item_new_with_label(FILENAME_DESCRIPTION);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
-	g_signal_connect(item, "activate", G_CALLBACK(FileOpenEvent), NULL);
+	g_signal_connect(item, "activate", G_CALLBACK(file_open_event), NULL);
 
-	AddMenuSeparator(menu);
+	add_menu_separator(menu);
 
 	item = gtk_menu_item_new_with_label("Exit");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* We can attach the Quit menu item to our exit function */
-	g_signal_connect(item, "activate", G_CALLBACK(FileQuitEvent),
+	g_signal_connect(item, "activate", G_CALLBACK(file_quit_event),
 			 (gpointer) "file.quit");
 
 	/* Adding submenu title. */

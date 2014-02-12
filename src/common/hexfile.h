@@ -16,10 +16,7 @@ int2asciihex(int val, char *str, int width);
 int
 asciihex2int(char *str);
 
-unsigned int
-Ascii2Hex(char *istring, int length);
-
 int
-LoadHexFile(const char *filename);
+hexfile_load(const char *filename);
 
 #endif /* HEXFILE_H */

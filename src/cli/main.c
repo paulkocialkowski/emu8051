@@ -31,7 +31,7 @@ main(int argc, char **argv)
 	cpu8051_init();
 
 	if (options.filename != NULL) {
-		rc = LoadHexFile(options.filename);
+		rc = hexfile_load(options.filename);
 		if (rc == false)
 			exit(1);
 	}

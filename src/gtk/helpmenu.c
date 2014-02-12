@@ -28,7 +28,7 @@
 #include "helpmenu.h"
 
 static void
-HelpAboutEvent(GtkWidget *widget, gpointer data)
+help_about_event(GtkWidget *widget, gpointer data)
 {
 	/* Remove compiler warning about unused variables. */
 	(void) widget;
@@ -74,7 +74,7 @@ HelpAboutEvent(GtkWidget *widget, gpointer data)
 }
 
 void
-HelpAddMenu(GtkWidget *menu_bar)
+help_add_menu(GtkWidget *menu_bar)
 {
 	GtkWidget *item;
 	GtkWidget *menu;
@@ -85,7 +85,7 @@ HelpAddMenu(GtkWidget *menu_bar)
 	item = gtk_menu_item_new_with_label("About " PACKAGE);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
-	g_signal_connect(item, "activate", G_CALLBACK(HelpAboutEvent), NULL);
+	g_signal_connect(item, "activate", G_CALLBACK(help_about_event), NULL);
 
 	/* Adding submenu title. */
 	item = gtk_menu_item_new_with_label("Help");

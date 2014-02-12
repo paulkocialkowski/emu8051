@@ -30,8 +30,7 @@ static GtkWidget *reglist;
 #define LIST_VIEW_NAME "Registers"
 #define DATA_ROWS SFR_REGS
 
-enum
-{
+enum {
 	COL_NAME = 0,
 	COL_VAL,
 	N_COLUMNS,
@@ -73,12 +72,11 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	(void) cell; /* Remove compiler warning about unused variables. */
 
-	if (!model) {
-		g_error("Unable to get model from cell renderer");
-	}
+	if (!model)
+		log_err("Unable to get model from cell renderer");
 
 	/* Get the iterator */
-        gtk_tree_model_get_iter_from_string(model, &iter, path_string);
+	gtk_tree_model_get_iter_from_string(model, &iter, path_string);
 
 	/* Get register name. */
 	gtk_tree_model_get(model, &iter, COL_NAME, &str, -1);
@@ -101,13 +99,14 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	if (rc == 0) {
 		/* Store new value in gtk model. */
 		int2asciihex(new, str, regwin_infos->w);
-		gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VAL, str, -1);
+		gtk_list_store_set(GTK_LIST_STORE(model), &iter, COL_VAL, str,
+				   -1);
 
 		/*
 		 * Make sure to update all windows.
 		 * For example, R0-R7 values depends on internal memory values.
 		 */
-		emugtk_UpdateDisplay();
+		emugtk_update_display();
 	}
 };
 
