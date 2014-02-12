@@ -54,61 +54,79 @@ write_header(DISASM_H);
 print DISASM_H "#ifndef DISASM_H\n";
 print DISASM_H "#define DISASM_H 1\n\n";
 
+# Column indexes in opcodes.lst table
+use constant COL_OPCODE => 0;
+use constant COL_INSTR  => 1;
+use constant COL_ARGS   => 2;
+
+use constant COL_COUNT_NO_ARGS => 4;
+
 $nbinst=0;
 $nbaddr=0;
 $nbargs=0;
 $instnumb=0;
 
-$ligne=<OPCODELST>;
-$ligne=<OPCODELST>;
+# Discard first two lines, which are comments
+$ligne = <OPCODELST>;
+$ligne = <OPCODELST>;
+
 while($ligne=<OPCODELST>) {
     chop $ligne;
-    if (length $ligne < 2) {next;}
-    @wordlist=split ' ',$ligne;
-    $nbword=@wordlist;
-    $instruction=$wordlist[2];
-    for($i=3;$i<($nbword-2);$i++) {$instruction="$instruction $wordlist[$i]";}
 
-    $a_instruction[$instnumb]=$instruction;
-    $a_bytes[$instnumb]=$wordlist[$nbword-2];
-    $a_cycles[$instnumb]=$wordlist[$nbword-1];
-    $a_opcodehex[$instnumb]=$wordlist[1];
-    $a_opcodebin[$instnumb]=$wordlist[0];
+    if (length $ligne < 2) {
+        next;
+    }
 
-    $instfunction[$instnumb]="CPU8051::OP_$wordlist[1]";
+    @wordlist = split ' ',$ligne;
+    $nbword = @wordlist;
+    $instruction = $wordlist[COL_INSTR];
 
-    $instargs[$instnumb << 2]=$instargs[($instnumb << 2) + 1]=$instargs[($instnumb << 2) + 2]=$instargs[($instnumb << 2) + 3]=0;
-    if ($nbword > 5) {
-	@argslist=split /\,/,$wordlist[3];
-	$argslistsize=@argslist;
-	$instargs[$instnumb << 2]=$argslistsize;
-	for ($i=0;$i<$argslistsize;$i++) {
+    for ($i = (COL_INSTR + 1); $i < ($nbword - 2); $i++) {
+        $instruction = "$instruction $wordlist[$i]";
+    }
+
+    $a_instruction[$instnumb] = $instruction;
+    $a_bytes[$instnumb] = $wordlist[$nbword - 2];
+    $a_cycles[$instnumb] = $wordlist[$nbword - 1];
+    $a_opcodehex[$instnumb] = $wordlist[COL_OPCODE];
+
+    $instfunction[$instnumb]="CPU8051::OP_$wordlist[COL_OPCODE]";
+
+    $instargs[$instnumb << 2] = $instargs[($instnumb << 2) + 1] =
+        $instargs[($instnumb << 2) + 2] = $instargs[($instnumb << 2) + 3] = 0;
+
+    if ($nbword > COL_COUNT_NO_ARGS) {
+	@argslist = split /\,/,$wordlist[COL_ARGS];
+	$argslistsize = @argslist;
+	$instargs[$instnumb << 2] = $argslistsize;
+	for ($i = 0; $i < $argslistsize; $i++) {
 	    if (not exists $argstypes{$argslist[$i]}) {
-		$argstypes[$nbargs]=$argslist[$i];
-		$argstypes{$argslist[$i]}=$nbargs++;
+		$argstypes[$nbargs] = $argslist[$i];
+		$argstypes{$argslist[$i]} = $nbargs++;
 	    }
-	    $instargs[($instnumb << 2) + $i + 1]=$argstypes{$argslist[$i]};
+	    $instargs[($instnumb << 2) + $i + 1] = $argstypes{$argslist[$i]};
 	}
     }
 
-    if (not exists $insttext{$wordlist[2]}) {
-	$insttext[$nbinst]=$wordlist[2];
-	$insttext{$wordlist[2]}=$nbinst++;
+    if (not exists $insttext{$wordlist[COL_INSTR]}) {
+	$insttext[$nbinst] = $wordlist[COL_INSTR];
+	$insttext{$wordlist[COL_INSTR]} = $nbinst++;
     }
 
-    $insttype[$instnumb]=$insttext{$wordlist[2]};
+    $insttype[$instnumb] = $insttext{$wordlist[COL_INSTR]};
 
-    if ( not exists $addrmode{$wordlist[3]}) {
-	$addrmode[$nbaddr]=$wordlist[3];
-	$addrmode{$wordlist[3]}=$nbaddr++;
+    if ( not exists $addrmode{$wordlist[COL_ARGS]}) {
+	$addrmode[$nbaddr] = $wordlist[COL_ARGS];
+	$addrmode{$wordlist[COL_ARGS]} = $nbaddr++;
     }
 
-    $nbbytes[$instnumb]=$wordlist[$nbword-2];
+    $nbbytes[$instnumb] = $wordlist[$nbword - 2];
 
-    $instaddr[$instnumb]=$addrmode{$wordlist[3]};
+    $instaddr[$instnumb] = $addrmode{$wordlist[COL_ARGS]};
 
     $instnumb++;
 }
+
 # ------------------------------------------------------------------------------
 print DISASM_H "/*\n";
 print DISASM_H " * For all 256 opcodes, the value in this table gives the instruction type\n";
