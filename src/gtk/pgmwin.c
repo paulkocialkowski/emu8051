@@ -259,7 +259,6 @@ pgmwin_refresh(void)
 
 			/* Display base address. */
 			int2asciihex(address, str, 4);
-
 			gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
 
 			opcode = memory_read8(PGM_MEM_ID, address);
@@ -279,11 +278,10 @@ pgmwin_refresh(void)
 			}
 
 			/* Display instruction menmonic. */
-			cpu8051_disasm_mnemonic(opcode, str);
+			(void) cpu8051_disasm_mnemonic(opcode, str);
 			gtk_list_store_set(store, &iter, COL_INST, str, -1);
 
 			/* Display instruction arguments (if applicable). */
-			str[0] = '\0';
 			cpu8051_disasm_args(address, str);
 			gtk_list_store_set(store, &iter, COL_ARGS, str, -1);
 

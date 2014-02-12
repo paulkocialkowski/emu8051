@@ -95,7 +95,7 @@ cpu8051_ReadB(uint8_t bit_address);
 int
 cpu8051_get_instruction_size(unsigned char opcode);
 
-void
+int
 cpu8051_disasm_mnemonic(unsigned char opcode, char *buf);
 
 void
