@@ -66,6 +66,8 @@ $nbaddr=0;
 $nbargs=0;
 $instnumb=0;
 
+# Read file describing each instruction/opcode
+
 # Discard first two lines, which are comments
 $ligne = <OPCODELST>;
 $ligne = <OPCODELST>;
@@ -90,7 +92,7 @@ while($ligne=<OPCODELST>) {
     $a_cycles[$instnumb] = $wordlist[$nbword - 1];
     $a_opcodehex[$instnumb] = $wordlist[COL_OPCODE];
 
-    $instfunction[$instnumb]="CPU8051::OP_$wordlist[COL_OPCODE]";
+    $instfunction[$instnumb] = "CPU8051::OP_$wordlist[COL_OPCODE]";
 
     $instargs[$instnumb << 2] = $instargs[($instnumb << 2) + 1] =
         $instargs[($instnumb << 2) + 2] = $instargs[($instnumb << 2) + 3] = 0;
@@ -115,7 +117,7 @@ while($ligne=<OPCODELST>) {
 
     $insttype[$instnumb] = $insttext{$wordlist[COL_INSTR]};
 
-    if ( not exists $addrmode{$wordlist[COL_ARGS]}) {
+    if (not exists $addrmode{$wordlist[COL_ARGS]}) {
 	$addrmode[$nbaddr] = $wordlist[COL_ARGS];
 	$addrmode{$wordlist[COL_ARGS]} = $nbaddr++;
     }
@@ -128,28 +130,38 @@ while($ligne=<OPCODELST>) {
 }
 
 # ------------------------------------------------------------------------------
+print DISASM_H "/* Size(in bytes) of each instruction (offset in table is instruction opcode) */\n";
+print DISASM_H "static int InstSizesTbl[] = {";
+
+for ($i = 0; $i < 256; $i++) {
+    if ($i % 16 == 0) {
+        print DISASM_H "\n\t";
+    } else {
+        print DISASM_H " ";
+    }
+    print DISASM_H "$nbbytes[$i],";
+}
+print DISASM_H "\n";
+print DISASM_H "};\n";
+print DISASM_H "\n";
+# ------------------------------------------------------------------------------
 print DISASM_H "/*\n";
 print DISASM_H " * For all 256 opcodes, the value in this table gives the instruction type\n";
 print DISASM_H " * ex.: MOV, INC, CLR, CPL,...\n";
 print DISASM_H " * To know what is the instruction type, use\n";
-print DISASM_H " * the number as an offset in the InstTextTbl[]\n";
+print DISASM_H " * the number as an offset in InstTextTbl[]\n";
 print DISASM_H " */\n";
-print DISASM_H "static int InstTypesTbl[] = {\n";
-for($i=0;$i<256;$i++) {
-    print DISASM_H " $insttype[$i]";
-    ($i != 255) and print DISASM_H ",";
-    if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
+print DISASM_H "static int InstTypesTbl[] = {";
+
+for ($i = 0; $i < 256; $i++) {
+    if ($i % 16 == 0) {
+        print DISASM_H "\n\t";
+    } else {
+        print DISASM_H " ";
+    }
+    print DISASM_H "$insttype[$i],";
 }
-print DISASM_H "};\n";
 print DISASM_H "\n";
-# ------------------------------------------------------------------------------
-print DISASM_H "/* Size(in bytes) of each instruction (offset in table is instruction opcode) */\n";
-print DISASM_H "static int InstSizesTbl[] = {\n";
-for($i=0;$i<256;$i++) {
-    print DISASM_H " $nbbytes[$i]";
-    ($i != 255) and print DISASM_H ",";
-    if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
-}
 print DISASM_H "};\n";
 print DISASM_H "\n";
 # ------------------------------------------------------------------------------
@@ -159,7 +171,7 @@ print DISASM_H "\#define InstTextTblLength $nbelement\n";
 $elementnb=0;
 print DISASM_H "static char *InstTextTbl[] = {\n";
 foreach $instruc (@insttext) {
-    print DISASM_H " \"$instruc\"";
+    print DISASM_H "\t\"$instruc\"";
     ($elementnb++ < $nbelement-1) and print DISASM_H ",";
     print DISASM_H "\n";
 }
@@ -175,25 +187,32 @@ print DISASM_H " * for most instructions, the 3rd argument isn't used\n";
 print DISASM_H " * the argument type is referecing to ArgsTextTbl[]\n";
 print DISASM_H " */\n";
 print DISASM_H "\#define InstArgTblLength 256\n";
-print DISASM_H "static int InstArgTbl[] = {\n";
-for($i=0;$i<1024;$i++) {
-    print DISASM_H " $instargs[$i]";
-    ($i != 1023) and print DISASM_H ",";
-    if (($i+1) % 16 == 0) { print DISASM_H "\n"; }
+print DISASM_H "static int InstArgTbl[] = {";
+
+for ($i = 0; $i < 1024; $i++) {
+    if ($i % 16 == 0) {
+        print DISASM_H "\n\t";
+    } else {
+        print DISASM_H " ";
+    }
+
+    print DISASM_H "$instargs[$i],";
 }
+print DISASM_H "\n";
 print DISASM_H "};\n";
 print DISASM_H "\n";
+
 # ------------------------------------------------------------------------------
 print DISASM_H "/*\n";
 print DISASM_H " * List all types of arguments available to instructions\n";
 print DISASM_H " * Referenced by InstArgsTbl[]\n";
 print DISASM_H " */\n";
-$nbelement=@argstypes;
+$nbelement = @argstypes;
 print DISASM_H "\#define ArgsTextTblLength $nbelement\n";
-$elementnb=0;
+$elementnb = 0;
 print DISASM_H "static char *ArgsTextTbl[] = {\n";
 foreach $args (@argstypes) {
-    print DISASM_H " \"$args\"";
+    print DISASM_H "\t\"$args\"";
     ($elementnb++ < $nbelement-1) and print DISASM_H ",";
     print DISASM_H "\n";
 }
