@@ -9,8 +9,6 @@
 #ifndef PSW_H
 #define PSW_H 1
 
-#include <sys/types.h>
-
 int
 psw_read_bit(int bit);
 
