@@ -32,7 +32,7 @@ main(int argc, char **argv)
 
 	if (options.filename != NULL) {
 		rc = hexfile_load(options.filename);
-		if (rc == false)
+		if (!rc)
 			exit(1);
 	}
 

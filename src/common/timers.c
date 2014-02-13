@@ -59,7 +59,8 @@ timer_increment_check_overflow(uint8_t counter_address, uint8_t tf_mask)
 	tmp &= 0xFF;
 	if (tmp == 0) {
 		/* If overflow set TFx */
-		memory_write_direct(_TCON_, memory_read_direct(_TCON_) | tf_mask);
+		memory_write_direct(_TCON_,
+				    memory_read_direct(_TCON_) | tf_mask);
 	}
 
 	memory_write_direct(counter_address, tmp); /* Save new value. */
@@ -103,7 +104,9 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 		tmp &= 0xFF;
 		if (tmp == 0) {
 			/* If overflow -> reload and set TF0 */
-			memory_write_direct(_TCON_, memory_read_direct(_TCON_) | tf_mask);
+			memory_write_direct(
+				_TCON_,
+				memory_read_direct(_TCON_) | tf_mask);
 			memory_write_direct(tl, memory_read_direct(th));
 		} else {
 			memory_write_direct(tl, tmp);
@@ -153,7 +156,7 @@ timers_check(void)
 
 	/* Timer 1 */
 	tr = memory_read_direct(_TCON_) & 0x40;
-	mode = (memory_read_direct(_TMOD_) & 0x30) >> 4 ;
+	mode = (memory_read_direct(_TMOD_) & 0x30) >> 4;
 	gate = memory_read_direct(_TMOD_) & 0x80;
 	timer_counter = memory_read_direct(_TMOD_) & 0x40;
 

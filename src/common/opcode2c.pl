@@ -834,17 +834,13 @@ print INST_DEF "\n";
 print INST_DEF "/* Exported variables. */\n";
 print INST_DEF "#ifdef INSTRUCTIONS_8051_M\n";
 print INST_DEF "OPCODE_FP opcode_table[256] = {\n";
-for( $i=0; $i<256; $i++ ) {
-    $ifunc=substr($instfunction[$i], 9);
-    if( $i < 255 ) {
-	print INST_DEF "  cpu8051_$ifunc,\n";
-    }
-    else {
-	print INST_DEF "  cpu8051_$ifunc\n";
-	print INST_DEF "};\n";
-    }
-}
 
+for ($i = 0; $i < 256; $i++) {
+    $ifunc = substr($instfunction[$i], 9);
+
+    print INST_DEF "\tcpu8051_$ifunc,\n";
+}
+print INST_DEF "};\n";
 print INST_DEF "#else\n";
 print INST_DEF "OPCODE_FP opcode_table[256];\n";
 print INST_DEF "#endif\n\n\n";

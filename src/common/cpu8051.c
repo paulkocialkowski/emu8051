@@ -173,7 +173,8 @@ cpu8051_interrupt_fire(int interrupt_no, int priority)
 static int
 cpu8051_interrupt_enabled(int interrupt_no)
 {
-	return (memory_read_direct(_IE_) & INTERRUPT_MASK(interrupt_no)) ? 1 : 0;
+	return (memory_read_direct(_IE_) & INTERRUPT_MASK(interrupt_no)) ?
+		1 : 0;
 }
 
 static void
@@ -200,8 +201,9 @@ cpu8051_check_interrupts(void)
 			if (cpu8051_interrupt_enabled(INTERRUPT_1) &&
 			    cpu8051_interrupt_fire(INTERRUPT_1, i) &&
 			    (memory_read_direct(_TCON_) & 0x20)) {
-				memory_write_direct(_TCON_,
-					       memory_read_direct(_TCON_) & 0xDF);
+				memory_write_direct(
+					_TCON_,
+					memory_read_direct(_TCON_) & 0xDF);
 				cpu8051_process_interrupt(0x0B, i);
 				return;
 			}
@@ -209,8 +211,9 @@ cpu8051_check_interrupts(void)
 			if (cpu8051_interrupt_enabled(INTERRUPT_3) &&
 			    cpu8051_interrupt_fire(INTERRUPT_3, i) &&
 			    (memory_read_direct(_TCON_) & 0x80)) {
-				memory_write_direct(_TCON_,
-					       memory_read_direct(_TCON_) & 0x7F);
+				memory_write_direct(
+					_TCON_,
+					memory_read_direct(_TCON_) & 0x7F);
 				cpu8051_process_interrupt(0x1B, i);
 				return;
 			}
