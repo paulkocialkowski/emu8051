@@ -161,95 +161,10 @@ cpu8051_reset(void)
 	memory_sfr_write8(_SP_, 0x07);
 }
 
-static void
-cpu8051_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
-			    uint8_t *bit_number)
-{
-	if (bit_address > 0x7F) {
-		/* SFR 80-FF */
-		*byte_address = bit_address & 0xF8;
-		*bit_number = bit_address & 0x07;
-	} else {
-		/* 20-2F */
-		*byte_address = (bit_address >> 3) + 0x20;
-		*bit_number = bit_address & 0x07;
-	}
-}
-
-/* Write with a direct addressing mode at Address the new Value */
-void
-cpu8051_WriteD(unsigned int address, unsigned char value)
-{
-	memory_write8(INT_MEM_ID, address, value);
-}
-
-/* Write with an indirect addressing mode at Address the new Value */
-void
-cpu8051_WriteI(unsigned int address, unsigned char value)
-{
-	if (address > 0x7F) {
-		memory_write8(EXT_MEM_ID, address, value);
-		return;
-	}
-
-	memory_write8(INT_MEM_ID, address, value);
-}
-
-/* Write with a bit addressing mode at BitAddress the new Value */
-void
-cpu8051_WriteB(uint8_t bit_address, uint8_t value)
-{
-	uint8_t byte_address;
-	uint8_t bit_number;
-	unsigned char byte_val, byte_mask;
-
-	cpu8051_convert_bit_address(bit_address, &byte_address, &bit_number);
-
-	byte_mask = ((1 << bit_number) ^ 0xFF);
-	byte_val = cpu8051_ReadD(byte_address) & byte_mask;
-	byte_val += value << bit_number;
-	cpu8051_WriteD(byte_address, byte_val);
-}
-
-/* Read with a direct addressing mode at Address */
-unsigned char
-cpu8051_ReadD(unsigned int address)
-{
-	if (address > 0xFF)
-		return memory_read8(EXT_MEM_ID, address);
-	else
-		return memory_read8(INT_MEM_ID, address);
-}
-
-/* Read with a indirect addressing mode at Address */
-unsigned char
-cpu8051_ReadI(unsigned int address)
-{
-	if (address > 0x7F)
-		return memory_read8(EXT_MEM_ID, address);
-	else
-		return memory_read8(INT_MEM_ID, address);
-}
-
-/* Read with a bit addressing mode at BitAddress */
-unsigned char
-cpu8051_ReadB(uint8_t bit_address)
-{
-	uint8_t byte_address;
-	uint8_t bit_number;
-	unsigned char bit_value;
-
-	cpu8051_convert_bit_address(bit_address, &byte_address, &bit_number);
-
-	bit_value = (cpu8051_ReadD(byte_address) >> bit_number);
-	bit_value &= 1;
-	return bit_value;
-}
-
 static int
 cpu8051_interrupt_fire(int interrupt_no, int priority)
 {
-	if (cpu8051_ReadD(_IP_) & INTERRUPT_MASK(interrupt_no))
+	if (memory_read_direct(_IP_) & INTERRUPT_MASK(interrupt_no))
 		return priority;
 	else
 		return !priority;
@@ -258,7 +173,7 @@ cpu8051_interrupt_fire(int interrupt_no, int priority)
 static int
 cpu8051_interrupt_enabled(int interrupt_no)
 {
-	return (cpu8051_ReadD(_IE_) & INTERRUPT_MASK(interrupt_no)) ? 1 : 0;
+	return (memory_read_direct(_IE_) & INTERRUPT_MASK(interrupt_no)) ? 1 : 0;
 }
 
 static void
@@ -276,7 +191,7 @@ cpu8051_check_interrupts(void)
 {
 	int i;
 
-	if ((cpu8051_ReadD(_IE_) & 0x80) == 0)
+	if ((memory_read_direct(_IE_) & 0x80) == 0)
 		return;
 
 	for (i = INTERRUPT_PRIORITY_HIGH; i >= INTERRUPT_PRIORITY_LOW; i--) {
@@ -284,32 +199,32 @@ cpu8051_check_interrupts(void)
 			/* Interrupt timer 0 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_1) &&
 			    cpu8051_interrupt_fire(INTERRUPT_1, i) &&
-			    (cpu8051_ReadD(_TCON_) & 0x20)) {
-				cpu8051_WriteD(_TCON_,
-					       cpu8051_ReadD(_TCON_) & 0xDF);
+			    (memory_read_direct(_TCON_) & 0x20)) {
+				memory_write_direct(_TCON_,
+					       memory_read_direct(_TCON_) & 0xDF);
 				cpu8051_process_interrupt(0x0B, i);
 				return;
 			}
 			/* Interrupt timer 1 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_3) &&
 			    cpu8051_interrupt_fire(INTERRUPT_3, i) &&
-			    (cpu8051_ReadD(_TCON_) & 0x80)) {
-				cpu8051_WriteD(_TCON_,
-					       cpu8051_ReadD(_TCON_) & 0x7F);
+			    (memory_read_direct(_TCON_) & 0x80)) {
+				memory_write_direct(_TCON_,
+					       memory_read_direct(_TCON_) & 0x7F);
 				cpu8051_process_interrupt(0x1B, i);
 				return;
 			}
 			/* Serial Interrupts */
 			if (cpu8051_interrupt_enabled(INTERRUPT_4) &&
 			    cpu8051_interrupt_fire(INTERRUPT_4, i) &&
-			    (cpu8051_ReadD(_SCON_) & 0x03)) {
+			    (memory_read_direct(_SCON_) & 0x03)) {
 				cpu8051_process_interrupt(0x23, i);
 				return;
 			}
 			/* Interrupt timer 2 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_5) &&
 			    cpu8051_interrupt_fire(INTERRUPT_5, i) &&
-			    (cpu8051_ReadD(_T2CON_) & 0x80)) {
+			    (memory_read_direct(_T2CON_) & 0x80)) {
 				cpu8051_process_interrupt(0x2B, i);
 				return;
 			}
@@ -483,7 +398,7 @@ cpu8051_int_mem_bit_info(uint8_t bit_address, char *text)
 	uint8_t bit_number;
 	int len;
 
-	cpu8051_convert_bit_address(bit_address, &byte_address, &bit_number);
+	memory_convert_bit_address(bit_address, &byte_address, &bit_number);
 
 	len = cpu8051_sfr_mem_info(byte_address, text);
 	sprintf(&text[len], ".%X", bit_address);
@@ -493,14 +408,14 @@ cpu8051_int_mem_bit_info(uint8_t bit_address, char *text)
 int
 cpu8051_get_instruction_size(unsigned char opcode)
 {
-	return InstSizesTbl[opcode];
+	return instr_size[opcode];
 }
 
 /* Display instruction mnemonic. */
 int
 cpu8051_disasm_mnemonic(unsigned char opcode, char *buf)
 {
-	return sprintf(buf, "%s", InstTextTbl[InstTypesTbl[opcode]]);
+	return sprintf(buf, "%s", instr_type_str[instr_type_id[opcode]]);
 }
 
 /* Disasm instruction arguments starting at address into a text string */
@@ -534,8 +449,8 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 		return;
 	}
 
-	for (i = 1; i <= InstArgTbl[args_table_offset]; i++) {
-		switch (InstArgTbl[args_table_offset + i]) {
+	for (i = 1; i <= instr_arg_type_id[args_table_offset]; i++) {
+		switch (instr_arg_type_id[args_table_offset + i]) {
 		case ADDR11: {
 			len += sprintf(&buf[len],
 				       "%.4XH", ((opcode << 3) & 0xF00) +
@@ -601,10 +516,11 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 		default: {
 			len += sprintf(
 				&buf[len], "%s",
-				ArgsTextTbl[InstArgTbl[args_table_offset + i]]);
+				instr_arg_type_str[instr_arg_type_id[
+						args_table_offset + i]]);
 		}
 		}
-		if (i < InstArgTbl[args_table_offset])
+		if (i < instr_arg_type_id[args_table_offset])
 			len += sprintf(&buf[len], ",");
 	}
 }
@@ -622,7 +538,7 @@ cpu8051_disasm(unsigned int address, char *text)
 	len += sprintf(text, " %.4X ", address);
 
 	opcode = memory_read8(PGM_MEM_ID, address);
-	inst_size = InstSizesTbl[opcode];
+	inst_size = instr_size[opcode];
 
 	/* Display hex bytes. */
 	for (i = 0; i < inst_size; i++)

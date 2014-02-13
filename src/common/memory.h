@@ -41,6 +41,10 @@ int
 memory_check_address(enum mem_id_t id, unsigned long address,
 		     int display_error);
 
+void
+memory_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
+			   uint8_t *bit_number);
+
 u_int8_t *
 memory_getbuf(enum mem_id_t id, unsigned long address);
 
@@ -51,6 +55,15 @@ void
 memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
 
 void
+memory_write_direct(unsigned int address, unsigned char value);
+
+void
+memory_write_indirect(unsigned int address, unsigned char value);
+
+void
+memory_write_bit(uint8_t bit_address, uint8_t value);
+
+void
 memory_sfr_write8(unsigned long address, u_int8_t value);
 
 void
@@ -58,6 +71,15 @@ memory_sfr_write_dptr(u_int16_t value);
 
 u_int8_t
 memory_read8(enum mem_id_t id, unsigned long address);
+
+unsigned char
+memory_read_direct(unsigned int address);
+
+unsigned char
+memory_read_indirect(unsigned int address);
+
+unsigned char
+memory_read_bit(uint8_t bit_address);
 
 u_int8_t
 memory_sfr_read8(unsigned long address);

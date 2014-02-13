@@ -78,6 +78,21 @@ memory_check_address(enum mem_id_t id, unsigned long address, int display_error)
 	}
 }
 
+void
+memory_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
+			   uint8_t *bit_number)
+{
+	if (bit_address > 0x7F) {
+		/* SFR 80-FF */
+		*byte_address = bit_address & 0xF8;
+		*bit_number = bit_address & 0x07;
+	} else {
+		/* 20-2F */
+		*byte_address = (bit_address >> 3) + 0x20;
+		*bit_number = bit_address & 0x07;
+	}
+}
+
 u_int8_t *
 memory_getbuf(enum mem_id_t id, unsigned long address)
 {
@@ -101,6 +116,41 @@ memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value)
 	} else {
 		mem_infos[id].buf[address] = value;
 	}
+}
+
+/* Write with a direct addressing mode at Address the new Value */
+void
+memory_write_direct(unsigned int address, unsigned char value)
+{
+	memory_write8(INT_MEM_ID, address, value);
+}
+
+/* Write with an indirect addressing mode at Address the new Value */
+void
+memory_write_indirect(unsigned int address, unsigned char value)
+{
+	if (address > 0x7F) {
+		memory_write8(EXT_MEM_ID, address, value);
+		return;
+	}
+
+	memory_write8(INT_MEM_ID, address, value);
+}
+
+/* Write with a bit addressing mode at BitAddress the new Value */
+void
+memory_write_bit(uint8_t bit_address, uint8_t value)
+{
+	uint8_t byte_address;
+	uint8_t bit_number;
+	unsigned char byte_val, byte_mask;
+
+	memory_convert_bit_address(bit_address, &byte_address, &bit_number);
+
+	byte_mask = ((1 << bit_number) ^ 0xFF);
+	byte_val = memory_read_direct(byte_address) & byte_mask;
+	byte_val += value << bit_number;
+	memory_write_direct(byte_address, byte_val);
 }
 
 void
@@ -128,6 +178,41 @@ memory_read8(enum mem_id_t id, unsigned long address)
 	} else {
 		return mem_infos[id].buf[address];
 	}
+}
+
+/* Read with a direct addressing mode at Address */
+unsigned char
+memory_read_direct(unsigned int address)
+{
+	if (address > 0xFF)
+		return memory_read8(EXT_MEM_ID, address);
+	else
+		return memory_read8(INT_MEM_ID, address);
+}
+
+/* Read with a indirect addressing mode at Address */
+unsigned char
+memory_read_indirect(unsigned int address)
+{
+	if (address > 0x7F)
+		return memory_read8(EXT_MEM_ID, address);
+	else
+		return memory_read8(INT_MEM_ID, address);
+}
+
+/* Read with a bit addressing mode at bit_address */
+unsigned char
+memory_read_bit(uint8_t bit_address)
+{
+	uint8_t byte_address;
+	uint8_t bit_number;
+	unsigned char bit_value;
+
+	memory_convert_bit_address(bit_address, &byte_address, &bit_number);
+
+	bit_value = (memory_read_direct(byte_address) >> bit_number);
+	bit_value &= 1;
+	return bit_value;
 }
 
 u_int8_t

@@ -54,15 +54,15 @@ timer_increment_check_overflow(uint8_t counter_address, uint8_t tf_mask)
 {
 	unsigned int tmp;
 
-	tmp = cpu8051_ReadD(counter_address);
+	tmp = memory_read_direct(counter_address);
 	tmp++;
 	tmp &= 0xFF;
 	if (tmp == 0) {
 		/* If overflow set TFx */
-		cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
+		memory_write_direct(_TCON_, memory_read_direct(_TCON_) | tf_mask);
 	}
 
-	cpu8051_WriteD(counter_address, tmp); /* Save new value. */
+	memory_write_direct(counter_address, tmp); /* Save new value. */
 }
 
 static void
@@ -71,11 +71,11 @@ timer_with_prescaler(uint8_t tl, uint8_t th, uint8_t tf_mask,
 {
 	unsigned int prescaler;
 
-	prescaler = cpu8051_ReadD(tl);
+	prescaler = memory_read_direct(tl);
 	prescaler++;
 
 	prescaler &= (1 << prescaler_width) - 1; /* Keep only required bits */
-	cpu8051_WriteD(tl, prescaler);
+	memory_write_direct(tl, prescaler);
 
 	if (prescaler == 0)
 		timer_increment_check_overflow(th, tf_mask);
@@ -98,15 +98,15 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 		break;
 	case 2:
 		/* Mode 2, 8-bits counter with Auto-Reload */
-		tmp = cpu8051_ReadD(tl);
+		tmp = memory_read_direct(tl);
 		tmp++;
 		tmp &= 0xFF;
 		if (tmp == 0) {
 			/* If overflow -> reload and set TF0 */
-			cpu8051_WriteD(_TCON_, cpu8051_ReadD(_TCON_) | tf_mask);
-			cpu8051_WriteD(tl, cpu8051_ReadD(th));
+			memory_write_direct(_TCON_, memory_read_direct(_TCON_) | tf_mask);
+			memory_write_direct(tl, memory_read_direct(th));
 		} else {
-			cpu8051_WriteD(tl, tmp);
+			memory_write_direct(tl, tmp);
 		}
 		break;
 	case 3:
@@ -123,7 +123,7 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 			timer_increment_check_overflow(tl, tf_mask);
 
 		/* TH0 uses TR1 et TF1. */
-		TR = cpu8051_ReadD(_TCON_) & 0x40;
+		TR = memory_read_direct(_TCON_) & 0x40;
 
 		if (TR)
 			timer_increment_check_overflow(th, 0x80);
@@ -142,20 +142,20 @@ timers_check(void)
 	unsigned int timer_counter;
 
 	/* Timer 0 */
-	tr = cpu8051_ReadD(_TCON_) & 0x10;
-	mode = cpu8051_ReadD(_TMOD_) & 0x03;
-	gate = cpu8051_ReadD(_TMOD_) & 0x08;
-	timer_counter = cpu8051_ReadD(_TMOD_) & 0x04;
+	tr = memory_read_direct(_TCON_) & 0x10;
+	mode = memory_read_direct(_TMOD_) & 0x03;
+	gate = memory_read_direct(_TMOD_) & 0x08;
+	timer_counter = memory_read_direct(_TMOD_) & 0x04;
 
 	if ((tr && !gate && !timer_counter) || (mode == 3))
 		process_timer(_TL0_, _TH0_, 0x20, tr, mode, gate,
 			      timer_counter);
 
 	/* Timer 1 */
-	tr = cpu8051_ReadD(_TCON_) & 0x40;
-	mode = (cpu8051_ReadD(_TMOD_) & 0x30) >> 4 ;
-	gate = cpu8051_ReadD(_TMOD_) & 0x80;
-	timer_counter = cpu8051_ReadD(_TMOD_) & 0x40;
+	tr = memory_read_direct(_TCON_) & 0x40;
+	mode = (memory_read_direct(_TMOD_) & 0x30) >> 4 ;
+	gate = memory_read_direct(_TMOD_) & 0x80;
+	timer_counter = memory_read_direct(_TMOD_) & 0x40;
 
 	if (tr && !gate && !timer_counter)
 		process_timer(_TL1_, _TH1_, 0x80, tr, mode, gate,

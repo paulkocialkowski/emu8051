@@ -74,24 +74,6 @@ cpu8051_run(int instr_count, int (*interface_stop)(void));
 void
 cpu8051_reset(void);
 
-void
-cpu8051_WriteD(unsigned int address, unsigned char value);
-
-void
-cpu8051_WriteI(unsigned int address, unsigned char value);
-
-void
-cpu8051_WriteB(uint8_t bit_address, uint8_t value);
-
-unsigned char
-cpu8051_ReadD(unsigned int address);
-
-unsigned char
-cpu8051_ReadI(unsigned int address);
-
-unsigned char
-cpu8051_ReadB(uint8_t bit_address);
-
 int
 cpu8051_get_instruction_size(unsigned char opcode);
 
