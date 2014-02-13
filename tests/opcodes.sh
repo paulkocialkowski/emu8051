@@ -12,6 +12,7 @@ name=$(basename ${test_name} .sh)
 hexfile=${name}.hex
 
 echo "Testing ${name}.hex" > ${lf}
+
 ../src/cli/emu8051-cli -d 2 --xram=${XRAM_SIZE} -s ${STOP_ADDRESS} ${hexfile} >> ${lf}
 if test $? -ne 0 ; then
     return 1
@@ -30,7 +31,7 @@ while read line; do
             exit 1
         fi
     fi
-done < ${name}.asm
+done < $srcdir/${name}.asm
 
 if [ x"${test_output_found}" == x0 ]; then
     # Need at least one test output condition to verify correct operation
