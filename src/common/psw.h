@@ -10,10 +10,10 @@
 #define PSW_H 1
 
 int
-psw_read_bit(int bit);
+psw_read_bit(unsigned int bit);
 
 void
-psw_write_bit(int bit, int val);
+psw_write_bit(unsigned int bit, int val);
 
 int
 psw_read_cy(void);

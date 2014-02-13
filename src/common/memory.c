@@ -50,14 +50,12 @@ mem_init(void)
 		m = &mem_infos[k];
 
 		if (m->size > m->max_size) {
-			log_err("Memory size invalid (max = %d)", m->max_size);
-			exit(1);
+			log_fail("Memory size invalid (max = %d)", m->max_size);
 		}
 
 		m->buf = malloc(m->size);
 		if (m->buf == NULL) {
-			log_err("%s", strerror(errno));
-			exit(1);
+			log_fail("%s", strerror(errno));
 		}
 
 		memset(m->buf, 0x00, m->size);
@@ -319,13 +317,13 @@ mem_dump(unsigned int address, int size, enum mem_id_t id)
 		return;
 
 	for (offset = 0; offset < size; offset += 16) {
-		unsigned char data[16];
+		uint8_t data[16];
 
 		printf("%.4X ", address + offset);
 
 		for (col = 0; col < 16; col++) {
 			data[col] = mem_read8(id, address + offset + col);
-			printf(" %.2X", (int) data[col]);
+			printf(" %.2X", data[col]);
 		}
 		printf("  ");
 
@@ -333,7 +331,7 @@ mem_dump(unsigned int address, int size, enum mem_id_t id)
 		for (col = 0; col < 16; col++) {
 			if ((int) data[col] >= 32 &&
 			    (int) data[col] <= 126)
-				printf("%c", data[col]);
+				printf("%c", (char) data[col]);
 			else
 				printf(".");
 		}

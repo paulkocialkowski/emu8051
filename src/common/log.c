@@ -49,7 +49,7 @@ log_debug(const char *format, ...)
 		log_prefix_package_name(stream, "debug");
 
 		va_start(ap, format);
-		vfprintf(stream, format, ap);
+		(void) vfprintf(stream, format, ap);
 		va_end(ap);
 
 		log_suffix_newline(stream);
@@ -67,7 +67,7 @@ log_info(const char *format, ...)
 		log_prefix_package_name(stream, "info");
 
 		va_start(ap, format);
-		vfprintf(stream, format, ap);
+		(void) vfprintf(stream, format, ap);
 		va_end(ap);
 
 		log_suffix_newline(stream);
@@ -85,7 +85,7 @@ log_warn(const char *format, ...)
 		log_prefix_package_name(stream, "warn");
 
 		va_start(ap, format);
-		vfprintf(stream, format, ap);
+		(void) vfprintf(stream, format, ap);
 		va_end(ap);
 
 		log_suffix_newline(stream);
@@ -101,7 +101,7 @@ log_err(const char *format, ...)
 	log_prefix_package_name(stream, "error");
 
 	va_start(ap, format);
-	vfprintf(stream, format, ap);
+	(void) vfprintf(stream, format, ap);
 	va_end(ap);
 
 	log_suffix_newline(stream);
@@ -117,7 +117,7 @@ log_fail(const char *format, ...)
 	log_prefix_package_name(stream, "error");
 
 	va_start(ap, format);
-	vfprintf(stream, format, ap);
+	(void) vfprintf(stream, format, ap);
 	va_end(ap);
 
 	log_suffix_newline(stream);

@@ -10,7 +10,6 @@
 #  include "config.h"
 #endif
 
-#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <argp.h>
@@ -59,7 +58,7 @@ decode_debug_option(char *arg, struct argp_state *state)
 	char *endptr;
 	int log_level;
 
-	log_level = strtol(arg, &endptr, 0);
+	log_level = (int) strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
 		log_err("Invalid log level");
@@ -87,13 +86,13 @@ decode_memory_size(char *arg, struct argp_state *state, int memid)
 	else if (memid == EXT_MEM_ID)
 		dest = &options.xram_size;
 	else
-		exit(1); /* Programming error. */
+		exit(EXIT_FAILURE); /* Programming error. */
 
 	/*
 	 * Sizes versus max memory sizes will be checked when calling
 	 * memory_init().
 	 */
-	*dest = strtol(arg, &endptr, 0);
+	*dest = (int) strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
 		log_err("Invalid memory size");
@@ -106,7 +105,7 @@ decode_address(char *arg, struct argp_state *state, uint16_t *dest)
 {
 	char *endptr;
 
-	*dest = strtol(arg, &endptr, 0);
+	*dest = (uint16_t) strtol(arg, &endptr, 0);
 
 	if (*endptr != '\0') {
 		log_err("Invalid address");
@@ -163,6 +162,8 @@ static struct argp argp = {argp_options, parse_opt, args_doc, str_doc,
 void
 parse_command_line_options(int argc, char *argv[])
 {
+	error_t rc;
+
 	/* Setting default values. */
 	options.filename = NULL;
 	options.pram_size = PGM_MEM_DEFAULT_SIZE;
@@ -172,5 +173,7 @@ parse_command_line_options(int argc, char *argv[])
 	options.stop_address = 0; /* 0 means stop address is disabled. */
 
 	/* Parse our arguments. */
-	argp_parse(&argp, argc, argv, 0, 0, NULL);
+	rc = argp_parse(&argp, argc, argv, 0, 0, NULL);
+	if (rc != 0)
+		log_fail("Failure to parse command line arguments");
 }

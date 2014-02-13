@@ -12,13 +12,13 @@
 
 /* Returns 0 or 1 */
 int
-psw_read_bit(int bit)
+psw_read_bit(unsigned int bit)
 {
 	return (mem_read8(INT_MEM_ID, _PSW_) >> bit) & 0x01;
 }
 
 void
-psw_write_bit(int bit, int val)
+psw_write_bit(unsigned int bit, int val)
 {
 	uint8_t psw = mem_read8(INT_MEM_ID, _PSW_);
 

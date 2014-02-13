@@ -58,6 +58,7 @@ menu_get_input(char *buf, ssize_t size)
 
 	if ((int) strlen(line) > max_len) {
 		printf("input line too long");
+		free(line);
 		return YY_NULL;
 	}
 
@@ -189,7 +190,7 @@ console_exec(int num)
 
 	log_info("Program executing...");
 
-	cpu8051_run(num, kbhit);
+	(void) cpu8051_run(num, kbhit);
 
 	if (kbhit()) {
 		(void) getch(); /* Flush key */
@@ -205,7 +206,7 @@ console_exec(int num)
 void
 console_trace(void)
 {
-	cpu8051_exec();
+	(void) cpu8051_exec();
 	console_show_registers();
 	disassemble_num(cpu8051.pc, 1);
 }

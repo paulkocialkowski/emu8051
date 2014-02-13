@@ -33,7 +33,7 @@ main(int argc, char **argv)
 	if (options.filename != NULL) {
 		rc = hexfile_load(options.filename);
 		if (!rc)
-			exit(1);
+			exit(EXIT_FAILURE);
 	}
 
 	console_reset();
@@ -44,8 +44,8 @@ main(int argc, char **argv)
 	} else {
 		menu_display_usage();
 		console_show_registers();
-		yyparse();
+		(void) yyparse();
 	}
 
-	return 0;
+	exit(EXIT_SUCCESS);
 }
