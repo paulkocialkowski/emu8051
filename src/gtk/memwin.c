@@ -78,7 +78,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 		   gchar *new_str, gpointer model)
 {
 	guint column;
-	guint memory_id;
+	enum mem_id_t memory_id;
 	gpointer columnptr;
 	gpointer memory_id_ptr;
 	GtkTreeIter iter;
@@ -107,7 +107,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
 	address += (column - COL_DATA0);
-	old = memory_read8(memory_id, address);
+	old = mem_read8(memory_id, address);
 
 	log_info("Address: $%02X", address);
 	log_info("  old value: $%02X", old);
@@ -122,7 +122,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	}
 
 	/* Store new value in emulator memory. */
-	memory_write8(memory_id, address, new);
+	mem_write8(memory_id, address, new);
 
 	/* Convert to text. */
 	int2asciihex(new, str, 2);
@@ -138,7 +138,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 };
 
 static void
-memwin_init_columns(GtkWidget *listview, int memory_id)
+memwin_init_columns(GtkWidget *listview, enum mem_id_t memory_id)
 {
 	int i;
 	GtkCellRenderer *renderer;
@@ -196,7 +196,7 @@ memwin_init_columns(GtkWidget *listview, int memory_id)
 }
 
 static void
-memwin_infos_select(int memory_id)
+memwin_infos_select(enum mem_id_t memory_id)
 {
 	if (memory_id == INT_MEM_ID) {
 		log_debug("memory ID = INTERNAL");
@@ -228,7 +228,7 @@ compute_data_rows(int memory_id)
 }
 
 GtkWidget *
-memwin_init(char *title, int memory_id)
+memwin_init(char *title, enum mem_id_t memory_id)
 {
 	GtkWidget *frame;
 	GtkWidget *scrollwin;
@@ -283,13 +283,13 @@ memwin_init(char *title, int memory_id)
  * rows which have been modified.
  */
 static int
-memwin_row_changed(int memory_id, int row, unsigned int address)
+memwin_row_changed(enum mem_id_t memory_id, int row, unsigned int address)
 {
 	int row_changed;
 	u_int32_t crc_new = 0;
 	u_int8_t *buf8;
 
-	buf8 = memory_getbuf(memory_id, address);
+	buf8 = mem_getbuf(memory_id, address);
 	crc_new = crc32(0L, Z_NULL, 0);
 	crc_new = crc32(crc_new, buf8, cfg->bytes_per_row);
 
@@ -307,7 +307,7 @@ memwin_row_changed(int memory_id, int row, unsigned int address)
 
 /* Dump internal or external memory. */
 void
-memwin_refresh(int memory_id)
+memwin_refresh(enum mem_id_t memory_id)
 {
 	int row;
 	unsigned int address = 0;
@@ -353,7 +353,7 @@ memwin_refresh(int memory_id)
 			for (col = 0; col < cfg->bytes_per_row; col++) {
 				u_int8_t data;
 
-				data = memory_read8(memory_id, address + col);
+				data = mem_read8(memory_id, address + col);
 
 				/* Display hex data */
 				int2asciihex(data, str, 2);

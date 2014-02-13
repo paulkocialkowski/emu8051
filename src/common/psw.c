@@ -14,20 +14,20 @@
 int
 psw_read_bit(int bit)
 {
-	return (memory_read8(INT_MEM_ID, _PSW_) >> bit) & 0x01;
+	return (mem_read8(INT_MEM_ID, _PSW_) >> bit) & 0x01;
 }
 
 void
 psw_write_bit(int bit, int val)
 {
-	u_int8_t psw = memory_read8(INT_MEM_ID, _PSW_);
+	u_int8_t psw = mem_read8(INT_MEM_ID, _PSW_);
 
 	if (val)
 		psw |= (1 << bit);  /* Set */
 	else
 		psw &= ~(1 << bit); /* Clear */
 
-	memory_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	mem_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
 }
 
 /* Returns 0 or 1 */
@@ -114,7 +114,7 @@ void
 psw_compute_parity_bit(void)
 {
 	int parity = 0;
-	uint8_t acc = memory_read8(INT_MEM_ID, _ACC_);
+	uint8_t acc = mem_read8(INT_MEM_ID, _ACC_);
 
 	while (acc) {
 		parity = !parity;

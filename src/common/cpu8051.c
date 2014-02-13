@@ -62,7 +62,7 @@ breakpoint_set(unsigned int address)
 {
 	int rc;
 
-	rc = memory_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
+	rc = mem_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
 	if (!rc)
 		return; /* Error */
 
@@ -79,7 +79,7 @@ breakpoint_clr(unsigned int address)
 	int k;
 	int rc;
 
-	rc = memory_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
+	rc = mem_check_address(PGM_MEM_ID, address, DISPLAY_ERROR_YES);
 	if (!rc)
 		return; /* Error */
 
@@ -130,7 +130,7 @@ cpu8051_init(void)
 {
 	int id;
 
-	memory_init();
+	mem_init();
 
 	for (id = 0; id < GP_TIMERS_COUNT; id++)
 		gp_timer_reset(id);
@@ -150,21 +150,21 @@ cpu8051_reset(void)
 	cpu8051.active_priority = -1;
 
 	/* Clear IRAM and SFR. */
-	memory_clear(INT_MEM_ID);
+	mem_clear(INT_MEM_ID);
 
-	memory_sfr_write8(_P0_, 0xFF);
-	memory_sfr_write8(_P1_, 0xFF);
-	memory_sfr_write8(_P2_, 0xFF);
-	memory_sfr_write8(_P3_, 0xFF);
+	mem_sfr_write8(_P0_, 0xFF);
+	mem_sfr_write8(_P1_, 0xFF);
+	mem_sfr_write8(_P2_, 0xFF);
+	mem_sfr_write8(_P3_, 0xFF);
 
 	/* The default value of SP (after system reset) is 07 */
-	memory_sfr_write8(_SP_, 0x07);
+	mem_sfr_write8(_SP_, 0x07);
 }
 
 static int
 cpu8051_interrupt_fire(int interrupt_no, int priority)
 {
-	if (memory_read_direct(_IP_) & INTERRUPT_MASK(interrupt_no))
+	if (mem_read_direct(_IP_) & INTERRUPT_MASK(interrupt_no))
 		return priority;
 	else
 		return !priority;
@@ -173,7 +173,7 @@ cpu8051_interrupt_fire(int interrupt_no, int priority)
 static int
 cpu8051_interrupt_enabled(int interrupt_no)
 {
-	return (memory_read_direct(_IE_) & INTERRUPT_MASK(interrupt_no)) ?
+	return (mem_read_direct(_IE_) & INTERRUPT_MASK(interrupt_no)) ?
 		1 : 0;
 }
 
@@ -192,7 +192,7 @@ cpu8051_check_interrupts(void)
 {
 	int i;
 
-	if ((memory_read_direct(_IE_) & 0x80) == 0)
+	if ((mem_read_direct(_IE_) & 0x80) == 0)
 		return;
 
 	for (i = INTERRUPT_PRIORITY_HIGH; i >= INTERRUPT_PRIORITY_LOW; i--) {
@@ -200,34 +200,34 @@ cpu8051_check_interrupts(void)
 			/* Interrupt timer 0 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_1) &&
 			    cpu8051_interrupt_fire(INTERRUPT_1, i) &&
-			    (memory_read_direct(_TCON_) & 0x20)) {
-				memory_write_direct(
+			    (mem_read_direct(_TCON_) & 0x20)) {
+				mem_write_direct(
 					_TCON_,
-					memory_read_direct(_TCON_) & 0xDF);
+					mem_read_direct(_TCON_) & 0xDF);
 				cpu8051_process_interrupt(0x0B, i);
 				return;
 			}
 			/* Interrupt timer 1 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_3) &&
 			    cpu8051_interrupt_fire(INTERRUPT_3, i) &&
-			    (memory_read_direct(_TCON_) & 0x80)) {
-				memory_write_direct(
+			    (mem_read_direct(_TCON_) & 0x80)) {
+				mem_write_direct(
 					_TCON_,
-					memory_read_direct(_TCON_) & 0x7F);
+					mem_read_direct(_TCON_) & 0x7F);
 				cpu8051_process_interrupt(0x1B, i);
 				return;
 			}
 			/* Serial Interrupts */
 			if (cpu8051_interrupt_enabled(INTERRUPT_4) &&
 			    cpu8051_interrupt_fire(INTERRUPT_4, i) &&
-			    (memory_read_direct(_SCON_) & 0x03)) {
+			    (mem_read_direct(_SCON_) & 0x03)) {
 				cpu8051_process_interrupt(0x23, i);
 				return;
 			}
 			/* Interrupt timer 2 */
 			if (cpu8051_interrupt_enabled(INTERRUPT_5) &&
 			    cpu8051_interrupt_fire(INTERRUPT_5, i) &&
-			    (memory_read_direct(_T2CON_) & 0x80)) {
+			    (mem_read_direct(_T2CON_) & 0x80)) {
 				cpu8051_process_interrupt(0x2B, i);
 				return;
 			}
@@ -245,13 +245,13 @@ cpu8051_exec(void)
 	int insttiming;
 
 	/* Basic address check (may fail later if opcode has operands). */
-	rc = memory_check_address(PGM_MEM_ID, cpu8051.pc, DISPLAY_ERROR_NO);
+	rc = mem_check_address(PGM_MEM_ID, cpu8051.pc, DISPLAY_ERROR_NO);
 	if (!rc) {
 		log_err("Trying to run past program memory limit");
 		return false; /* Error */
 	}
 
-	opcode = memory_read8(PGM_MEM_ID, cpu8051.pc);
+	opcode = mem_read8(PGM_MEM_ID, cpu8051.pc);
 	cpu8051.pc++;
 	insttiming = (*opcode_table[opcode])(); /* Function callback. */
 
@@ -401,7 +401,7 @@ cpu8051_int_mem_bit_info(uint8_t bit_address, char *text)
 	uint8_t bit_number;
 	int len;
 
-	memory_convert_bit_address(bit_address, &byte_address, &bit_number);
+	mem_convert_bit_address(bit_address, &byte_address, &bit_number);
 
 	len = cpu8051_sfr_mem_info(byte_address, text);
 	sprintf(&text[len], ".%X", bit_address);
@@ -433,7 +433,7 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 
 	buf[0] = '\0';
 
-	opcode = memory_read8(PGM_MEM_ID, address);
+	opcode = mem_read8(PGM_MEM_ID, address);
 	args_table_offset = opcode << 2;
 	address++;
 
@@ -442,10 +442,10 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 	 * are inverted
 	 */
 	if (opcode == 0x85) {
-		cpu8051_sfr_mem_info(memory_read8(PGM_MEM_ID, address + 1),
+		cpu8051_sfr_mem_info(mem_read8(PGM_MEM_ID, address + 1),
 				     str);
 		len += sprintf(&buf[len], "%s,", str);
-		cpu8051_sfr_mem_info(memory_read8(PGM_MEM_ID, address),
+		cpu8051_sfr_mem_info(mem_read8(PGM_MEM_ID, address),
 				     str);
 		len += sprintf(&buf[len], "%s", str);
 		address += 2;
@@ -457,20 +457,20 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 		case ADDR11: {
 			len += sprintf(&buf[len],
 				       "%.4XH", ((opcode << 3) & 0xF00) +
-				       (memory_read8(PGM_MEM_ID, address)));
+				       (mem_read8(PGM_MEM_ID, address)));
 			address++;
 			break;
 		}
 		case ADDR16: {
 			len += sprintf(
 				&buf[len], "%.4XH",
-				((memory_read8(PGM_MEM_ID, address) << 8) +
-				 memory_read8(PGM_MEM_ID, address + 1)));
+				((mem_read8(PGM_MEM_ID, address) << 8) +
+				 mem_read8(PGM_MEM_ID, address + 1)));
 			address += 2;
 			break;
 		}
 		case DIRECT: {
-			cpu8051_sfr_mem_info(memory_read8(PGM_MEM_ID, address),
+			cpu8051_sfr_mem_info(mem_read8(PGM_MEM_ID, address),
 					     str);
 			len += sprintf(&buf[len], "%s", str);
 			address++;
@@ -478,10 +478,10 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 		}
 		case BITADDR: {
 			cpu8051_int_mem_bit_info(
-				(memory_read8(PGM_MEM_ID, address) & 0xF8),
+				(mem_read8(PGM_MEM_ID, address) & 0xF8),
 				str);
 			len += sprintf(&buf[len], "%s.%X" , str,
-				       (memory_read8(PGM_MEM_ID, address) & 7));
+				       (mem_read8(PGM_MEM_ID, address) & 7));
 			address++;
 			break;
 		}
@@ -489,30 +489,30 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 			address++;
 			len += sprintf(&buf[len], "%.4XH", (address & 0xFF00) +
 				       (((address & 0xFF) +
-					 memory_read8(PGM_MEM_ID,
-						      address - 1)) & 0xFF));
+					 mem_read8(PGM_MEM_ID,
+						   address - 1)) & 0xFF));
 			break;
 		}
 		case DATAIMM: {
 			len += sprintf(&buf[len], "#%.2XH",
-				       memory_read8(PGM_MEM_ID, address));
+				       mem_read8(PGM_MEM_ID, address));
 			address++;
 			break;
 		}
 		case DATA16: {
 			len += sprintf(&buf[len], "#%.4XH",
-				       ((memory_read8(PGM_MEM_ID,
-						      address) << 8) +
-					memory_read8(PGM_MEM_ID, address+1)));
+				       ((mem_read8(PGM_MEM_ID,
+						   address) << 8) +
+					mem_read8(PGM_MEM_ID, address+1)));
 			address += 2;
 			break;
 		}
 		case CBITADDR: {
-			cpu8051_int_mem_bit_info((memory_read8(PGM_MEM_ID,
-							       address) & 0xF8),
+			cpu8051_int_mem_bit_info((mem_read8(PGM_MEM_ID,
+							    address) & 0xF8),
 						 str);
 			len += sprintf(&buf[len], "/%s.%X", str,
-				       (memory_read8(PGM_MEM_ID, address) & 7));
+				       (mem_read8(PGM_MEM_ID, address) & 7));
 			address++;
 			break;
 		}
@@ -540,13 +540,13 @@ cpu8051_disasm(unsigned int address, char *text)
 	/* Display address. */
 	len += sprintf(text, " %.4X ", address);
 
-	opcode = memory_read8(PGM_MEM_ID, address);
+	opcode = mem_read8(PGM_MEM_ID, address);
 	inst_size = instr_size[opcode];
 
 	/* Display hex bytes. */
 	for (i = 0; i < inst_size; i++)
 		len += sprintf(&text[len], " %.2X",
-			       memory_read8(PGM_MEM_ID, address + i));
+			       mem_read8(PGM_MEM_ID, address + i));
 
 	/* Padd remaining area with spaces. */
 	for (; len < 17;)

@@ -13,9 +13,9 @@
 #include <gtk/gtk.h>
 
 GtkWidget *
-memwin_init(char *title, int memory_id);
+memwin_init(char *title, enum mem_id_t memory_id);
 
 void
-memwin_refresh(int memory_id);
+memwin_refresh(enum mem_id_t memory_id);
 
 #endif /* MEMWIN_H */

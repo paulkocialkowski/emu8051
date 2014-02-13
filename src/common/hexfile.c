@@ -149,9 +149,9 @@ hexfile_load(const char *filename)
 		if (rec_type == 0) {
 			for (j = 0; j < rec_len; j++) {
 				data = asciihex2int_len(&line[i], 2);
-				memory_write8(PGM_MEM_ID,
-					      (unsigned int) (load_offset + j),
-					      (unsigned char) data);
+				mem_write8(PGM_MEM_ID,
+					   (unsigned int) (load_offset + j),
+					   (unsigned char) data);
 				i += 2;
 				checksum += data;
 			}

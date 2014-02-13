@@ -35,57 +35,56 @@ enum mem_id_t {
 #define DISPLAY_ERROR_YES 1
 
 void
-memory_init(void);
+mem_init(void);
 
 int
-memory_check_address(enum mem_id_t id, unsigned long address,
-		     int display_error);
+mem_check_address(enum mem_id_t id, unsigned long address, int display_error);
 
 void
-memory_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
-			   uint8_t *bit_number);
+mem_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
+			uint8_t *bit_number);
 
 u_int8_t *
-memory_getbuf(enum mem_id_t id, unsigned long address);
+mem_getbuf(enum mem_id_t id, unsigned long address);
 
 void
-memory_clear(enum mem_id_t id);
+mem_clear(enum mem_id_t id);
 
 void
-memory_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
+mem_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
 
 void
-memory_write_direct(unsigned int address, unsigned char value);
+mem_write_direct(unsigned int address, unsigned char value);
 
 void
-memory_write_indirect(unsigned int address, unsigned char value);
+mem_write_indirect(unsigned int address, unsigned char value);
 
 void
-memory_write_bit(uint8_t bit_address, uint8_t value);
+mem_write_bit(uint8_t bit_address, uint8_t value);
 
 void
-memory_sfr_write8(unsigned long address, u_int8_t value);
+mem_sfr_write8(unsigned long address, u_int8_t value);
 
 void
-memory_sfr_write_dptr(u_int16_t value);
+mem_sfr_write_dptr(u_int16_t value);
 
 u_int8_t
-memory_read8(enum mem_id_t id, unsigned long address);
+mem_read8(enum mem_id_t id, unsigned long address);
 
 unsigned char
-memory_read_direct(unsigned int address);
+mem_read_direct(unsigned int address);
 
 unsigned char
-memory_read_indirect(unsigned int address);
+mem_read_indirect(unsigned int address);
 
 unsigned char
-memory_read_bit(uint8_t bit_address);
+mem_read_bit(uint8_t bit_address);
 
 u_int8_t
-memory_sfr_read8(unsigned long address);
+mem_sfr_read8(unsigned long address);
 
 u_int16_t
-memory_sfr_read_dptr(void);
+mem_sfr_read_dptr(void);
 
 void
 stack_push8(uint8_t value);
@@ -103,6 +102,6 @@ uint16_t
 pgm_read_addr16(uint16_t base);
 
 void
-memory_dump(unsigned int address, int size, int memory_id);
+mem_dump(unsigned int address, int size, enum mem_id_t id);
 
 #endif /* MEMORY_H */
