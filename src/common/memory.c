@@ -21,7 +21,7 @@
 struct mem_infos_t {
 	int size;
 	int max_size;
-	u_int8_t *buf;
+	uint8_t *buf;
 };
 
 struct mem_infos_t mem_infos[MEM_ID_COUNT];
@@ -93,7 +93,7 @@ mem_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
 	}
 }
 
-u_int8_t *
+uint8_t *
 mem_getbuf(enum mem_id_t id, unsigned long address)
 {
 	return &mem_infos[id].buf[address];
@@ -106,7 +106,7 @@ mem_clear(enum mem_id_t id)
 }
 
 void
-mem_write8(enum mem_id_t id, unsigned long address, u_int8_t value)
+mem_write8(enum mem_id_t id, unsigned long address, uint8_t value)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
 		log_err("Error writing to memory ID: %d\n"
@@ -154,20 +154,20 @@ mem_write_bit(uint8_t bit_address, uint8_t value)
 }
 
 void
-mem_sfr_write8(unsigned long address, u_int8_t value)
+mem_sfr_write8(unsigned long address, uint8_t value)
 {
 	/* SFR registers are from addresses $80 to $FF. */
 	mem_write8(INT_MEM_ID, address, value);
 }
 
 void
-mem_sfr_write_dptr(u_int16_t value)
+mem_sfr_write_dptr(uint16_t value)
 {
 	mem_write8(INT_MEM_ID, _DPTRHIGH_, value >> 8);
 	mem_write8(INT_MEM_ID, _DPTRLOW_, (uint8_t) value);
 }
 
-u_int8_t
+uint8_t
 mem_read8(enum mem_id_t id, unsigned long address)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
@@ -215,14 +215,14 @@ mem_read_bit(uint8_t bit_address)
 	return bit_value;
 }
 
-u_int8_t
+uint8_t
 mem_sfr_read8(unsigned long address)
 {
 	/* SFR registers are from addresses $80 to $FF. */
 	return mem_read8(INT_MEM_ID, address);
 }
 
-u_int16_t
+uint16_t
 mem_sfr_read_dptr(void)
 {
 	return (mem_read8(INT_MEM_ID, _DPTRHIGH_) << 8) +

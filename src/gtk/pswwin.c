@@ -12,6 +12,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "common.h"
 #include "reg8051.h"
@@ -83,7 +84,7 @@ pswwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	guint column;
 	gpointer columnptr;
 	GtkTreeIter iter;
-	u_int8_t old;
+	uint8_t old;
 	int new;
 	char str[10];
 	int bit_index;

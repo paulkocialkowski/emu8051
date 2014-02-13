@@ -10,7 +10,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H 1
 
-#include <sys/types.h>
+#include <stdint.h>
 
 #define PGM_MEM_MAX_SIZE 65536
 /*
@@ -44,14 +44,14 @@ void
 mem_convert_bit_address(uint8_t bit_address, uint8_t *byte_address,
 			uint8_t *bit_number);
 
-u_int8_t *
+uint8_t *
 mem_getbuf(enum mem_id_t id, unsigned long address);
 
 void
 mem_clear(enum mem_id_t id);
 
 void
-mem_write8(enum mem_id_t id, unsigned long address, u_int8_t value);
+mem_write8(enum mem_id_t id, unsigned long address, uint8_t value);
 
 void
 mem_write_direct(unsigned int address, unsigned char value);
@@ -63,12 +63,12 @@ void
 mem_write_bit(uint8_t bit_address, uint8_t value);
 
 void
-mem_sfr_write8(unsigned long address, u_int8_t value);
+mem_sfr_write8(unsigned long address, uint8_t value);
 
 void
-mem_sfr_write_dptr(u_int16_t value);
+mem_sfr_write_dptr(uint16_t value);
 
-u_int8_t
+uint8_t
 mem_read8(enum mem_id_t id, unsigned long address);
 
 unsigned char
@@ -80,10 +80,10 @@ mem_read_indirect(unsigned int address);
 unsigned char
 mem_read_bit(uint8_t bit_address);
 
-u_int8_t
+uint8_t
 mem_sfr_read8(unsigned long address);
 
-u_int16_t
+uint16_t
 mem_sfr_read_dptr(void);
 
 void

@@ -37,7 +37,7 @@ regwin_write_pc(int param, int val)
 {
 	(void) param; /* Remove compiler warning about unused variable. */
 
-	cpu8051.pc = (u_int16_t) val;
+	cpu8051.pc = (uint16_t) val;
 }
 
 static unsigned int
@@ -51,11 +51,11 @@ static void
 regwin_write_timer(int timer_low_addr, int val)
 {
 	mem_sfr_write8(timer_low_addr + 2,
-		       (u_int8_t) ((val & 0x0000FFFF) >> 8));
-	mem_sfr_write8(timer_low_addr, (u_int8_t) val);
+		       (uint8_t) ((val & 0x0000FFFF) >> 8));
+	mem_sfr_write8(timer_low_addr, (uint8_t) val);
 }
 
-static u_int8_t
+static uint8_t
 regwin_read_bank_offset(void)
 {
 	return mem_sfr_read8(_PSW_) & 0x18;
@@ -72,7 +72,7 @@ regwin_read_bank(int dummy)
 static void
 regwin_write_bank(int param, int bank_number)
 {
-	u_int8_t psw = mem_sfr_read8(_PSW_);
+	uint8_t psw = mem_sfr_read8(_PSW_);
 
 	(void) param; /* Remove compiler warning about unused variable. */
 
@@ -96,7 +96,7 @@ static void
 regwin_write_rx(int offset, int val)
 {
 	mem_write8(INT_MEM_ID, regwin_read_bank_offset() + offset,
-		   (u_int8_t) val);
+		   (uint8_t) val);
 }
 
 /* This array defines how to read value for each register. */
@@ -279,11 +279,11 @@ static void
 regwin_write_generic(int addr, int val, int width)
 {
 	if (width == 2) {
-		mem_sfr_write8(addr, (u_int8_t) val);
+		mem_sfr_write8(addr, (uint8_t) val);
 	} else if (width == 4) {
 		/* Address is low address. */
-		mem_sfr_write8(addr + 1, (u_int8_t) ((val & 0x0000FFFF) >> 8));
-		mem_sfr_write8(addr, (u_int8_t) val);
+		mem_sfr_write8(addr + 1, (uint8_t) ((val & 0x0000FFFF) >> 8));
+		mem_sfr_write8(addr, (uint8_t) val);
 	}
 }
 

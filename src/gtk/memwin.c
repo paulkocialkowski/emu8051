@@ -12,6 +12,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h> /* For isprint */
 #include <zlib.h> /* For crc32 routine */
@@ -42,7 +43,7 @@ enum {
 struct memwin_infos_t {
 	GtkWidget *memlist;
 	int data_rows;
-	u_int32_t *crc;
+	uint32_t *crc;
 	int crc_init;
 };
 
@@ -83,7 +84,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	gpointer memory_id_ptr;
 	GtkTreeIter iter;
 	int address;
-	u_int8_t old;
+	uint8_t old;
 	int new;
 	char *str;
 
@@ -223,7 +224,7 @@ compute_data_rows(int memory_id)
 	if (memwin_infos->crc)
 		free(memwin_infos->crc);
 
-	memwin_infos->crc = malloc(memwin_infos->data_rows * sizeof(u_int32_t));
+	memwin_infos->crc = malloc(memwin_infos->data_rows * sizeof(uint32_t));
 	memwin_infos->crc_init = false;
 }
 
@@ -286,8 +287,8 @@ static int
 memwin_row_changed(enum mem_id_t memory_id, int row, unsigned int address)
 {
 	int row_changed;
-	u_int32_t crc_new = 0;
-	u_int8_t *buf8;
+	uint32_t crc_new = 0;
+	uint8_t *buf8;
 
 	buf8 = mem_getbuf(memory_id, address);
 	crc_new = crc32(0L, Z_NULL, 0);
@@ -351,7 +352,7 @@ memwin_refresh(enum mem_id_t memory_id)
 			gtk_list_store_set(store, &iter, COL_ADDRESS, str, -1);
 
 			for (col = 0; col < cfg->bytes_per_row; col++) {
-				u_int8_t data;
+				uint8_t data;
 
 				data = mem_read8(memory_id, address + col);
 

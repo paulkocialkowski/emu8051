@@ -34,11 +34,11 @@ void
 int2asciihex(int val, char *str, int width)
 {
 	if (width == 1)
-		sprintf(str , "%.1X", (u_int8_t) val);
+		sprintf(str , "%.1X", (uint8_t) val);
 	else if (width == 2)
-		sprintf(str , "%.2X", (u_int8_t) val);
+		sprintf(str , "%.2X", (uint8_t) val);
 	else if (width == 4)
-		sprintf(str , "%.4X", (u_int16_t) val);
+		sprintf(str , "%.4X", (uint16_t) val);
 	else
 		sprintf(str , "Err");
 }

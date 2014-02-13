@@ -20,7 +20,7 @@ psw_read_bit(int bit)
 void
 psw_write_bit(int bit, int val)
 {
-	u_int8_t psw = mem_read8(INT_MEM_ID, _PSW_);
+	uint8_t psw = mem_read8(INT_MEM_ID, _PSW_);
 
 	if (val)
 		psw |= (1 << bit);  /* Set */
