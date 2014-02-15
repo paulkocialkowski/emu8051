@@ -123,7 +123,7 @@ menu_display_usage(void)
 	printf(")\n");
 }
 
-/* Disassemble NumberInst instructions at Address */
+/* Disassemble num instructions at address */
 void
 disassemble_num(unsigned int address, int num)
 {
