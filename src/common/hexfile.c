@@ -108,14 +108,18 @@ hexfile_load(const char *filename)
 
 	log_debug("LoadHexFile");
 
-	if (filename == NULL)
-		log_fail("No file specified");
+	if (filename == NULL) {
+		log_err("No file specified");
+		return false;
+	}
 
 	/* Trying to open the file. */
 	fp = fopen(filename, "r");
-	if (fp == NULL)
-		log_fail("Error opening hex file <%s>: %s", filename,
-			 strerror(errno));
+	if (fp == NULL) {
+		log_err("Error opening hex file <%s>: %s", filename,
+			strerror(errno));
+		return false;
+	}
 
 	/* Reading one line of data from the hex file. */
 	/* char *fgets(char *s, int size, FILE *stream);
@@ -183,11 +187,12 @@ hexfile_load(const char *filename)
 
 close_file:
 	status = fclose(fp);
-	if (status != EXIT_SUCCESS)
-		log_fail("Error closing hex file");
-
-	if (!valid)
+	if (status != EXIT_SUCCESS) {
+		log_err("Error closing hex file");
+		valid = false;
+	} else if (!valid) {
 		log_err("Error parsing hex file");
+	}
 
 	return valid;
 }
