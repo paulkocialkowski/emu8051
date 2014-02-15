@@ -7,7 +7,8 @@ AM_CPPFLAGS = \
 noinst_LIBRARIES = libemu8051.a
 
 libemu8051_a_SOURCES = \
-	instructions_8051.c \
+	instructions_8051.c instructions_8051.h \
+	opcodes.c opcodes.h \
 	options.c options.h \
 	log.c log.h \
 	hexfile.c hexfile.h \
@@ -21,8 +22,9 @@ libemu8051_a_SOURCES = \
 	reg8051.h
 
 # These files are generated automatically by a perl script.
-instructions_8051.c instructions_8051.h disasm.h : opcode2c.pl opcodes.lst
-	./opcode2c.pl
+instructions_8051.c instructions_8051.h opcodes.h opcodes.c : opcodes2c.pl opcodes.lst
+	@echo "  PERL     opcodes2c.pl"
+	@./opcodes2c.pl
 
 CLEANFILES = *~
 
@@ -30,10 +32,9 @@ MAINTAINERCLEANFILES = \
 	Makefile.in \
 	instructions_8051.c \
 	instructions_8051.h \
-	disasm.h
+	opcodes.h \
+	opcodes.c
 
 EXTRA_DIST = \
-	opcode2c.pl \
-	opcodes.lst \
-	instructions_8051.h \
-	disasm.h
+	opcodes2c.pl \
+	opcodes.lst

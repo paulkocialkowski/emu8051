@@ -8,7 +8,8 @@
 open INST_DEF, ">instructions_8051.h" or die "Error creating <instructions_8051.h> : $!\n";
 open INST_IMP, ">instructions_8051.c" or die "Error creating <instructions_8051.c> : $!\n";
 open OPCODELST, "opcodes.lst" or die "Error opening <opcodes.lst> : $!\n";
-open DISASM_H, ">disasm.h" or die "Error creating <disasm.h> : $!\n";
+open OPCODES_DEF, ">opcodes.h" or die "Error creating <opcodes.h> : $!\n";
+open OPCODES_IMP, ">opcodes.c" or die "Error creating <opcodes.c> : $!\n";
 
 # Write GPL license
 # Argument 0 is file descriptor
@@ -17,7 +18,7 @@ sub write_header
     my $fd = $_[0];
 
     print $fd " *\n";
-    print $fd " * Do not modify this file directly, as it was created by opcode2c.pl\n";
+    print $fd " * Do not modify this file directly, as it was created by opcodes2c.pl\n";
     print $fd " * Any modifications made directly to this file will be lost.\n";
     print $fd " *\n";
     print $fd " * Copyright (C) 1999 Jonathan St-André\n";
@@ -47,12 +48,27 @@ print INST_IMP "#include \"psw.h\"\n";
 print INST_IMP "#include \"operations.h\"\n";
 print INST_IMP "#include \"instructions_8051.h\"\n\n\n";
 
-# Header for disasm.h
-print DISASM_H "/*\n";
-print DISASM_H " * disasm.h\n";
-write_header(DISASM_H);
-print DISASM_H "#ifndef DISASM_H\n";
-print DISASM_H "#define DISASM_H 1\n\n";
+# Header for opcodes.h
+print OPCODES_DEF "/*\n";
+print OPCODES_DEF " * opcodes.h\n";
+write_header(OPCODES_DEF);
+print OPCODES_DEF "#ifndef OPCODES_H\n";
+print OPCODES_DEF "#define OPCODES_H 1\n\n";
+
+print OPCODES_DEF "int\n";
+print OPCODES_DEF "opcodes_get_instr_size(uint8_t opcode);\n";
+print OPCODES_DEF "char *\n";
+print OPCODES_DEF "opcodes_get_instr_type_str(uint8_t opcode);\n";
+print OPCODES_DEF "int\n";
+print OPCODES_DEF "opcodes_get_instr_arg_type_id(unsigned int offset);\n";
+print OPCODES_DEF "char *\n";
+print OPCODES_DEF "opcodes_get_instr_arg_type_str(unsigned int offset);\n";
+
+# opcodes.c
+print OPCODES_IMP "/*\n";
+print OPCODES_IMP " * opcodes.c\n";
+write_header(OPCODES_IMP);
+print OPCODES_IMP "#include <stdint.h>\n\n";
 
 # Column indexes in opcodes.lst table
 use constant COL_OPCODE => 0;
@@ -130,112 +146,141 @@ while($ligne=<OPCODELST>) {
 }
 
 # ------------------------------------------------------------------------------
-print DISASM_H "/* Size(in bytes) of each instruction (offset in table is instruction opcode) */\n";
+print OPCODES_IMP "/* Size(in bytes) of each instruction (offset in table is instruction opcode) */\n";
 
 $nbelement = @nbbytes;
 
-print DISASM_H "static int instr_size[$nbelement] = {";
+print OPCODES_IMP "static int instr_size[$nbelement] = {";
 
 for ($i = 0; $i < $nbelement; $i++) {
     if ($i % 16 == 0) {
-        print DISASM_H "\n\t";
+        print OPCODES_IMP "\n\t";
     } else {
-        print DISASM_H " ";
+        print OPCODES_IMP " ";
     }
-    print DISASM_H "$nbbytes[$i],";
+    print OPCODES_IMP "$nbbytes[$i],";
 }
-print DISASM_H "\n";
-print DISASM_H "};\n";
-print DISASM_H "\n";
+print OPCODES_IMP "\n";
+print OPCODES_IMP "};\n";
+print OPCODES_IMP "\n";
 
 # ------------------------------------------------------------------------------
-print DISASM_H "/*\n";
-print DISASM_H " * For all 256 opcodes, the value in this table gives the instruction type\n";
-print DISASM_H " * ex.: MOV, INC, CLR, CPL,...\n";
-print DISASM_H " * To know what is the instruction type, use\n";
-print DISASM_H " * the number as an offset in instr_type_str[]\n";
-print DISASM_H " */\n";
+print OPCODES_IMP "/*\n";
+print OPCODES_IMP " * For all 256 opcodes, the value in this table gives the instruction type\n";
+print OPCODES_IMP " * ex.: MOV, INC, CLR, CPL,...\n";
+print OPCODES_IMP " * To know what is the instruction type, use\n";
+print OPCODES_IMP " * the number as an offset in instr_type_str[]\n";
+print OPCODES_IMP " */\n";
 
 $nbelement = @insttype;
 
-print DISASM_H "static int instr_type_id[$nbelement] = {";
+print OPCODES_IMP "static int instr_type_id[$nbelement] = {";
 
 for ($i = 0; $i < $nbelement; $i++) {
     if ($i % 16 == 0) {
-        print DISASM_H "\n\t";
+        print OPCODES_IMP "\n\t";
     } else {
-        print DISASM_H " ";
+        print OPCODES_IMP " ";
     }
-    print DISASM_H "$insttype[$i],";
+    print OPCODES_IMP "$insttype[$i],";
 }
-print DISASM_H "\n";
-print DISASM_H "};\n";
-print DISASM_H "\n";
+print OPCODES_IMP "\n";
+print OPCODES_IMP "};\n";
+print OPCODES_IMP "\n";
 
 # ------------------------------------------------------------------------------
-print DISASM_H "/* List of instructions types referenced by instr_type_id[] */\n";
+print OPCODES_IMP "/* List of instructions types referenced by instr_type_id[] */\n";
 $nbelement = @insttext;
 $elementnb = 0;
-print DISASM_H "static char *instr_type_str[$nbelement] = {\n";
+print OPCODES_IMP "static char *instr_type_str[$nbelement] = {\n";
 
 foreach $instruc (@insttext) {
-    print DISASM_H "\t\"$instruc\"";
+    print OPCODES_IMP "\t\"$instruc\"";
     if ($elementnb++ < ($nbelement - 1)) {
-        print DISASM_H ",";
+        print OPCODES_IMP ",";
     }
-    print DISASM_H "\n";
+    print OPCODES_IMP "\n";
 }
 
-print DISASM_H "};\n";
-print DISASM_H "\n";
+print OPCODES_IMP "};\n";
+print OPCODES_IMP "\n";
 
 # ------------------------------------------------------------------------------
-print DISASM_H "/*\n";
-print DISASM_H " * Table describing all arguments types of an instruction\n";
-print DISASM_H " * The table is indexed instr_arg_type_id[ opcode * 4]\n";
-print DISASM_H " * instr_arg_type_id[opcode*4 + 1] gives number of instruction arguments\n";
-print DISASM_H " * instr_arg_type_id[opcode*4 + i] for i=1,2 and 3 gives type of each argument\n";
-print DISASM_H " * for most instructions, the 3rd argument isn't used\n";
-print DISASM_H " * the argument type is referecing to instr_arg_type_str[]\n";
-print DISASM_H " */\n";
+print OPCODES_IMP "/*\n";
+print OPCODES_IMP " * Table describing all arguments types of an instruction\n";
+print OPCODES_IMP " * The table is indexed instr_arg_type_id[ opcode * 4]\n";
+print OPCODES_IMP " * instr_arg_type_id[opcode*4 + 1] gives number of instruction arguments\n";
+print OPCODES_IMP " * instr_arg_type_id[opcode*4 + i] for i=1,2 and 3 gives type of each argument\n";
+print OPCODES_IMP " * for most instructions, the 3rd argument isn't used\n";
+print OPCODES_IMP " * the argument type is referenced to instr_arg_type_str[]\n";
+print OPCODES_IMP " */\n";
 
 $nbelement = @instargs;
 
-print DISASM_H "static int instr_arg_type_id[$nbelement] = {";
+print OPCODES_IMP "static int instr_arg_type_id[$nbelement] = {";
 
 for ($i = 0; $i < $nbelement; $i++) {
     if ($i % 16 == 0) {
-        print DISASM_H "\n\t";
+        print OPCODES_IMP "\n\t";
     } else {
-        print DISASM_H " ";
+        print OPCODES_IMP " ";
     }
 
-    print DISASM_H "$instargs[$i],";
+    print OPCODES_IMP "$instargs[$i],";
 }
-print DISASM_H "\n";
-print DISASM_H "};\n";
-print DISASM_H "\n";
+print OPCODES_IMP "\n";
+print OPCODES_IMP "};\n";
+print OPCODES_IMP "\n";
 
 # ------------------------------------------------------------------------------
-print DISASM_H "/*\n";
-print DISASM_H " * List all types of arguments available to instructions\n";
-print DISASM_H " * Referenced by instr_arg_type_id[]\n";
-print DISASM_H " */\n";
+print OPCODES_IMP "/*\n";
+print OPCODES_IMP " * List all types of arguments available to instructions\n";
+print OPCODES_IMP " * Referenced by instr_arg_type_id[]\n";
+print OPCODES_IMP " */\n";
 
 $nbelement = @argstypes;
 $elementnb = 0;
 
-print DISASM_H "static char *instr_arg_type_str[$nbelement] = {\n";
+print OPCODES_IMP "static char *instr_arg_type_str[$nbelement] = {\n";
 
 foreach $args (@argstypes) {
-    print DISASM_H "\t\"$args\"";
+    print OPCODES_IMP "\t\"$args\"";
     if ($elementnb++ < $nbelement-1) {
-        print DISASM_H ",";
+        print OPCODES_IMP ",";
     }
-    print DISASM_H "\n";
+    print OPCODES_IMP "\n";
 }
-print DISASM_H "};\n";
-print DISASM_H "\n";
+print OPCODES_IMP "};\n";
+print OPCODES_IMP "\n";
+
+print OPCODES_IMP "int\n";
+print OPCODES_IMP "opcodes_get_instr_size(uint8_t opcode)\n";
+print OPCODES_IMP "{\n";
+print OPCODES_IMP "\treturn instr_size[opcode];\n";
+print OPCODES_IMP "}\n";
+print OPCODES_IMP "\n";
+
+print OPCODES_IMP "char *\n";
+print OPCODES_IMP "opcodes_get_instr_type_str(uint8_t opcode)\n";
+print OPCODES_IMP "{\n";
+print OPCODES_IMP "\treturn instr_type_str[instr_type_id[opcode]];\n";
+print OPCODES_IMP "}\n";
+print OPCODES_IMP "\n";
+
+print OPCODES_IMP "int\n";
+print OPCODES_IMP "opcodes_get_instr_arg_type_id(unsigned int offset)\n";
+print OPCODES_IMP "{\n";
+print OPCODES_IMP "\treturn instr_arg_type_id[offset];\n";
+print OPCODES_IMP "}\n";
+print OPCODES_IMP "\n";
+
+print OPCODES_IMP "char *\n";
+print OPCODES_IMP "opcodes_get_instr_arg_type_str(unsigned int offset)\n";
+print OPCODES_IMP "{\n";
+print OPCODES_IMP "\treturn instr_arg_type_str[instr_arg_type_id[offset]];\n";
+print OPCODES_IMP "}\n";
+print OPCODES_IMP "\n";
+
 
 # ------------------------------------------------------------------------------
 for ($i = 0 ; $i < 256; $i++) {
@@ -847,9 +892,10 @@ print INST_DEF "#endif\n\n\n";
 
 print INST_DEF "#endif /* INSTRUCTIONS_8051_H */\n";
 
-print DISASM_H "#endif /* DISASM_H */\n";
+print OPCODES_DEF "#endif /* OPCODES_IMP */\n";
 
-close DISASM_H;
+close OPCODES_DEF;
+close OPCODES_IMP;
 close OPCODELST;
 close INST_DEF;
 close INST_IMP;

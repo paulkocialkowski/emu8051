@@ -75,9 +75,6 @@ void
 cpu8051_reset(void);
 
 int
-cpu8051_get_instruction_size(unsigned char opcode);
-
-int
 cpu8051_disasm_mnemonic(unsigned char opcode, char *buf);
 
 void

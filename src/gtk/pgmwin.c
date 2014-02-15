@@ -16,6 +16,7 @@
 #include "common.h"
 #include "memory.h"
 #include "cpu8051.h"
+#include "opcodes.h"
 #include "pgmwin.h"
 #include "hexfile.h"
 
@@ -262,7 +263,7 @@ pgmwin_refresh(void)
 			gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
 
 			opcode = mem_read8(PGM_MEM_ID, address);
-			inst_size = cpu8051_get_instruction_size(opcode);
+			inst_size = opcodes_get_instr_size(opcode);
 
 			/* Display instruction hex bytes. */
 			for (k = 0, col_id = COL_B0; k < 3; k++, col_id++) {

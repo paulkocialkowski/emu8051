@@ -20,7 +20,7 @@
 #include "memory.h"
 #include "psw.h"
 #include "timers.h"
-#include "disasm.h"
+#include "opcodes.h"
 #include "options.h"
 #include "instructions_8051.h"
 
@@ -407,18 +407,11 @@ cpu8051_int_mem_bit_info(uint8_t bit_address, char *text)
 	sprintf(&text[len], ".%X", bit_address);
 }
 
-/* Get instruction size from opcode */
-int
-cpu8051_get_instruction_size(unsigned char opcode)
-{
-	return instr_size[opcode];
-}
-
 /* Display instruction mnemonic. */
 int
 cpu8051_disasm_mnemonic(unsigned char opcode, char *buf)
 {
-	return sprintf(buf, "%s", instr_type_str[instr_type_id[opcode]]);
+	return sprintf(buf, "%s", opcodes_get_instr_type_str(opcode));
 }
 
 /* Disasm instruction arguments starting at address into a text string */
@@ -452,8 +445,9 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 		return;
 	}
 
-	for (i = 1; i <= instr_arg_type_id[args_table_offset]; i++) {
-		switch (instr_arg_type_id[args_table_offset + i]) {
+	for (i = 1; i <= opcodes_get_instr_arg_type_id(args_table_offset);
+	     i++) {
+		switch (opcodes_get_instr_arg_type_id(args_table_offset + i)) {
 		case ADDR11: {
 			len += sprintf(&buf[len],
 				       "%.4XH", ((opcode << 3) & 0xF00) +
@@ -517,13 +511,12 @@ cpu8051_disasm_args(unsigned int address, char *buf)
 			break;
 		}
 		default: {
-			len += sprintf(
-				&buf[len], "%s",
-				instr_arg_type_str[instr_arg_type_id[
-						args_table_offset + i]]);
+			len += sprintf(&buf[len], "%s",
+				       opcodes_get_instr_arg_type_str(
+					       args_table_offset + i));
 		}
 		}
-		if (i < instr_arg_type_id[args_table_offset])
+		if (i < opcodes_get_instr_arg_type_id(args_table_offset))
 			len += sprintf(&buf[len], ",");
 	}
 }
@@ -541,7 +534,7 @@ cpu8051_disasm(unsigned int address, char *text)
 	len += sprintf(text, " %.4X ", address);
 
 	opcode = mem_read8(PGM_MEM_ID, address);
-	inst_size = instr_size[opcode];
+	inst_size = opcodes_get_instr_size(opcode);
 
 	/* Display hex bytes. */
 	for (i = 0; i < inst_size; i++)
