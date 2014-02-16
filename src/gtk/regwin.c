@@ -88,10 +88,16 @@ regwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	/* Read current (old) value. */
 	gtk_tree_model_get(model, &iter, COL_VAL, &str, -1);
 
+	/* No need to check error, has already been validated. */
 	old = asciihex2int(str);
 	log_info("  old value: $%04X", old);
 
 	new = asciihex2int(new_str);
+	if (asciihex2int_get_error()) {
+		log_warn("  new value: invalid");
+		return;
+	}
+
 	log_info("  new value: $%04X", new);
 
 	/* Store new value in emulator register (if in range). */

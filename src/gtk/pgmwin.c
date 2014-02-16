@@ -134,6 +134,7 @@ pgmwin_sel_changed_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 		gtk_tree_model_get(model, &iter, COL_ADDR, &str_addr, -1);
 
 		/* Convert hex address in ASCII to integer. */
+		/* No need to check error, has already been validated. */
 		val = asciihex2int(str_addr);
 
 		log_debug("  row address is: $%04X", val);

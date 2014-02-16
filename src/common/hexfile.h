@@ -10,10 +10,13 @@
 #ifndef HEXFILE_H
 #define HEXFILE_H 1
 
+int
+asciihex2int_get_error(void);
+
 void
 int2asciihex(int val, char *str, int width);
 
-int
+unsigned int
 asciihex2int(char *str);
 
 int

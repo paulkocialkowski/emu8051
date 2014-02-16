@@ -110,9 +110,12 @@ pswwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	/* Convert new value (asciihex) to integer. */
 	new = asciihex2int(new_str);
 
-	if ((new != 0) && (new != 1)) {
-		log_info("  new value: out of range");
-		new = old; /* Put back old value... */
+	if (asciihex2int_get_error()) {
+		log_warn("  new value: invalid");
+		return;
+	} else if ((new != 0) && (new != 1)) {
+		log_warn("  new value: out of range");
+		return;
 	} else {
 		log_info("  new value: %d", new);
 	}

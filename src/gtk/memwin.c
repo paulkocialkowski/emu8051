@@ -104,6 +104,8 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Get base address. */
 	gtk_tree_model_get(model, &iter, COL_ADDRESS, &str, -1);
+
+	/* No need to check error, has already been validated. */
 	address = asciihex2int(str);
 
 	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
@@ -115,9 +117,12 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Convert new value (asciihex) to integer. */
 	new = asciihex2int(new_str);
-	if ((new < 0) || (new > 255)) {
-		log_info("  new value: out of range");
-		new = old; /* Put back old value... */
+	if (asciihex2int_get_error()) {
+		log_warn("  new value: invalid");
+		return;
+	} else if ((new < 0) || (new > 255)) {
+		log_warn("  new value: out of range");
+		return;
 	} else {
 		log_info("  new value: $%02X", new);
 	}

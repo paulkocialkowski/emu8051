@@ -17,9 +17,26 @@ hextail		({digit}|{alpha}){1,8}
 hex1		0[xX]{hextail}
 hex2		${hextail}
 
+
 %%
-{hex1}      { yylval.number = asciihex2int(yytext); return NUMBER; }
-{hex2}      { yylval.number = asciihex2int(&yytext[1]); return NUMBER; }
+{hex1}      {
+                /*
+                 * No need to check return value of asciihex2int, because lex
+                 * always passes a valid ASCII hex string.
+                 */
+                yylval.number = asciihex2int(&yytext[2]); /* Skip "0x" prefix */
+                return NUMBER;
+            }
+{hex2}      {
+                /*
+                 * No need to check return value of asciihex2int, because lex
+                 * always passes a valid ASCII hex string.
+                 */
+                yylval.number = asciihex2int(&yytext[1]); /* Skip "$" prefix */
+                return NUMBER;
+            }
+
+
 [0-9]+      { yylval.number = atoi(yytext); return NUMBER; }
 [h?]        return TOK_HELP;
 sb          return TOK_SB;

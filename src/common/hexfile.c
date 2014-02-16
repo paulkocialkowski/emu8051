@@ -29,6 +29,12 @@
 
 static int asciihex2int_error;
 
+int
+asciihex2int_get_error(void)
+{
+	return asciihex2int_error;
+}
+
 /* Convert integer to ASCII hex string. */
 void
 int2asciihex(int val, char *str, int width)
@@ -43,35 +49,24 @@ int2asciihex(int val, char *str, int width)
 		sprintf(str , "Err");
 }
 
-/* Convert ASCII hex string to integer. */
-int
-asciihex2int(char *str)
-{
-	int val;
-	int rc;
-
-	rc = sscanf(str, "%X", &val);
-
-	if (rc == 0) {
-		log_err("ASCII to hex conversion failure");
-		asciihex2int_error = true;
-	}
-
-	return val;
-}
-
-/* Convert an ascii string to an hexadecimal number. */
+/*
+ * Convert ASCII string in hexadecimal notation to integer, up to length
+ * characters.
+ * The string contains only [0-9] and [a-f] characters (no "0x" prefix).
+ */
 static unsigned int
-asciihex2int_len(char *istring, int length)
+asciihex2int_len(char *str, int length)
 {
 	unsigned int result = 0;
 	int i, ascii_code;
 
-	if (!length || (length > (int) strlen(istring)))
-		length = strlen(istring);
+	asciihex2int_error = false;
+
+	if (!length || (length > (int) strlen(str)))
+		length = strlen(str);
 
 	for (i = 0; i < length; i++) {
-		ascii_code = istring[i];
+		ascii_code = str[i];
 		if (ascii_code > 0x39)
 			ascii_code &= 0xDF;
 
@@ -86,9 +81,21 @@ asciihex2int_len(char *istring, int length)
 		} else {
 			log_err("ASCII to hex conversion failure");
 			asciihex2int_error = true;
+			return 0;
 		}
 	}
 	return result;
+}
+
+/*
+ * Convert ASCII string in hexadecimal notation to integer, up to \0 end character.
+ * The string must not contain prefix "0x", only [0-9] and [a-f] characters.
+ */
+unsigned int
+asciihex2int(char *str)
+{
+	/* Set length to zero to use full length of string. */
+	return asciihex2int_len(str, 0);
 }
 
 /*
