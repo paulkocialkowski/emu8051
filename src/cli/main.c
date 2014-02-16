@@ -43,7 +43,6 @@ main(int argc, char **argv)
 		console_exec(-1);
 	} else {
 		menu_display_usage();
-		console_show_registers();
 		(void) yyparse();
 	}
 
