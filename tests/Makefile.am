@@ -19,7 +19,7 @@ ASM_SRC = \
 
 if RUN_TESTS
 
-TESTS = \
+TESTS_ASM = \
     add.sh \
     mul1.sh mul2.sh \
     div.sh div32u.sh \
@@ -27,6 +27,24 @@ TESTS = \
     mov.sh \
     sqroot.sh \
     timer0.sh timer1.sh timer2.sh
+
+TESTS_CMD = \
+    cmd_dr.sh \
+    cmd_de.sh \
+    cmd_di.sh \
+    cmd_dp.sh \
+    cmd_we.sh \
+    cmd_wi.sh \
+    cmd_wp.sh \
+    cmd_wr.sh
+
+TESTS = \
+    $(TESTS_CMD) \
+    $(TESTS_ASM)
+
+# If you do not want an implicit rule to be used for a target that has no
+# commands, you can give that target empty commands by writing a semicolon.
+cli.sh: ;
 
 # Tell make how to generate a .sh file after a .hex file is generated:
 .hex.sh:
@@ -54,8 +72,8 @@ else
 TESTS =
 endif
 
-EXTRA_DIST = opcodes.sh $(ASM_SRC)
+EXTRA_DIST = $(TESTS_CMD) cmd.sh opcodes.sh $(ASM_SRC)
 
-CLEANFILES = *~ *.lst *.hex $(TESTS)
+CLEANFILES = *~ *.lst *.hex $(TESTS_ASM)
 
 MAINTAINERCLEANFILES = Makefile.in
