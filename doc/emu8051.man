@@ -24,7 +24,7 @@ display usage and exit
 output version information and exit
 
 .SH CREDITS
-\fBemu8051\fR was originally written by Jonathan St-André, Hugo Villeneuve <hugo@hugovil.com> and Pascal Fecteau.
+\fBemu8051\fR was originally written by Jonathan St-AndrÃ©, Hugo Villeneuve <hugo@hugovil.com> and Pascal Fecteau.
 
 .SH COPYRIGHT
 \fBemu8051\fR is free; anyone may redistribute it to anyone under the terms
