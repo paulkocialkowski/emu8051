@@ -1,3 +1,32 @@
+2014-01-14: emu8051-2.0.1 has been released
+
+        Convert manpage to UTF-8
+
+        Do not display registers at CLI version startup
+
+        Dont exit application in case of hexfile reading failure
+
+        Fix C99 standard types uintN_t
+
+        Fix test script to work in external build directory
+
+        Add support for GNU readline (adds commands history).
+
+        Allow hex numbers to begin with 0x or $ prefix in CLI version
+
+        Allow to set all SFR registers in CLI version
+
+        Convert CLI version input parsing to Lex/Yacc
+
+        Remove address parameter from RUN and TRACE CLI commands
+
+        Add better error checking when loading invalid hex files
+
+        Allow EM command to be specified without arguments
+
+        Add two timers (independent of internal 8051 timers)
+
+        See the file 'ChangeLog' for further details.
 
 2014-01-14: emu8051-2.0.0 has been released
 
