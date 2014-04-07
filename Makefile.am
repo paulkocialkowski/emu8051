@@ -2,8 +2,6 @@
 
 .PHONY: changelog
 
-AUTOMAKE_OPTIONS = gnu
-
 SUBDIRS = \
     src/common \
     src/cli \

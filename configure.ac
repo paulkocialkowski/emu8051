@@ -12,7 +12,7 @@ dnl   To get rid of message:
 dnl     linking libraries using a non-POSIX archiver requires 'AM_PROG_AR'...
 dnl -Wall:
 dnl   Ask automake to turn on all warnings (not a gcc flag)
-AM_INIT_AUTOMAKE([no-define check-news std-options dist-bzip2
+AM_INIT_AUTOMAKE([no-define gnits dist-bzip2
                   color-tests parallel-tests
                   -Wall -Wno-extra-portability])
 AM_SILENT_RULES([yes])
