@@ -6,8 +6,14 @@ AC_INIT([emu8051], [2.0.1], [hugo@hugovil.com], [emu8051],
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/common/cpu8051.c)
 
-dnl Checking if the NEWS file has been updated to reflect the current version.
-AM_INIT_AUTOMAKE(no-define check-news -Wall std-options color-tests parallel-tests)
+dnl -Wno-extra-portability:
+dnl   To get rid of message:
+dnl     linking libraries using a non-POSIX archiver requires 'AM_PROG_AR'...
+dnl -Wall:
+dnl   Ask automake to turn on all warnings (not a gcc flag)
+AM_INIT_AUTOMAKE([no-define check-news std-options dist-bzip2
+                  color-tests parallel-tests
+                  -Wall -Wno-extra-portability])
 AM_SILENT_RULES([yes])
 AM_CONFIG_HEADER(config.h:config-h.in)
 
