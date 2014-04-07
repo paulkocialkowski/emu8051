@@ -5,10 +5,11 @@ AC_INIT([emu8051], [2.0.1], [hugo@hugovil.com], [emu8051],
 	[http://www.hugovil.com/fr/emu8051/])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/common/cpu8051.c)
-AM_CONFIG_HEADER(config.h:config-h.in)
+
 dnl Checking if the NEWS file has been updated to reflect the current version.
 AM_INIT_AUTOMAKE(check-news -Wall std-options color-tests parallel-tests)
 AM_SILENT_RULES([yes])
+AM_CONFIG_HEADER(config.h:config-h.in)
 
 dnl Testing the C compiler.
 AC_LANG_C
