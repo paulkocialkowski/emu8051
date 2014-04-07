@@ -4,6 +4,7 @@ dnl Initialization stuff.
 AC_INIT([emu8051], [2.0.1], [hugo@hugovil.com], [emu8051],
 	[http://www.hugovil.com/fr/emu8051/])
 AC_CONFIG_AUX_DIR([build-aux])
+AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_SRCDIR(src/common/cpu8051.c)
 
 dnl -Wno-extra-portability:
@@ -21,8 +22,7 @@ dnl Testing the C compiler.
 AC_LANG_C
 
 dnl Testing for libtool support.
-AC_PROG_RANLIB
-AM_PROG_AR
+AM_PROG_LIBTOOL
 
 AC_ARG_WITH([readline],
             [AS_HELP_STRING([--without-readline], [disable support for readline])],

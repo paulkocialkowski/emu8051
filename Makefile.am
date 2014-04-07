@@ -9,7 +9,14 @@ SUBDIRS = src/common src/cli src/gtk data doc tests
 ## We want these in the dist tarball
 EXTRA_DIST = pixmaps
 
-ACLOCAL = aclocal -I $(ac_aux_dir)
+ACLOCAL_AMFLAGS = -I m4
+
+LIBTOOL_MACROS = \
+    m4/libtool.m4 \
+    m4/ltoptions.m4 \
+    m4/ltsugar.m4 \
+    m4/ltversion.m4 \
+    m4/lt~obsolete.m4
 
 CLEANFILES = *~
 
@@ -23,7 +30,8 @@ MAINTAINERCLEANFILES = Makefile.in aclocal.m4 configure config-h.in \
                        $(ac_aux_dir)/compile \
                        $(ac_aux_dir)/test-driver \
                        $(ac_aux_dir)/ar-lib \
-                       $(ac_aux_dir)/ylwrap
+                       $(ac_aux_dir)/ylwrap \
+    $(LIBTOOL_MACROS)
 
 changelog:
 	@if test -d $(srcdir)/.git; then          \
