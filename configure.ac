@@ -7,7 +7,7 @@ AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_SRCDIR(src/common/cpu8051.c)
 
 dnl Checking if the NEWS file has been updated to reflect the current version.
-AM_INIT_AUTOMAKE(check-news -Wall std-options color-tests parallel-tests)
+AM_INIT_AUTOMAKE(no-define check-news -Wall std-options color-tests parallel-tests)
 AM_SILENT_RULES([yes])
 AM_CONFIG_HEADER(config.h:config-h.in)
 

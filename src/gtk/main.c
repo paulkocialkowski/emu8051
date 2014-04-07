@@ -479,7 +479,7 @@ emugtk_window_init(void)
 	emugtk_window_init_complete = false;
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE);
+	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE_NAME);
 	gtk_window_set_default_size(GTK_WINDOW(mainwin),
 				    cfg->win_width, cfg->win_height);
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);

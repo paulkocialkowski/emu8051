@@ -103,7 +103,7 @@ app_config_get_dir_path(void)
 {
 	char *dir_path;
 
-	dir_path = g_build_filename(g_get_user_config_dir(), PACKAGE,
+	dir_path = g_build_filename(g_get_user_config_dir(), PACKAGE_NAME,
 				    profile_name, NULL);
 
 	return dir_path;
@@ -116,7 +116,7 @@ app_config_get_file_path(void)
 	char *dir_path;
 	char file[MAX_FILENAME_LENGTH];
 
-	sprintf(file, "%s.conf", PACKAGE);
+	sprintf(file, "%s.conf", PACKAGE_NAME);
 
 	dir_path = app_config_get_dir_path();
 

@@ -82,7 +82,7 @@ help_add_menu(GtkWidget *menu_bar)
 	menu = gtk_menu_new();
 
 	/* Create the 'Help About' item. */
-	item = gtk_menu_item_new_with_label("About " PACKAGE);
+	item = gtk_menu_item_new_with_label("About " PACKAGE_NAME);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 	/* Attach the callback functions to the activate signal. */
 	g_signal_connect(item, "activate", G_CALLBACK(help_about_event), NULL);
