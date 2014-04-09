@@ -265,6 +265,8 @@ mainwin_configure_event(GtkWindow *window, GdkEvent *event, gpointer data)
 
 	cfg->win_width = event->configure.width;
 	cfg->win_height = event->configure.height;
+	cfg->win_pos_x = event->configure.x;
+	cfg->win_pos_y = event->configure.y;
 
 	/*
 	 * Important:
@@ -592,6 +594,8 @@ emugtk_window_init(void)
 		log_err("Use saved window size");
 		gtk_window_set_default_size(GTK_WINDOW(mainwin),
 					    cfg->win_width, cfg->win_height);
+		gtk_window_move(GTK_WINDOW(mainwin),
+				cfg->win_pos_x, cfg->win_pos_y);
 	}
 
 	gtk_widget_show_all(mainwin);

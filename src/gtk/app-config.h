@@ -30,6 +30,8 @@ struct app_config_t {
 	/* UI settings */
 	int win_width;
 	int win_height;
+	int win_pos_x;
+	int win_pos_y;
 	int hpane_pos;     /* For registers and program windows. */
 	int vpane_pos; /* For internal and external memory windows. */
 	int main_pane_pos; /* Between hpane and vpane. */

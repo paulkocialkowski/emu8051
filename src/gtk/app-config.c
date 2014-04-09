@@ -41,6 +41,8 @@ app_config_init(void)
 	/* UI settings */
 	cfg->win_width = 640;
 	cfg->win_height = 480;
+	cfg->win_pos_x = 10;
+	cfg->win_pos_y = 10;
 	cfg->hpane_pos = 100;
 	cfg->vpane_pos = 200;
 	cfg->main_pane_pos = 200;
@@ -79,6 +81,8 @@ app_config_load_from_key_file(GKeyFile *kf)
 	/* ui */
 	app_config_key_file_get_int(kf, "ui", "win_width",  &cfg->win_width);
 	app_config_key_file_get_int(kf, "ui", "win_height", &cfg->win_height);
+	app_config_key_file_get_int(kf, "ui", "win_pos_x",  &cfg->win_pos_x);
+	app_config_key_file_get_int(kf, "ui", "win_pos_y",  &cfg->win_pos_y);
 	app_config_key_file_get_int(kf, "ui", "hpane_pos",  &cfg->hpane_pos);
 	app_config_key_file_get_int(kf, "ui", "vpane_pos",  &cfg->vpane_pos);
 	app_config_key_file_get_int(kf, "ui", "main_pane_pos",
@@ -173,6 +177,8 @@ app_config_save(void)
 
 		g_string_append_printf(buf, "win_width=%d\n", cfg->win_width);
 		g_string_append_printf(buf, "win_height=%d\n", cfg->win_height);
+		g_string_append_printf(buf, "win_pos_x=%d\n", cfg->win_pos_x);
+		g_string_append_printf(buf, "win_pos_y=%d\n", cfg->win_pos_y);
 		g_string_append_printf(buf, "hpane_pos=%d\n", cfg->hpane_pos);
 		g_string_append_printf(buf, "vpane_pos=%d\n", cfg->vpane_pos);
 		g_string_append_printf(buf, "main_pane_pos=%d\n",
