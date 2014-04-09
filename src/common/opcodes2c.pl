@@ -5,11 +5,32 @@
 #
 # This file is released under the GPLv2
 
-open INST_DEF, ">instructions_8051.h" or die "Error creating <instructions_8051.h> : $!\n";
-open INST_IMP, ">instructions_8051.c" or die "Error creating <instructions_8051.c> : $!\n";
-open OPCODELST, "opcodes.lst" or die "Error opening <opcodes.lst> : $!\n";
-open OPCODES_DEF, ">opcodes.h" or die "Error creating <opcodes.h> : $!\n";
-open OPCODES_IMP, ">opcodes.c" or die "Error creating <opcodes.c> : $!\n";
+# Arg1: opcodes list filename
+# Arg2: output directory
+
+if (($#ARGV + 1) < 2) {
+    die "Missing arguments.\n";
+}
+
+my $opcodes_lst_filename = $ARGV[0];
+my $builddir = $ARGV[1];
+
+open OPCODELST, $opcodes_lst_filename or die "Error opening " .
+    $opcodes_lst_filename . " : $!\n";
+
+my $file;
+
+$file = $builddir . "/instructions_8051.h";
+open INST_DEF, ">" . $file or die "Error creating <" . $file . "> : $!\n";
+
+$file = $builddir . "/instructions_8051.c";
+open INST_IMP, ">" . $file or die "Error creating <" . $file . "> : $!\n";
+
+$file = $builddir . "/opcodes.h";
+open OPCODES_DEF, ">" . $file or die "Error creating <" . $file . "> : $!\n";
+
+$file = $builddir . "/opcodes.c";
+open OPCODES_IMP, ">" . $file or die "Error creating <" . $file . "> : $!\n";
 
 # Write GPL license
 # Argument 0 is file descriptor
