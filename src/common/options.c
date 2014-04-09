@@ -42,6 +42,7 @@ static const char args_doc[] = "[FILENAME]";
 /* The options we understand. */
 static struct argp_option argp_options[] = {
 	{"debug", 'd', "level", 0,  "Produce debugging output", 0},
+	{"geometry",  'g', "pos",  0,  "Set geometry", 0},
 	{"pram",  'p', "size",  0,  "Set program memory size", 0},
 	{"xram",  'x', "size",  0,
 	 "Set external ram size (default is 1024)", 0},
@@ -121,6 +122,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 	case 'd':
 		decode_debug_option(arg, state);
 		break;
+	case 'g':
+		options.g = arg;
+		break;
 	case 'i':
 		decode_memory_size(arg, state, INT_MEM_ID);
 		break;
@@ -166,6 +170,7 @@ parse_command_line_options(int argc, char *argv[])
 
 	/* Setting default values. */
 	options.filename = NULL;
+	options.g = NULL;
 	options.pram_size = PGM_MEM_DEFAULT_SIZE;
 	options.iram_size = INT_MEM_MAX_SIZE;
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;

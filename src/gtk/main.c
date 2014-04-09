@@ -403,6 +403,21 @@ emugtk_create_memory_paned(void)
 	}
 }
 
+static void
+emugtk_set_geometry_hints(GtkWidget *window)
+{
+	GdkGeometry hints;
+
+        hints.min_width = 100;
+        hints.min_height = 100;
+
+	/* Set reference point to top left corner */
+	hints.win_gravity = GDK_GRAVITY_NORTH_WEST;
+
+	gtk_window_set_geometry_hints(GTK_WINDOW(window), window, &hints,
+				      GDK_HINT_MIN_SIZE);
+}
+
 /*
  *  mainwin
  * +---------------------------------------------------------------------+
@@ -467,6 +482,7 @@ emugtk_create_memory_paned(void)
 static void
 emugtk_window_init(void)
 {
+	int geometry_ok = false;
 	int id;
 	GtkWidget *vbox;
 	GtkWidget *menu_bar;
@@ -480,8 +496,6 @@ emugtk_window_init(void)
 
 	mainwin = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(mainwin), PACKAGE_NAME);
-	gtk_window_set_default_size(GTK_WINDOW(mainwin),
-				    cfg->win_width, cfg->win_height);
 	gtk_container_set_border_width(GTK_CONTAINER(mainwin), 0);
 
 	/* Window DESTROY event. */
@@ -553,6 +567,32 @@ emugtk_window_init(void)
 	gtk_container_add(GTK_CONTAINER(mainwin), vbox);
 
 	g_signal_connect(mainwin, "destroy", G_CALLBACK(emugtk_quit_gui), NULL);
+
+	emugtk_set_geometry_hints(mainwin);
+
+	/*
+	 * If either a size or a position can be extracted from the geometry
+	 * string, gtk_window_parse_geometry() returns TRUE and calls
+	 * gtk_window_set_default_size() and/or gtk_window_move() to resize/move
+	 * the window.
+	 */
+	if (options.g != NULL) {
+		geometry_ok = gtk_window_parse_geometry(GTK_WINDOW(mainwin),
+							options.g);
+		if (!geometry_ok)
+			log_err("Failed to parse geometry argument: %s",
+				options.g);
+	}
+
+	/*
+	 * If geometry was not specified, or was improperly parsed, use
+	 * saved window size.
+	 */
+	if (geometry_ok == false) {
+		log_err("Use saved window size");
+		gtk_window_set_default_size(GTK_WINDOW(mainwin),
+					    cfg->win_width, cfg->win_height);
+	}
 
 	gtk_widget_show_all(mainwin);
 

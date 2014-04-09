@@ -14,6 +14,7 @@
 #define PACKAGE_DESCRIPTION "Emulator for 8051 family microcontrollers"
 
 struct options_t {
+	char *g;
 	int pram_size; /* Maximum program memory size. */
 	int iram_size; /* Maximum internal ram size. */
 	int xram_size; /* Maximum external ram size. */
