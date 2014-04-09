@@ -125,7 +125,6 @@ else
 fi
 
 AC_SUBST(WARNINGCFLAGS)
-AC_SUBST(LIBS)
 AC_SUBST(ac_aux_dir)
 
 dnl Creating output file(s)

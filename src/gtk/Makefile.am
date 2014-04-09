@@ -2,9 +2,9 @@
 
 AM_CPPFLAGS = \
     $(WARNINGCFLAGS) \
-    -I@top_srcdir@ \
-    -I@top_srcdir@/src/common \
     -I$(top_srcdir)/pixmaps \
+    -I$(top_srcdir)/src/common \
+    -I$(top_builddir)/src/common \
     @GTK_CFLAGS@ \
     @GLIB_CFLAGS@ \
     -DDATADIR=\"$(datadir)\" \
@@ -32,8 +32,6 @@ emu8051_gtk_SOURCES = \
     viewmenu.c viewmenu.h \
     helpmenu.c helpmenu.h \
     messagebox.c messagebox.h
-
-EXTRA_DIST =
 
 CLEANFILES = *~
 

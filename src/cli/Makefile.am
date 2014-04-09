@@ -2,8 +2,8 @@
 
 AM_CPPFLAGS = \
     $(WARNINGCFLAGS) \
-    -I@top_srcdir@ \
-    -I@top_srcdir@/src/common
+    -I$(top_srcdir)/src/common \
+    -I$(top_builddir)/src/common
 
 # Option -d: produce header file scanner.h
 AM_LFLAGS = --header-file=scanner.h
