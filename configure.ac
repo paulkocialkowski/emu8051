@@ -41,7 +41,7 @@ LIBREADLINE=
 )])
 
 dnl Testing for Lex/Yacc
-AC_PROG_LEX
+AM_PROG_LEX
 AC_PROG_YACC
 
 dnl Checking for typedefs, structures, and compiler characteristics.
