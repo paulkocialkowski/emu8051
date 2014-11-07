@@ -5,8 +5,10 @@ AM_CPPFLAGS = \
     -I$(top_srcdir)/src/common \
     -I$(top_builddir)/src/common
 
-# Option -d: produce header file scanner.h
-AM_LFLAGS = --header-file=scanner.h
+# Option --header-file: produce header file scanner.h.
+# Using abs_builddir as a workaround for automake-1.11
+# broken ylwrap script.
+AM_LFLAGS = --header-file=$(abs_builddir)/scanner.h
 
 # Option -d: produce header file parser.h
 AM_YFLAGS = -d
