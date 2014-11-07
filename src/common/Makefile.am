@@ -12,7 +12,7 @@ BUILT_SOURCES = \
     instructions_8051.c instructions_8051.h \
     opcodes.h opcodes.c
 
-PERL_SOURCES = \
+PERL_SRC = \
     opcodes2c.pl \
     opcodes.lst
 
@@ -33,7 +33,7 @@ nodist_libemu8051_a_SOURCES = \
     $(BUILT_SOURCES)
 
 # These files are generated automatically by a perl script.
-$(BUILT_SOURCES) : $(PERL_SOURCES)
+$(BUILT_SOURCES) : $(PERL_SRC)
 	@echo "  PERL     opcodes2c.pl"
 	@$(srcdir)/opcodes2c.pl $(srcdir)/opcodes.lst $(builddir)
 
@@ -45,4 +45,4 @@ MAINTAINERCLEANFILES = \
     Makefile.in
 
 EXTRA_DIST = \
-    $(PERL_SOURCES)
+    $(PERL_SRC)
