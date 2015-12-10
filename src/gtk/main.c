@@ -20,6 +20,7 @@
 #include "memory.h"
 #include "options.h"
 #include "hexfile.h"
+#include "iotrace.h"
 #include "timers.h"
 #include "main.h"
 #include "reset.xpm"
@@ -647,6 +648,9 @@ main(int argc, char **argv)
 	if (options.filename != NULL)
 		rc_load_hexfile = hexfile_load(options.filename);
 
+	if (options.iotrace != NULL)
+		iotrace_open(options.iotrace);
+
 	cpu8051_reset();
 
 	log_info("Init GUI");
@@ -661,6 +665,9 @@ main(int argc, char **argv)
 	log_info("Terminate");
 
 	app_config_save();
+
+	if (options.iotrace != NULL)
+		iotrace_close();
 
 	return EXIT_SUCCESS;
 }

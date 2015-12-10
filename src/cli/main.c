@@ -16,6 +16,7 @@
 #include "cpu8051.h"
 #include "options.h"
 #include "hexfile.h"
+#include "iotrace.h"
 #include "menu.h"
 #include "parser.h"
 
@@ -36,6 +37,9 @@ main(int argc, char **argv)
 			exit(EXIT_FAILURE);
 	}
 
+	if (options.iotrace != NULL)
+		iotrace_open(options.iotrace);
+
 	console_reset();
 
 	if (options.stop_address != 0) {
@@ -45,6 +49,9 @@ main(int argc, char **argv)
 		menu_display_usage();
 		(void) yyparse();
 	}
+
+	if (options.iotrace != NULL)
+		iotrace_close();
 
 	exit(EXIT_SUCCESS);
 }

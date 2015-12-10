@@ -19,6 +19,7 @@ struct options_t {
 	int iram_size; /* Maximum internal ram size. */
 	int xram_size; /* Maximum external ram size. */
 	char *filename;
+	char *iotrace;
 	int log;
 	uint16_t stop_address; /* Run program up to that adress and exit. */
 } options_t;

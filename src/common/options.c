@@ -48,6 +48,7 @@ static struct argp_option argp_options[] = {
 	 "Set external ram size (default is 1024)", 0},
 	{"stop",  's', "addr",  0,
 	 "Automatically run program and stop at address", 0},
+	{"iotrace",  't', "file", 0, "I/O trace", 0},
 	{NULL, 0, NULL, 0, NULL, 0}
 };
 
@@ -134,6 +135,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 	case 's':
 		decode_address(arg, state, &options.stop_address);
 		break;
+	case 't':
+		options.iotrace = arg;
+		break;
 	case 'x':
 		decode_memory_size(arg, state, EXT_MEM_ID);
 		break;
@@ -170,6 +174,7 @@ parse_command_line_options(int argc, char *argv[])
 
 	/* Setting default values. */
 	options.filename = NULL;
+	options.iotrace = NULL;
 	options.g = NULL;
 	options.pram_size = PGM_MEM_DEFAULT_SIZE;
 	options.iram_size = INT_MEM_MAX_SIZE;

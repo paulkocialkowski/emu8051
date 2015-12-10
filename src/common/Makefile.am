@@ -19,6 +19,7 @@ PERL_SRC = \
 libemu8051_a_SOURCES = \
     options.c options.h \
     log.c log.h \
+    iotrace.c iotrace.h \
     hexfile.c hexfile.h \
     cpu8051.c cpu8051.h \
     memory.c memory.h \

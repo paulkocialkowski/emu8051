@@ -15,6 +15,7 @@
 #include "cpu8051.h"
 #include "reg8051.h"
 #include "hexfile.h"
+#include "iotrace.h"
 #include "memory.h"
 #include "options.h"
 
@@ -113,6 +114,9 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 		return;
 	} else {
 		mem_infos[id].buf[address] = value;
+
+		if (!cached)
+			iotrace_memory_write(id, address, value);
 	}
 }
 
@@ -168,13 +172,20 @@ mem_sfr_write_dptr(uint16_t value, int cached)
 uint8_t
 mem_read8(enum mem_id_t id, unsigned long address, int cached)
 {
+	uint8_t value;
+
 	if (address >= (unsigned long) mem_infos[id].max_size) {
 		log_err("Error reading from memory ID: %d\n"
 			"  Address (%lu) greater than maximum memory size",
 			id, address);
 		return 0;
 	} else {
-		return mem_infos[id].buf[address];
+		value = mem_infos[id].buf[address];
+
+		if (!cached)
+			iotrace_memory_read(id, address, value);
+
+		return value;
 	}
 }
 
