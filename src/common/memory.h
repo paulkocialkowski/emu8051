@@ -51,37 +51,37 @@ void
 mem_clear(enum mem_id_t id);
 
 void
-mem_write8(enum mem_id_t id, unsigned long address, uint8_t value);
+mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached);
 
 void
-mem_write_direct(unsigned int address, unsigned char value);
+mem_write_direct(unsigned int address, unsigned char value, int cached);
 
 void
-mem_write_indirect(unsigned int address, unsigned char value);
+mem_write_indirect(unsigned int address, unsigned char value, int cached);
 
 void
-mem_write_bit(uint8_t bit_address, uint8_t value);
+mem_write_bit(uint8_t bit_address, uint8_t value, int cached);
 
 void
-mem_sfr_write8(unsigned long address, uint8_t value);
+mem_sfr_write8(unsigned long address, uint8_t value, int cached);
 
 void
-mem_sfr_write_dptr(uint16_t value);
+mem_sfr_write_dptr(uint16_t value, int cached);
 
 uint8_t
-mem_read8(enum mem_id_t id, unsigned long address);
+mem_read8(enum mem_id_t id, unsigned long address, int cached);
 
 unsigned char
-mem_read_direct(unsigned int address);
+mem_read_direct(unsigned int address, int cached);
 
 unsigned char
-mem_read_indirect(unsigned int address);
+mem_read_indirect(unsigned int address, int cached);
 
 unsigned char
-mem_read_bit(uint8_t bit_address);
+mem_read_bit(uint8_t bit_address, int cached);
 
 uint8_t
-mem_sfr_read8(unsigned long address);
+mem_sfr_read8(unsigned long address, int cached);
 
 uint16_t
 mem_sfr_read_dptr(void);
@@ -99,7 +99,7 @@ uint16_t
 stack_pop16(void);
 
 uint16_t
-pgm_read_addr16(uint16_t base);
+pgm_read_addr16(uint16_t base, int cached);
 
 void
 mem_dump(unsigned int address, int size, enum mem_id_t id);

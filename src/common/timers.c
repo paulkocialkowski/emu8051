@@ -54,16 +54,16 @@ timer_increment_check_overflow(uint8_t counter_address, uint8_t tf_mask)
 {
 	unsigned int tmp;
 
-	tmp = mem_read_direct(counter_address);
+	tmp = mem_read_direct(counter_address, true);
 	tmp++;
 	tmp &= 0xFF;
 	if (tmp == 0) {
 		/* If overflow set TFx */
 		mem_write_direct(_TCON_,
-				 mem_read_direct(_TCON_) | tf_mask);
+				 mem_read_direct(_TCON_, true) | tf_mask, true);
 	}
 
-	mem_write_direct(counter_address, tmp); /* Save new value. */
+	mem_write_direct(counter_address, tmp, true); /* Save new value. */
 }
 
 static void
@@ -72,11 +72,11 @@ timer_with_prescaler(uint8_t tl, uint8_t th, uint8_t tf_mask,
 {
 	unsigned int prescaler;
 
-	prescaler = mem_read_direct(tl);
+	prescaler = mem_read_direct(tl, true);
 	prescaler++;
 
 	prescaler &= (1 << prescaler_width) - 1; /* Keep only required bits */
-	mem_write_direct(tl, prescaler);
+	mem_write_direct(tl, prescaler, true);
 
 	if (prescaler == 0)
 		timer_increment_check_overflow(th, tf_mask);
@@ -99,17 +99,17 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 		break;
 	case 2:
 		/* Mode 2, 8-bits counter with Auto-Reload */
-		tmp = mem_read_direct(tl);
+		tmp = mem_read_direct(tl, true);
 		tmp++;
 		tmp &= 0xFF;
 		if (tmp == 0) {
 			/* If overflow -> reload and set TF0 */
 			mem_write_direct(
 				_TCON_,
-				mem_read_direct(_TCON_) | tf_mask);
-			mem_write_direct(tl, mem_read_direct(th));
+				mem_read_direct(_TCON_, true) | tf_mask, true);
+			mem_write_direct(tl, mem_read_direct(th, true), true);
 		} else {
-			mem_write_direct(tl, tmp);
+			mem_write_direct(tl, tmp, true);
 		}
 		break;
 	case 3:
@@ -126,7 +126,7 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 			timer_increment_check_overflow(tl, tf_mask);
 
 		/* TH0 uses TR1 et TF1. */
-		TR = mem_read_direct(_TCON_) & 0x40;
+		TR = mem_read_direct(_TCON_, true) & 0x40;
 
 		if (TR)
 			timer_increment_check_overflow(th, 0x80);
@@ -145,20 +145,20 @@ timers_check(void)
 	unsigned int timer_counter;
 
 	/* Timer 0 */
-	tr = mem_read_direct(_TCON_) & 0x10;
-	mode = mem_read_direct(_TMOD_) & 0x03;
-	gate = mem_read_direct(_TMOD_) & 0x08;
-	timer_counter = mem_read_direct(_TMOD_) & 0x04;
+	tr = mem_read_direct(_TCON_, true) & 0x10;
+	mode = mem_read_direct(_TMOD_, true) & 0x03;
+	gate = mem_read_direct(_TMOD_, true) & 0x08;
+	timer_counter = mem_read_direct(_TMOD_, true) & 0x04;
 
 	if ((tr && !gate && !timer_counter) || (mode == 3))
 		process_timer(_TL0_, _TH0_, 0x20, tr, mode, gate,
 			      timer_counter);
 
 	/* Timer 1 */
-	tr = mem_read_direct(_TCON_) & 0x40;
-	mode = (mem_read_direct(_TMOD_) & 0x30) >> 4;
-	gate = mem_read_direct(_TMOD_) & 0x80;
-	timer_counter = mem_read_direct(_TMOD_) & 0x40;
+	tr = mem_read_direct(_TCON_, true) & 0x40;
+	mode = (mem_read_direct(_TMOD_, true) & 0x30) >> 4;
+	gate = mem_read_direct(_TMOD_, true) & 0x80;
+	timer_counter = mem_read_direct(_TMOD_, true) & 0x40;
 
 	if (tr && !gate && !timer_counter)
 		process_timer(_TL1_, _TH1_, 0x80, tr, mode, gate,

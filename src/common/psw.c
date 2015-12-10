@@ -6,6 +6,8 @@
  * This file is released under the GPLv2
  */
 
+#include <stdbool.h>
+
 #include "common.h"
 #include "reg8051.h"
 #include "memory.h"
@@ -14,20 +16,20 @@
 int
 psw_read_bit(unsigned int bit)
 {
-	return (mem_read8(INT_MEM_ID, _PSW_) >> bit) & 0x01;
+	return (mem_read8(INT_MEM_ID, _PSW_, true) >> bit) & 0x01;
 }
 
 void
 psw_write_bit(unsigned int bit, int val)
 {
-	uint8_t psw = mem_read8(INT_MEM_ID, _PSW_);
+	uint8_t psw = mem_read8(INT_MEM_ID, _PSW_, true);
 
 	if (val)
 		psw |= (1 << bit);  /* Set */
 	else
 		psw &= ~(1 << bit); /* Clear */
 
-	mem_write8(INT_MEM_ID, _PSW_, psw); /* Save updated value */
+	mem_write8(INT_MEM_ID, _PSW_, psw, true); /* Save updated value */
 }
 
 /* Returns 0 or 1 */
@@ -114,7 +116,7 @@ void
 psw_compute_parity_bit(void)
 {
 	int parity = 0;
-	uint8_t acc = mem_read8(INT_MEM_ID, _ACC_);
+	uint8_t acc = mem_read8(INT_MEM_ID, _ACC_, true);
 
 	while (acc) {
 		parity = !parity;

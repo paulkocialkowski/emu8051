@@ -157,19 +157,19 @@ modify:
 	TOK_MOD_EXT NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Modify external memory");
-          mem_write8(EXT_MEM_ID, $2, $3);
+          mem_write8(EXT_MEM_ID, $2, $3, false);
 	}
 	|
 	TOK_MOD_INT NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Modify internal memory");
-          mem_write8(INT_MEM_ID, $2, $3);
+          mem_write8(INT_MEM_ID, $2, $3, false);
 	}
 	|
 	TOK_MOD_PROG NUMBER NUMBER TOK_ENTER
 	{
           log_debug("  Modify program memory");
-          mem_write8(PGM_MEM_ID, $2, $3);
+          mem_write8(PGM_MEM_ID, $2, $3, false);
 	}
 	|
 	TOK_MOD_REG WORD NUMBER TOK_ENTER

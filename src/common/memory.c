@@ -104,7 +104,7 @@ mem_clear(enum mem_id_t id)
 }
 
 void
-mem_write8(enum mem_id_t id, unsigned long address, uint8_t value)
+mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
 		log_err("Error writing to memory ID: %d\n"
@@ -118,26 +118,26 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value)
 
 /* Write with a direct addressing mode at Address the new Value */
 void
-mem_write_direct(unsigned int address, unsigned char value)
+mem_write_direct(unsigned int address, unsigned char value, int cached)
 {
-	mem_write8(INT_MEM_ID, address, value);
+	mem_write8(INT_MEM_ID, address, value, cached);
 }
 
 /* Write with an indirect addressing mode at Address the new Value */
 void
-mem_write_indirect(unsigned int address, unsigned char value)
+mem_write_indirect(unsigned int address, unsigned char value, int cached)
 {
 	if (address > 0x7F) {
-		mem_write8(EXT_MEM_ID, address, value);
+		mem_write8(EXT_MEM_ID, address, value, cached);
 		return;
 	}
 
-	mem_write8(INT_MEM_ID, address, value);
+	mem_write8(INT_MEM_ID, address, value, cached);
 }
 
 /* Write with a bit addressing mode at BitAddress the new Value */
 void
-mem_write_bit(uint8_t bit_address, uint8_t value)
+mem_write_bit(uint8_t bit_address, uint8_t value, int cached)
 {
 	uint8_t byte_address;
 	uint8_t bit_number;
@@ -146,27 +146,27 @@ mem_write_bit(uint8_t bit_address, uint8_t value)
 	mem_convert_bit_address(bit_address, &byte_address, &bit_number);
 
 	byte_mask = ((1 << bit_number) ^ 0xFF);
-	byte_val = mem_read_direct(byte_address) & byte_mask;
+	byte_val = mem_read_direct(byte_address, cached) & byte_mask;
 	byte_val += value << bit_number;
-	mem_write_direct(byte_address, byte_val);
+	mem_write_direct(byte_address, byte_val, cached);
 }
 
 void
-mem_sfr_write8(unsigned long address, uint8_t value)
+mem_sfr_write8(unsigned long address, uint8_t value, int cached)
 {
 	/* SFR registers are from addresses $80 to $FF. */
-	mem_write8(INT_MEM_ID, address, value);
+	mem_write8(INT_MEM_ID, address, value, cached);
 }
 
 void
-mem_sfr_write_dptr(uint16_t value)
+mem_sfr_write_dptr(uint16_t value, int cached)
 {
-	mem_write8(INT_MEM_ID, _DPTRHIGH_, value >> 8);
-	mem_write8(INT_MEM_ID, _DPTRLOW_, (uint8_t) value);
+	mem_write8(INT_MEM_ID, _DPTRHIGH_, value >> 8, cached);
+	mem_write8(INT_MEM_ID, _DPTRLOW_, (uint8_t) value, cached);
 }
 
 uint8_t
-mem_read8(enum mem_id_t id, unsigned long address)
+mem_read8(enum mem_id_t id, unsigned long address, int cached)
 {
 	if (address >= (unsigned long) mem_infos[id].max_size) {
 		log_err("Error reading from memory ID: %d\n"
@@ -180,27 +180,27 @@ mem_read8(enum mem_id_t id, unsigned long address)
 
 /* Read with a direct addressing mode at Address */
 unsigned char
-mem_read_direct(unsigned int address)
+mem_read_direct(unsigned int address, int cached)
 {
 	if (address > 0xFF)
-		return mem_read8(EXT_MEM_ID, address);
+		return mem_read8(EXT_MEM_ID, address, cached);
 	else
-		return mem_read8(INT_MEM_ID, address);
+		return mem_read8(INT_MEM_ID, address, cached);
 }
 
 /* Read with a indirect addressing mode at Address */
 unsigned char
-mem_read_indirect(unsigned int address)
+mem_read_indirect(unsigned int address, int cached)
 {
 	if (address > 0x7F)
-		return mem_read8(EXT_MEM_ID, address);
+		return mem_read8(EXT_MEM_ID, address, cached);
 	else
-		return mem_read8(INT_MEM_ID, address);
+		return mem_read8(INT_MEM_ID, address, cached);
 }
 
 /* Read with a bit addressing mode at bit_address */
 unsigned char
-mem_read_bit(uint8_t bit_address)
+mem_read_bit(uint8_t bit_address, int cached)
 {
 	uint8_t byte_address;
 	uint8_t bit_number;
@@ -208,23 +208,23 @@ mem_read_bit(uint8_t bit_address)
 
 	mem_convert_bit_address(bit_address, &byte_address, &bit_number);
 
-	bit_value = (mem_read_direct(byte_address) >> bit_number);
+	bit_value = (mem_read_direct(byte_address, cached) >> bit_number);
 	bit_value &= 1;
 	return bit_value;
 }
 
 uint8_t
-mem_sfr_read8(unsigned long address)
+mem_sfr_read8(unsigned long address, int cached)
 {
 	/* SFR registers are from addresses $80 to $FF. */
-	return mem_read8(INT_MEM_ID, address);
+	return mem_read8(INT_MEM_ID, address, cached);
 }
 
 uint16_t
 mem_sfr_read_dptr(void)
 {
-	return (mem_read8(INT_MEM_ID, _DPTRHIGH_) << 8) +
-		mem_read8(INT_MEM_ID, _DPTRLOW_);
+	return (mem_read8(INT_MEM_ID, _DPTRHIGH_, true) << 8) +
+		mem_read8(INT_MEM_ID, _DPTRLOW_, true);
 }
 
 void
@@ -232,10 +232,10 @@ stack_push8(uint8_t value)
 {
 	uint8_t sp;
 
-	sp = mem_read8(INT_MEM_ID, _SP_);
+	sp = mem_read8(INT_MEM_ID, _SP_, true);
 
-	mem_write8(INT_MEM_ID, ++sp, value);
-	mem_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+	mem_write8(INT_MEM_ID, ++sp, value, true);
+	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 }
 
 void
@@ -243,11 +243,11 @@ stack_push16(uint16_t value)
 {
 	uint8_t sp;
 
-	sp = mem_read8(INT_MEM_ID, _SP_);
+	sp = mem_read8(INT_MEM_ID, _SP_, true);
 
-	mem_write8(INT_MEM_ID, ++sp, (uint8_t) value); /* Write LSB */
-	mem_write8(INT_MEM_ID, ++sp, value >> 8);      /* Write MSB */
-	mem_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+	mem_write8(INT_MEM_ID, ++sp, (uint8_t) value, true); /* Write LSB */
+	mem_write8(INT_MEM_ID, ++sp, value >> 8, true);      /* Write MSB */
+	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 }
 
 uint8_t
@@ -256,10 +256,10 @@ stack_pop8(void)
 	uint8_t sp;
 	uint8_t value;
 
-	sp = mem_read8(INT_MEM_ID, _SP_);
+	sp = mem_read8(INT_MEM_ID, _SP_, true);
 
-	value = mem_read8(INT_MEM_ID, sp--);
-	mem_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+	value = mem_read8(INT_MEM_ID, sp--, true);
+	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 
 	return value;
 }
@@ -270,23 +270,23 @@ stack_pop16(void)
 	uint8_t sp;
 	uint16_t value;
 
-	sp = mem_read8(INT_MEM_ID, _SP_);
+	sp = mem_read8(INT_MEM_ID, _SP_, true);
 
-	value = mem_read8(INT_MEM_ID, sp--) << 8; /* Read MSB */
-	value |= mem_read8(INT_MEM_ID, sp--);     /* Read LSB */
-	mem_write8(INT_MEM_ID, _SP_, sp); /* Save new stack pointer */
+	value = mem_read8(INT_MEM_ID, sp--, true) << 8; /* Read MSB */
+	value |= mem_read8(INT_MEM_ID, sp--, true);     /* Read LSB */
+	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 
 	return value;
 }
 
 /* Read a 16-bit address from PGM memory, starting at <base> offset */
 uint16_t
-pgm_read_addr16(uint16_t base)
+pgm_read_addr16(uint16_t base, int cached)
 {
 	uint16_t addr;
 
-	addr = mem_read8(PGM_MEM_ID, base) << 8; /* MSB */
-	addr |= mem_read8(PGM_MEM_ID, base + 1); /* LSB */
+	addr = mem_read8(PGM_MEM_ID, base, cached) << 8; /* MSB */
+	addr |= mem_read8(PGM_MEM_ID, base + 1, cached); /* LSB */
 
 	return addr;
 }
@@ -322,7 +322,7 @@ mem_dump(unsigned int address, int size, enum mem_id_t id)
 		printf("%.4X ", address + offset);
 
 		for (col = 0; col < 16; col++) {
-			data[col] = mem_read8(id, address + offset + col);
+			data[col] = mem_read8(id, address + offset + col, true);
 			printf(" %.2X", data[col]);
 		}
 		printf("  ");

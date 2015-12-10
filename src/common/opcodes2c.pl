@@ -62,6 +62,7 @@ print INST_IMP " * instructions_8051.c\n";
 write_header(INST_IMP);
 print INST_IMP "/* Define only here, for not having extern scope on local variables. */\n";
 print INST_IMP "#define INSTRUCTIONS_8051_M 1\n\n\n";
+print INST_IMP "#include <stdbool.h>\n\n";
 print INST_IMP "#include \"reg8051.h\"\n";
 print INST_IMP "#include \"cpu8051.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
@@ -314,174 +315,199 @@ for ($i = 0 ; $i < 256; $i++) {
 
     if( $i == 0x85 ) {
 	# Cas particulier pour MOV direct,direct -> src et dest sont inverses dans la memoire
-        print INST_IMP "  unsigned char srcaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
-	print INST_IMP "  unsigned char source = mem_read_direct( srcaddr );\n";
-	print INST_IMP "  unsigned char destaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++ );\n";
-	print INST_IMP "  unsigned char destination = mem_read_direct( destaddr );\n";
-	print INST_IMP "  destination = source;\n";
-	print INST_IMP "  mem_write_direct( destaddr, destination );\n";
+        cfw("unsigned char srcaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
+	cfw("unsigned char source = mem_read_direct( srcaddr, true );");
+	cfw("unsigned char destaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
+	cfw("unsigned char destination = mem_read_direct( destaddr, true );");
+	cfw("destination = source;");
+	cfw("mem_write_direct( destaddr, destination, false );");
     }
     else {
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
+	    $destination_unused=($insttype[$i] == 26 || $insttype[$i] == 28 || $insttype[$i] == 36 || $insttype[$i] == 38 || $insttype[$i] == 39 || $insttype[$i] == 40 || $insttype[$i] == 44);
 	    if ($op_destination == 0) { # addr11
-		cfw("unsigned int addr11 = ( ( mem_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + mem_read8( PGM_MEM_ID, cpu8051.pc );");
+		cfw("unsigned int addr11 = ( ( mem_read8( PGM_MEM_ID, cpu8051.pc - 1, true ) << 3 ) & 0xF00 ) + mem_read8( PGM_MEM_ID, cpu8051.pc, true );");
 		cfw("cpu8051.pc++;");
 	    }
 	    if ($op_destination == 1) { # addr16
-		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc);");
+		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc, true);");
 		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_destination == 2) { # A
-		cfw("unsigned char destination = mem_read_direct( _ACC_ );");
+		cfw("unsigned char destination = mem_read_direct( _ACC_, true );");
 	    }
 	    if ($op_destination == 3) { # direct
-		cfw("unsigned char destaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++ );");
-		cfw("unsigned char destination = mem_read_direct( destaddr );");
+		cfw("unsigned char destaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
+		if ($destination_unused) {
+		    cfw("unsigned char destination = mem_read_direct( destaddr, true );");
+		} else {
+		    cfw("unsigned char destination = mem_read_direct( destaddr, false );");
+		}
 	    }
 	    if ($op_destination == 4) { # @R0
-		cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_ ) );");
+		if ($destination_unused) {
+		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), true );");
+		} else {
+		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
+		}
 	    }
 	    if ($op_destination == 5) { # @R1
-		cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_ ) );");
+		if ($destination_unused) {
+		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), true );");
+		} else {
+		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
+		}
 	    }
 	    if ($op_destination == 6) { # R0
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R0_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R0_, true );");
 	    }
 	    if ($op_destination == 7) { # R1
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R1_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R1_, true );");
 	    }
 	    if ($op_destination == 8) { # R2
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R2_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R2_, true );");
 	    }
 	    if ($op_destination == 9) { # R3
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R3_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R3_, true );");
 	    }
 	    if ($op_destination == 10) { # R4
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R4_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R4_, true );");
 	    }
 	    if ($op_destination == 11) { # R5
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R5_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R5_, true );");
 	    }
 	    if ($op_destination == 12) { # R6
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R6_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R6_, true );");
 	    }
 	    if ($op_destination == 13) { # R7
-		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R7_ );");
+		cfw("unsigned char destination = mem_read_direct( BANKPSW + _R7_, true );");
 	    }
 	    if ($op_destination == 14) { # bitaddr
-		cfw("unsigned char destination, dstbitaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++ );");
-		cfw("destination = mem_read_bit( dstbitaddr );");
+		cfw("unsigned char destination, dstbitaddr = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
+		if ($destination_unused) {
+		    cfw("destination = mem_read_bit( dstbitaddr, true );");
+		} else {
+		    cfw("destination = mem_read_bit( dstbitaddr, false );");
+		}
 	    }
 	    if ($op_destination == 15) { # reladdr
 		cfw("cpu8051.pc++;");
-		cfw("unsigned int destination = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;");
+		cfw("unsigned int destination = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
 	    }
 	    if ($op_destination == 16) { # #data
-		cfw("unsigned char destination = mem_read8( PGM_MEM_ID, cpu8051.pc++ );");
+		cfw("unsigned char destination = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
 	    }
 	    if ($op_destination == 17) { # C
 		cfw("unsigned char destination = psw_read_cy();");
 	    }
 	    if ($op_destination == 18) { # @A+DPTR
-		cfw("unsigned int destination = mem_read_direct( _ACC_ ) + mem_sfr_read_dptr();");
+		cfw("unsigned int destination = mem_read_direct( _ACC_, true ) + mem_sfr_read_dptr();");
 	    }
             if ($op_destination == 20) { # AB
-                cfw("unsigned char destination = mem_read_direct( _ACC_ );");
-                cfw("unsigned char source = mem_read_direct( _B_ );");
+                cfw("unsigned char destination = mem_read_direct( _ACC_, true );");
+                cfw("unsigned char source = mem_read_direct( _B_, true );");
             }
 	    if ($op_destination == 21) { # DPTR
 		cfw("unsigned int destination = mem_sfr_read_dptr();");
 	    }
 	    if ($op_destination == 23) { # /bitaddr
-		cfw("unsigned char destination, dstbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
-		cfw("destination = ( mem_read_bit( dstbitaddr ) ^ 1 );");
+		cfw("unsigned char destination, dstbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
+		if ($destination_unused) {
+		    cfw("destination = ( mem_read_bit( dstbitaddr ) ^ 1, true );");
+		} else {
+		    cfw("destination = ( mem_read_bit( dstbitaddr ) ^ 1, false );");
+		}
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		cfw("unsigned char destination = mem_read_indirect(mem_sfr_read_dptr());");
+		if ($destination_unused) {
+		    cfw("unsigned char destination = mem_read_indirect(mem_sfr_read_dptr(), true);");
+		} else {
+		    cfw("unsigned char destination = mem_read_indirect(mem_sfr_read_dptr(), false);");
+		}
 	    }
 	}
 
 	if ($instargs[$i*4] > 1) {
 	    $op_source=$instargs[$i*4+2];
 	    if ($op_source == 0) { # addr11
-		cfw("unsigned int addr11 = ( ( mem_read8( PGM_MEM_ID, cpu8051.pc - 1 ) << 3 ) & 0xF00 ) + mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("unsigned int addr11 = ( ( mem_read8( PGM_MEM_ID, cpu8051.pc - 1, true ) << 3 ) & 0xF00 ) + mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
 	    }
 	    if ($op_source == 1) { # addr16
-		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc);");
+		cfw("uint16_t addr16 = pgm_read_addr16(cpu8051.pc, true);");
 		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_source == 2) { # A
-		cfw("unsigned char source = mem_read_direct( _ACC_ );");
+		cfw("unsigned char source = mem_read_direct( _ACC_, true );");
 	    }
 	    if ($op_source == 3) { # direct
-		cfw("unsigned char srcaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
-		cfw("unsigned char source = mem_read_direct( srcaddr );");
+		cfw("unsigned char srcaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
+		cfw("unsigned char source = mem_read_direct( srcaddr, false );");
 	    }
 	    if ($op_source == 4) { # @R0
-		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_ ) );");
+		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
 	    }
 	    if ($op_source == 5) { # @R1
-		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_ ) );");
+		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
 	    }
 	    if ($op_source == 6) { # R0
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R0_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R0_, true );");
 	    }
 	    if ($op_source == 7) { # R1
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R1_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R1_, true );");
 	    }
 	    if ($op_source == 8) { # R2
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R2_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R2_, true );");
 	    }
 	    if ($op_source == 9) { # R3
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R3_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R3_, true );");
 	    }
 	    if ($op_source == 10) { # R4
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R4_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R4_, true );");
 	    }
 	    if ($op_source == 11) { # R5
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R5_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R5_, true );");
 	    }
 	    if ($op_source == 12) { # R6
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R6_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R6_, true );");
 	    }
 	    if ($op_source == 13) { # R7
-		cfw("unsigned char source = mem_read_direct( BANKPSW + _R7_ );");
+		cfw("unsigned char source = mem_read_direct( BANKPSW + _R7_, true );");
 	    }
 
 	    if ($op_source == 14) { # bitaddr
-		cfw("unsigned char source, srcbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
-		cfw("source = mem_read_bit( srcbitaddr );");
+		cfw("unsigned char source, srcbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
+		cfw("source = mem_read_bit( srcbitaddr, false );");
 	    }
 	    if ($op_source == 15) { # reladdr
 		cfw("(cpu8051.pc)++;");
-		cfw("unsigned int source = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1)) + cpu8051.pc;");
+		cfw("unsigned int source = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
 	    }
 	    if ($op_source == 16) { # #data
-		cfw("unsigned char source = mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
+		cfw("unsigned char source = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
 	    }
 	    if ($op_source == 17) { # C
 		cfw("unsigned char source = psw_read_cy();");
 	    }
 	    if ($op_source == 18) { # @A+DPTR
-		cfw("unsigned char source = mem_read8( PGM_MEM_ID, mem_read_direct( _ACC_ ) + mem_sfr_read_dptr());");
+		cfw("unsigned char source = mem_read8( PGM_MEM_ID, mem_read_direct( _ACC_, true ) + mem_sfr_read_dptr(), false );");
 	    }
 	    if ($op_source == 19) { # @A+PC
-		cfw("unsigned char source = mem_read8( PGM_MEM_ID, mem_read_direct( _ACC_ ) + ( ++cpu8051.pc ) );");
+		cfw("unsigned char source = mem_read8( PGM_MEM_ID, mem_read_direct( _ACC_, true) + ( ++cpu8051.pc ), false );");
 	    }
 	    if ($op_source == 21) { # DPTR
 		cfw("unsigned int source = mem_sfr_read_dptr();");
 	    }
 	    if ($op_source == 22) { # #data16
-		cfw("uint16_t source = pgm_read_addr16(cpu8051.pc);");
+		cfw("uint16_t source = pgm_read_addr16(cpu8051.pc, true);");
 		cfw("cpu8051.pc += 2;");
 	    }
 	    if ($op_source == 23) { # /bitaddr
-		cfw("unsigned char source, srcbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++ );");
-		cfw("source = ( mem_read_bit( srcbitaddr ) ^ 1 );");
+		cfw("unsigned char source, srcbitaddr = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
+		cfw("source = ( mem_read_bit( srcbitaddr, false ) ^ 1 );");
 	    }
 	    if ($op_source == 24) { # @DPTR
-		cfw("unsigned char source = mem_read_indirect(mem_sfr_read_dptr());");
+		cfw("unsigned char source = mem_read_indirect(mem_sfr_read_dptr(), false);");
 	    }
 	}
 
@@ -594,7 +620,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	# JZ
 	if ($insttype[$i] == 22) {
-	    cfw("if ( mem_read_direct( _ACC_ ) == 0 ) { cpu8051.pc = destination; }");
+	    cfw("if ( mem_read_direct( _ACC_, true ) == 0 ) { cpu8051.pc = destination; }");
 	}
 
 	# XRL
@@ -604,7 +630,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	# JNZ
 	if ($insttype[$i] == 24) {
-	    cfw("if ( mem_read_direct( _ACC_ ) != 0 ) { cpu8051.pc = destination; }");
+	    cfw("if ( mem_read_direct( _ACC_, true ) != 0 ) { cpu8051.pc = destination; }");
 	}
 
 	# JMP
@@ -635,8 +661,8 @@ for ($i = 0 ; $i < 256; $i++) {
             # If B is zero, the OV flag will be set indicating a
             # division-by-zero error
 	    cfw("if (source != 0) {");
-	    cfw("    mem_write_direct(_ACC_, destination/source);");
-            cfw("    mem_write_direct( _B_, destination%source);");
+	    cfw("    mem_write_direct(_ACC_, destination/source, true);");
+            cfw("    mem_write_direct( _B_, destination%source, true);");
 	    cfw("    psw_clr_ov();");
 	    cfw("} else {");
 	    cfw("    psw_set_ov();");
@@ -662,9 +688,9 @@ for ($i = 0 ; $i < 256; $i++) {
             # A = destination
             # B = source
 	    cfw("psw_clr_cy();");
-	    cfw("mem_write_direct(_ACC_, destination * source);");
-            cfw("mem_write_direct(_B_, (destination * source) / 0x100);");
-	    cfw("if (mem_read_direct(_B_) > 0)");
+	    cfw("mem_write_direct(_ACC_, destination * source, true);");
+            cfw("mem_write_direct(_B_, (destination * source) / 0x100, true);");
+	    cfw("if (mem_read_direct(_B_, true) > 0)");
 	    cfw("    psw_set_ov();");
 	    cfw("else");
 	    cfw("    psw_clr_ov();");
@@ -678,7 +704,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	# CJNE
 	if ($insttype[$i] == 34) {
-	    cfw("unsigned int reladdr = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc)) + (cpu8051.pc + 1);");
+	    cfw("unsigned int reladdr = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc, true)) + (cpu8051.pc + 1);");
 	    cfw("psw_clr_cy();");
 	    cfw("if ( destination < source ) psw_set_cy();");
 	    cfw("if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++;");
@@ -754,6 +780,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	if ($instargs[$i*4] > 0) {
 	    $op_destination=$instargs[$i*4+1];
+	    $destination_unused=($insttype[$i] == 5 || $insttype[$i] == 10 || $insttype[$i] == 14 || $insttype[$i] == 34 || $insttype[$i] == 35);
 	    if ($op_destination == 0) { # addr11
 		cfw("cpu8051.pc = ( cpu8051.pc & 0xF800 ) | addr11;");
 	    }
@@ -761,56 +788,80 @@ for ($i = 0 ; $i < 256; $i++) {
 		cfw("cpu8051.pc = addr16;");
 	    }
 	    if ($op_destination == 2) { # A
-		cfw("mem_write_direct( _ACC_, destination );");
+		cfw("mem_write_direct( _ACC_, destination, true );");
 	    }
 	    if ($op_destination == 3) { # direct
-		cfw("mem_write_direct( destaddr, destination );");
+		if ($destination_unused) {
+		    cfw("mem_write_direct( destaddr, destination, true );");
+		} else {
+		    cfw("mem_write_direct( destaddr, destination, false );");
+		}
 	    }
 	    if ($op_destination == 4) { # @R0
-		cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_ ), destination );");
+		if ($destination_unused) {
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, true );");
+		} else {
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, false );");
+		}
 	    }
 	    if ($op_destination == 5) { # @R1
-		cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_ ), destination );");
+		if ($destination_unused) {
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, true );");
+		} else {
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, false );");
+		}
 	    }
 	    if ($op_destination == 6) { # R0
-		cfw("mem_write_direct( BANKPSW + _R0_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R0_, destination, true );");
 	    }
 	    if ($op_destination == 7) { # R1
-		cfw("mem_write_direct( BANKPSW + _R1_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R1_, destination, true );");
 	    }
 	    if ($op_destination == 8) { # R2
-		cfw("mem_write_direct( BANKPSW + _R2_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R2_, destination, true );");
 	    }
 	    if ($op_destination == 9) { # R3
-		cfw("mem_write_direct( BANKPSW + _R3_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R3_, destination, true );");
 	    }
 	    if ($op_destination == 10) { # R4
-		cfw("mem_write_direct( BANKPSW + _R4_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R4_, destination, true );");
 	    }
 	    if ($op_destination == 11) { # R5
-		cfw("mem_write_direct( BANKPSW + _R5_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R5_, destination, true );");
 	    }
 	    if ($op_destination == 12) { # R6
-		cfw("mem_write_direct( BANKPSW + _R6_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R6_, destination, true );");
 	    }
 	    if ($op_destination == 13) { # R7
-		cfw("mem_write_direct( BANKPSW + _R7_, destination );");
+		cfw("mem_write_direct( BANKPSW + _R7_, destination, true );");
 	    }
 
 	    if ($op_destination == 14) { # bitaddr
-		cfw("mem_write_bit( dstbitaddr, destination );");
+		if ($destination_unused) {
+		    cfw("mem_write_bit( dstbitaddr, destination, true );");
+		} else {
+		    cfw("mem_write_bit( dstbitaddr, destination, false );");
+		}
 	    }
 	    if ($op_destination == 17) { # C
 		cfw("psw_write_cy(destination);");
 	    }
 	    if ($op_destination == 21) { # DPTR
-		cfw("mem_sfr_write_dptr(destination);");
+		cfw("mem_sfr_write_dptr(destination, true);");
 	    }
 	    if ($op_destination == 23) { # /bitaddr
-		cfw("mem_write_bit( dstbitaddr, destination );");
+		if ($destination_unused) {
+		    cfw("mem_write_bit( dstbitaddr, destination, true );");
+		} else {
+		    cfw("mem_write_bit( dstbitaddr, destination, false );");
+		}
 	    }
 	    if ($op_destination == 24) { # @DPTR
-		cfw("mem_write_indirect(mem_sfr_read_dptr(), destination);");
+		if ($destination_unused) {
+		    cfw("mem_write_indirect(mem_sfr_read_dptr(), destination, true);");
+		} else {
+		    cfw("mem_write_indirect(mem_sfr_read_dptr(), destination, false);");
+		}
 	    }
 	}
 
@@ -824,55 +875,55 @@ for ($i = 0 ; $i < 256; $i++) {
 		    cfw("cpu8051.pc = addr16;");
 		}
 		if ($op_source == 2) { # A
-		    cfw("mem_write_direct( _ACC_, source );");
+		    cfw("mem_write_direct( _ACC_, source, true );");
 		}
 		if ($op_source == 3) { # direct
-		    cfw("mem_write_direct( srcaddr, source );");
+		    cfw("mem_write_direct( srcaddr, source, false );");
 		}
 		if ($op_source == 4) { # @R0
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_ ), source );");
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), source, false );");
 		}
 		if ($op_source == 5) { # @R1
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_ ), source );");
+		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), source, false );");
 		}
 		if ($op_source == 6) { # R0
-		    cfw("mem_write_direct( BANKPSW + _R0_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R0_, source, true );");
 		}
 		if ($op_source == 7) { # R1
-		    cfw("mem_write_direct( BANKPSW + _R1_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R1_, source, true );");
 		}
 		if ($op_source == 8) { # R2
-		    cfw("mem_write_direct( BANKPSW + _R2_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R2_, source, true );");
 		}
 		if ($op_source == 9) { # R3
-		    cfw("mem_write_direct( BANKPSW + _R3_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R3_, source, true );");
 		}
 		if ($op_source == 10) { # R4
-		    cfw("mem_write_direct( BANKPSW + _R4_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R4_, source, true );");
 		}
 		if ($op_source == 11) { # R5
-		    cfw("mem_write_direct( BANKPSW + _R5_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R5_, source, true );");
 		}
 		if ($op_source == 12) { # R6
-		    cfw("mem_write_direct( BANKPSW + _R6_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R6_, source, true );");
 		}
 		if ($op_source == 13) { # R7
-		    cfw("mem_write_direct( BANKPSW + _R7_, source );");
+		    cfw("mem_write_direct( BANKPSW + _R7_, source, true );");
 		}
 		if ($op_source == 14) { # bitaddr
-		    cfw("mem_write_bit( srcbitaddr, source );");
+		    cfw("mem_write_bit( srcbitaddr, source, false );");
 		}
 		if ($op_source == 17) { # C
 		    cfw("psw_write_cy(source);");
 		}
 		if ($op_source == 21) { # DPTR
-                    cfw("mem_sfr_write_dptr(source);");
+                    cfw("mem_sfr_write_dptr(source, true);");
 		}
 		if ($op_source == 23) { # /bitaddr
-		    cfw("mem_write_bit( srcbitaddr, source );");
+		    cfw("mem_write_bit( srcbitaddr, source, false );");
 		}
 		if ($op_source == 24) { # @DPTR
-		    cfw("mem_write_indirect(mem_sfr_read_dptr(), source);");
+		    cfw("mem_write_indirect(mem_sfr_read_dptr(), source, false);");
 		}
 	    }
 	}
@@ -890,7 +941,7 @@ print INST_DEF " * instructions_8051.h\n";
 write_header(INST_DEF);
 print INST_DEF "#ifndef INSTRUCTIONS_8051_H\n";
 print INST_DEF "#define INSTRUCTIONS_8051_H 1\n\n\n";
-print INST_DEF "#define BANKPSW (mem_read_direct(_PSW_) & 0x18)\n\n";
+print INST_DEF "#define BANKPSW (mem_read_direct(_PSW_, true) & 0x18)\n\n";
 print INST_DEF "typedef int (*OPCODE_FP)(void);\n\n\n";
 for( $i=0; $i<256; $i++ ) {
     print INST_DEF "int\n";

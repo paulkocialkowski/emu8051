@@ -240,14 +240,14 @@ static void
 console_dump_sfr_registers_compact(void)
 {
 	int id;
-	unsigned char PSW = mem_read_direct(_PSW_);
+	unsigned char PSW = mem_read_direct(_PSW_, true);
 	int bank_sel = (PSW & 0x18);
 
 	printf("----------------------------------------------------------------------\n");
 	printf("|  PC  | SP | DPTR | ACC |  B | PSW:  CY  AC  F0 RS1 RS0  OV   -   P |\n");
 	printf("| %.4X | %.2X | %.4X |  %.2X | %.2X |", cpu8051.pc,
-	       mem_read_direct(_SP_), mem_sfr_read_dptr(),
-	       mem_read_direct(_ACC_), mem_read_direct(_B_));
+	       mem_read_direct(_SP_, true), mem_sfr_read_dptr(),
+	       mem_read_direct(_ACC_, true), mem_read_direct(_B_, true));
 	printf("        %d   %d   %d   %d   %d   %d   %d   %d |",
 	       (PSW >> 7) & 1, (PSW >> 6) & 1, (PSW >> 5) & 1, (PSW >> 4) & 1,
 	       (PSW >> 3) & 1, (PSW >> 2) & 1, (PSW >> 1) & 1, PSW & 1);
@@ -255,18 +255,18 @@ console_dump_sfr_registers_compact(void)
 	printf("----------------------------------------------------------------------\n");
 
 	printf("| TCON | TMOD | IE | IP | R0 | R1 | R2 | R3 | R4 | R5 | R6 | R7 |    |\n");
-	printf("|   %.2X |   %.2X | %.2X | %.2X ", mem_read_direct(_TCON_),
-	       mem_read_direct(_TMOD_), mem_read_direct(_IE_), mem_read_direct(_IP_));
+	printf("|   %.2X |   %.2X | %.2X | %.2X ", mem_read_direct(_TCON_, true),
+	       mem_read_direct(_TMOD_, true), mem_read_direct(_IE_, true), mem_read_direct(_IP_, true));
 	printf("| %.2X | %.2X | %.2X | %.2X ",
-	       mem_read_direct(bank_sel + _R0_),
-	       mem_read_direct(bank_sel + _R1_),
-	       mem_read_direct(bank_sel + _R2_),
-	       mem_read_direct(bank_sel + _R3_));
+	       mem_read_direct(bank_sel + _R0_, true),
+	       mem_read_direct(bank_sel + _R1_, true),
+	       mem_read_direct(bank_sel + _R2_, true),
+	       mem_read_direct(bank_sel + _R3_, true));
 	printf("| %.2X | %.2X | %.2X | %.2X ",
-	       mem_read_direct(bank_sel + _R4_),
-	       mem_read_direct(bank_sel + _R5_),
-	       mem_read_direct(bank_sel + _R6_),
-	       mem_read_direct(bank_sel + _R7_));
+	       mem_read_direct(bank_sel + _R4_, true),
+	       mem_read_direct(bank_sel + _R5_, true),
+	       mem_read_direct(bank_sel + _R6_, true),
+	       mem_read_direct(bank_sel + _R7_, true));
 	printf("|    |\n");
 	printf("----------------------------------------------------------------------\n");
 

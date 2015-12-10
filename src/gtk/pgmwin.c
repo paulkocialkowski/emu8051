@@ -12,6 +12,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "memory.h"
@@ -263,14 +264,15 @@ pgmwin_refresh(void)
 			int2asciihex(address, str, 4);
 			gtk_list_store_set(store, &iter, COL_ADDR, str, -1);
 
-			opcode = mem_read8(PGM_MEM_ID, address);
+			opcode = mem_read8(PGM_MEM_ID, address, true);
 			inst_size = opcodes_get_instr_size(opcode);
 
 			/* Display instruction hex bytes. */
 			for (k = 0, col_id = COL_B0; k < 3; k++, col_id++) {
 				if (k < inst_size)
 					int2asciihex(mem_read8(PGM_MEM_ID,
-							       address + k),
+							       address + k,
+							       true),
 						     str, 2);
 				else
 					str[0] = '\0';

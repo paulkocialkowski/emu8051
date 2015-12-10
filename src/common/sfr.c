@@ -11,6 +11,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdbool.h>
 
 #include "common.h"
 #include "reg8051.h"
@@ -43,22 +44,22 @@ regwin_write_pc(int param, int val)
 static unsigned int
 regwin_read_timer(int timer_low_addr)
 {
-	return (mem_sfr_read8(timer_low_addr + 2) << 8) |
-		mem_sfr_read8(timer_low_addr);
+	return (mem_sfr_read8(timer_low_addr + 2, true) << 8) |
+		mem_sfr_read8(timer_low_addr, true);
 }
 
 static void
 regwin_write_timer(int timer_low_addr, int val)
 {
 	mem_sfr_write8(timer_low_addr + 2,
-		       (uint8_t) ((val & 0x0000FFFF) >> 8));
-	mem_sfr_write8(timer_low_addr, (uint8_t) val);
+		       (uint8_t) ((val & 0x0000FFFF) >> 8), true);
+	mem_sfr_write8(timer_low_addr, (uint8_t) val, true);
 }
 
 static uint8_t
 regwin_read_bank_offset(void)
 {
-	return mem_sfr_read8(_PSW_) & 0x18;
+	return mem_sfr_read8(_PSW_, true) & 0x18;
 }
 
 static unsigned int
@@ -72,7 +73,7 @@ regwin_read_bank(int dummy)
 static void
 regwin_write_bank(int param, int bank_number)
 {
-	uint8_t psw = mem_sfr_read8(_PSW_);
+	uint8_t psw = mem_sfr_read8(_PSW_, true);
 
 	(void) param; /* Remove compiler warning about unused variable. */
 
@@ -81,14 +82,14 @@ regwin_write_bank(int param, int bank_number)
 		bank_number = 0;
 	}
 
-	mem_sfr_write8(_PSW_, (psw & ~0x18) | (bank_number << 3));
+	mem_sfr_write8(_PSW_, (psw & ~0x18) | (bank_number << 3), true);
 }
 
 /* Indirect read of R0 - R7 in current bank from internal memory. */
 static unsigned int
 regwin_read_rx(int offset)
 {
-	return mem_read8(INT_MEM_ID, regwin_read_bank_offset() + offset);
+	return mem_read8(INT_MEM_ID, regwin_read_bank_offset() + offset, true);
 }
 
 /* Indirect write to R0 - R7 in current bank to internal memory. */
@@ -96,7 +97,7 @@ static void
 regwin_write_rx(int offset, int val)
 {
 	mem_write8(INT_MEM_ID, regwin_read_bank_offset() + offset,
-		   (uint8_t) val);
+		   (uint8_t) val, true);
 }
 
 /* This array defines how to read value for each register. */
@@ -265,11 +266,11 @@ static unsigned int
 regwin_read_generic(int addr, int width)
 {
 	if (width == 2) {
-		return mem_sfr_read8(addr);
+		return mem_sfr_read8(addr, true);
 	} else if (width == 4) {
 		/* Address is low address. */
-		return (mem_sfr_read8(addr + 1) << 8) |
-			mem_sfr_read8(addr);
+		return (mem_sfr_read8(addr + 1, true) << 8) |
+			mem_sfr_read8(addr, true);
 	} else {
 		return 0xFFFFFFFF;
 	}
@@ -279,11 +280,12 @@ static void
 regwin_write_generic(int addr, int val, int width)
 {
 	if (width == 2) {
-		mem_sfr_write8(addr, (uint8_t) val);
+		mem_sfr_write8(addr, (uint8_t) val, true);
 	} else if (width == 4) {
 		/* Address is low address. */
-		mem_sfr_write8(addr + 1, (uint8_t) ((val & 0x0000FFFF) >> 8));
-		mem_sfr_write8(addr, (uint8_t) val);
+		mem_sfr_write8(addr + 1, (uint8_t) ((val & 0x0000FFFF) >> 8),
+			       true);
+		mem_sfr_write8(addr, (uint8_t) val, true);
 	}
 }
 

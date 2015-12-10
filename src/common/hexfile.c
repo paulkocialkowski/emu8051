@@ -161,7 +161,7 @@ hexfile_load(const char *filename)
 				data = asciihex2int_len(&line[i], 2);
 				mem_write8(PGM_MEM_ID,
 					   (unsigned int) (load_offset + j),
-					   (unsigned char) data);
+					   (unsigned char) data, true);
 				i += 2;
 				checksum += data;
 			}

@@ -110,7 +110,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 
 	/* Convert column number (1, 2, 3...) to index (0, 1, 2...) */
 	address += (column - COL_DATA0);
-	old = mem_read8(memory_id, address);
+	old = mem_read8(memory_id, address, true);
 
 	log_info("Address: $%02X", address);
 	log_info("  old value: $%02X", old);
@@ -128,7 +128,7 @@ memwin_cell_edited(GtkCellRendererText *cell, gchar *path_string,
 	}
 
 	/* Store new value in emulator memory. */
-	mem_write8(memory_id, address, new);
+	mem_write8(memory_id, address, new, false);
 
 	/* Convert to text. */
 	int2asciihex(new, str, 2);
@@ -359,7 +359,7 @@ memwin_refresh(enum mem_id_t memory_id)
 			for (col = 0; col < cfg->bytes_per_row; col++) {
 				uint8_t data;
 
-				data = mem_read8(memory_id, address + col);
+				data = mem_read8(memory_id, address + col, true);
 
 				/* Display hex data */
 				int2asciihex(data, str, 2);
