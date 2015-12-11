@@ -50,6 +50,9 @@
 #define _BANK2_     0x10
 #define _BANK3_     0x18
 
+#define SCON_BIT_RI 0x98
+#define SCON_BIT_TI 0x99
+
 #define PSW_BIT_CY 7
 #define PSW_BIT_AC 6
 #define PSW_BIT_OV 2

@@ -16,6 +16,7 @@
 #include "reg8051.h"
 #include "hexfile.h"
 #include "iotrace.h"
+#include "serial.h"
 #include "memory.h"
 #include "options.h"
 
@@ -115,8 +116,12 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 	} else {
 		mem_infos[id].buf[address] = value;
 
-		if (!cached)
+		if (!cached) {
+			if (id == INT_MEM_ID && address == _SBUF_)
+				serial_write(value);
+
 			iotrace_memory_write(id, address, value);
+		}
 	}
 }
 

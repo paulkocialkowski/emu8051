@@ -21,6 +21,7 @@
 #include "options.h"
 #include "hexfile.h"
 #include "iotrace.h"
+#include "serial.h"
 #include "timers.h"
 #include "main.h"
 #include "reset.xpm"
@@ -651,6 +652,9 @@ main(int argc, char **argv)
 	if (options.iotrace != NULL)
 		iotrace_open(options.iotrace);
 
+	if (options.serial != NULL)
+		serial_open(options.serial);
+
 	cpu8051_reset();
 
 	log_info("Init GUI");
@@ -668,6 +672,9 @@ main(int argc, char **argv)
 
 	if (options.iotrace != NULL)
 		iotrace_close();
+
+	if (options.serial != NULL)
+		serial_close();
 
 	return EXIT_SUCCESS;
 }
