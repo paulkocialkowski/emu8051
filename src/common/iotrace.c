@@ -33,6 +33,9 @@ iotrace_memory(enum mem_id_t id)
 		case INT_MEM_ID:
 			fprintf(iotrace_fp, " : INT");
 			break;
+		case SFR_MEM_ID:
+			fprintf(iotrace_fp, " : SFR");
+			break;
 		case EXT_MEM_ID:
 			fprintf(iotrace_fp, " : EXT");
 			break;
@@ -57,7 +60,7 @@ iotrace_data(enum mem_id_t id, unsigned int address, uint8_t value)
 	if (iotrace_fp == NULL)
 		return;
 
-	if (id == INT_MEM_ID)
+	if (id == INT_MEM_ID || id == SFR_MEM_ID)
 		fprintf(iotrace_fp, " : A : 0x%02x", address);
 	else
 		fprintf(iotrace_fp, " : A : 0x%04x", address);

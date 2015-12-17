@@ -44,6 +44,9 @@ mem_init(void)
 	mem_infos[INT_MEM_ID].size = options.iram_size;
 	mem_infos[INT_MEM_ID].max_size = INT_MEM_MAX_SIZE;
 
+	mem_infos[SFR_MEM_ID].size = SFR_MEM_MAX_SIZE;
+	mem_infos[SFR_MEM_ID].max_size = INT_MEM_MAX_SIZE;
+
 	mem_infos[EXT_MEM_ID].size = options.xram_size;
 	mem_infos[EXT_MEM_ID].max_size = EXT_MEM_MAX_SIZE;
 
@@ -117,7 +120,7 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 		mem_infos[id].buf[address] = value;
 
 		if (!cached) {
-			if (id == INT_MEM_ID && address == _SBUF_)
+			if (id == SFR_MEM_ID && address == _SBUF_)
 				serial_write(value);
 
 			iotrace_memory_write(id, address, value);
@@ -129,19 +132,25 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 void
 mem_write_direct(unsigned int address, unsigned char value, int cached)
 {
-	mem_write8(INT_MEM_ID, address, value, cached);
+	if (address > 0x7F)
+		mem_write8(SFR_MEM_ID, address, value, cached);
+	else
+		mem_write8(INT_MEM_ID, address, value, cached);
 }
 
 /* Write with an indirect addressing mode at Address the new Value */
 void
 mem_write_indirect(unsigned int address, unsigned char value, int cached)
 {
-	if (address > 0x7F) {
+	/*
+	 * We're using this function both for indirect access on internal data
+	 * and indirect access on external data, so check first if the address
+	 * fits in internal data and fallback to external.
+	 */
+	if (mem_check_address(INT_MEM_ID, address, false))
+		mem_write8(INT_MEM_ID, address, value, cached);
+	else
 		mem_write8(EXT_MEM_ID, address, value, cached);
-		return;
-	}
-
-	mem_write8(INT_MEM_ID, address, value, cached);
 }
 
 /* Write with a bit addressing mode at BitAddress the new Value */
@@ -164,14 +173,14 @@ void
 mem_sfr_write8(unsigned long address, uint8_t value, int cached)
 {
 	/* SFR registers are from addresses $80 to $FF. */
-	mem_write8(INT_MEM_ID, address, value, cached);
+	mem_write8(SFR_MEM_ID, address, value, cached);
 }
 
 void
 mem_sfr_write_dptr(uint16_t value, int cached)
 {
-	mem_write8(INT_MEM_ID, _DPTRHIGH_, value >> 8, cached);
-	mem_write8(INT_MEM_ID, _DPTRLOW_, (uint8_t) value, cached);
+	mem_write8(SFR_MEM_ID, _DPTRHIGH_, value >> 8, cached);
+	mem_write8(SFR_MEM_ID, _DPTRLOW_, (uint8_t) value, cached);
 }
 
 uint8_t
@@ -198,8 +207,8 @@ mem_read8(enum mem_id_t id, unsigned long address, int cached)
 unsigned char
 mem_read_direct(unsigned int address, int cached)
 {
-	if (address > 0xFF)
-		return mem_read8(EXT_MEM_ID, address, cached);
+	if (address > 0x7F)
+		return mem_read8(SFR_MEM_ID, address, cached);
 	else
 		return mem_read8(INT_MEM_ID, address, cached);
 }
@@ -208,10 +217,15 @@ mem_read_direct(unsigned int address, int cached)
 unsigned char
 mem_read_indirect(unsigned int address, int cached)
 {
-	if (address > 0x7F)
-		return mem_read8(EXT_MEM_ID, address, cached);
-	else
+	/*
+	 * We're using this function both for indirect access on internal data
+	 * and indirect access on external data, so check first if the address
+	 * fits in internal data and fallback to external.
+	 */
+	if (mem_check_address(INT_MEM_ID, address, false))
 		return mem_read8(INT_MEM_ID, address, cached);
+	else
+		return mem_read8(EXT_MEM_ID, address, cached);
 }
 
 /* Read with a bit addressing mode at bit_address */
@@ -233,14 +247,14 @@ uint8_t
 mem_sfr_read8(unsigned long address, int cached)
 {
 	/* SFR registers are from addresses $80 to $FF. */
-	return mem_read8(INT_MEM_ID, address, cached);
+	return mem_read8(SFR_MEM_ID, address, cached);
 }
 
 uint16_t
 mem_sfr_read_dptr(void)
 {
-	return (mem_read8(INT_MEM_ID, _DPTRHIGH_, true) << 8) +
-		mem_read8(INT_MEM_ID, _DPTRLOW_, true);
+	return (mem_read8(SFR_MEM_ID, _DPTRHIGH_, true) << 8) +
+		mem_read8(SFR_MEM_ID, _DPTRLOW_, true);
 }
 
 void
@@ -248,10 +262,10 @@ stack_push8(uint8_t value)
 {
 	uint8_t sp;
 
-	sp = mem_read8(INT_MEM_ID, _SP_, true);
+	sp = mem_read8(SFR_MEM_ID, _SP_, true);
 
 	mem_write8(INT_MEM_ID, ++sp, value, true);
-	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
+	mem_write8(SFR_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 }
 
 void
@@ -259,11 +273,11 @@ stack_push16(uint16_t value)
 {
 	uint8_t sp;
 
-	sp = mem_read8(INT_MEM_ID, _SP_, true);
+	sp = mem_read8(SFR_MEM_ID, _SP_, true);
 
 	mem_write8(INT_MEM_ID, ++sp, (uint8_t) value, true); /* Write LSB */
 	mem_write8(INT_MEM_ID, ++sp, value >> 8, true);      /* Write MSB */
-	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
+	mem_write8(SFR_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 }
 
 uint8_t
@@ -272,10 +286,10 @@ stack_pop8(void)
 	uint8_t sp;
 	uint8_t value;
 
-	sp = mem_read8(INT_MEM_ID, _SP_, true);
+	sp = mem_read8(SFR_MEM_ID, _SP_, true);
 
 	value = mem_read8(INT_MEM_ID, sp--, true);
-	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
+	mem_write8(SFR_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 
 	return value;
 }
@@ -286,11 +300,11 @@ stack_pop16(void)
 	uint8_t sp;
 	uint16_t value;
 
-	sp = mem_read8(INT_MEM_ID, _SP_, true);
+	sp = mem_read8(SFR_MEM_ID, _SP_, true);
 
 	value = mem_read8(INT_MEM_ID, sp--, true) << 8; /* Read MSB */
 	value |= mem_read8(INT_MEM_ID, sp--, true);     /* Read LSB */
-	mem_write8(INT_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
+	mem_write8(SFR_MEM_ID, _SP_, sp, true); /* Save new stack pointer */
 
 	return value;
 }

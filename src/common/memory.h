@@ -19,6 +19,7 @@
  * Indirect addressing $80 to $FF = IRAM (8052)
  */
 #define INT_MEM_MAX_SIZE   256
+#define SFR_MEM_MAX_SIZE   128
 #define EXT_MEM_MAX_SIZE 65536
 
 #define PGM_MEM_DEFAULT_SIZE PGM_MEM_MAX_SIZE
@@ -27,6 +28,7 @@
 enum mem_id_t {
 	PGM_MEM_ID,
 	INT_MEM_ID,
+	SFR_MEM_ID,
 	EXT_MEM_ID,
 	MEM_ID_COUNT
 };

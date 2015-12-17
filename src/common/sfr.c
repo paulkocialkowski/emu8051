@@ -96,7 +96,7 @@ regwin_read_rx(int offset)
 static void
 regwin_write_rx(int offset, int val)
 {
-	mem_write8(INT_MEM_ID, regwin_read_bank_offset() + offset,
+	mem_write8(SFR_MEM_ID, regwin_read_bank_offset() + offset,
 		   (uint8_t) val, true);
 }
 
