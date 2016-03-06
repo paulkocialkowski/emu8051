@@ -18,6 +18,7 @@
 #include "hexfile.h"
 #include "iotrace.h"
 #include "serial.h"
+#include "device.h"
 #include "menu.h"
 #include "parser.h"
 
@@ -44,6 +45,10 @@ main(int argc, char **argv)
 	if (options.serial != NULL)
 		serial_open(options.serial);
 
+#if HAVE_DEVICE
+	device_open(options.device);
+#endif
+
 	console_reset();
 
 	if (options.stop_address != 0) {
@@ -59,6 +64,10 @@ main(int argc, char **argv)
 
 	if (options.serial != NULL)
 		serial_close();
+
+#if HAVE_DEVICE
+	device_close();
+#endif
 
 	exit(EXIT_SUCCESS);
 }

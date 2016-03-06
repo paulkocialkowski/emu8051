@@ -14,8 +14,13 @@ AM_LFLAGS = --header-file=$(abs_builddir)/scanner.h
 AM_YFLAGS = -d
 
 LDADD = \
+    -lpthread \
     $(LIBREADLINE) \
     $(top_builddir)/src/common/libemu8051.a
+
+if DEVICE
+LDADD += $(EMU8051_DEVICE_LIBS)
+endif
 
 bin_PROGRAMS = emu8051-cli
 

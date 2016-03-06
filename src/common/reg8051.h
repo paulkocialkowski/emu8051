@@ -50,6 +50,11 @@
 #define _BANK2_     0x10
 #define _BANK3_     0x18
 
+#define TCON_FLAG_TF1 (1 << 7)
+#define TCON_FLAG_TR1 (1 << 6)
+#define TCON_FLAG_TF0 (1 << 5)
+#define TCON_FLAG_TR0 (1 << 4)
+
 #define SCON_BIT_RI 0x98
 #define SCON_BIT_TI 0x99
 
@@ -62,5 +67,10 @@
 #define PSW_FLAG_AC (1 << PSW_BIT_AC)
 #define PSW_FLAG_OV (1 << PSW_BIT_OV)
 #define PSW_FLAG_P  (1 << PSW_BIT_P)
+
+#define IE_FLAG_EA (1 << 7)
+#define IE_FLAG_ES (1 << 4)
+#define IE_FLAG_ET1 (1 << 3)
+#define IE_FLAG_ET0 (1 << 1)
 
 #endif /* REG8051_H */

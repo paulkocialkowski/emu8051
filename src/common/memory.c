@@ -7,6 +7,10 @@
  * This file is released under the GPLv2
  */
 
+#if HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +21,7 @@
 #include "hexfile.h"
 #include "iotrace.h"
 #include "serial.h"
+#include "device.h"
 #include "memory.h"
 #include "options.h"
 
@@ -120,6 +125,10 @@ mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 		mem_infos[id].buf[address] = value;
 
 		if (!cached) {
+#if HAVE_DEVICE
+			device_memory_write(id, address, value);
+#endif
+
 			if (id == SFR_MEM_ID && address == _SBUF_)
 				serial_write(value);
 
@@ -196,8 +205,13 @@ mem_read8(enum mem_id_t id, unsigned long address, int cached)
 	} else {
 		value = mem_infos[id].buf[address];
 
-		if (!cached)
+		if (!cached) {
+#if HAVE_DEVICE
+			device_memory_read(id, address, &value);
+#endif
+
 			iotrace_memory_read(id, address, value);
+		}
 
 		return value;
 	}

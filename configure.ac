@@ -80,6 +80,25 @@ fi
 
 AM_CONDITIONAL([USE_GTK], [test x${ac_cv_enable_gui} = xyes])
 
+dnl Checks for emu8051-device
+AC_ARG_ENABLE(device, AS_HELP_STRING([--enable-device], [enable device support]),
+	[ac_cv_enable_device=$enableval], [ac_cv_enable_device=yes])
+AC_MSG_CHECKING([whether to build device support])
+if test x$ac_cv_enable_device = xyes; then
+	AC_MSG_RESULT(yes)
+	PKG_CHECK_MODULES(EMU8051_DEVICE, emu8051-device, [], [ac_cv_enable_device=no])
+
+	if test x$ac_cv_enable_device = xyes; then
+		AC_DEFINE([HAVE_DEVICE],1,[Set to 1 to enable device support.])
+		AC_SUBST(EMU8051_DEVICE_CFLAGS)
+		AC_SUBST(EMU8051_DEVICE_LIBS)
+	fi
+else
+	AC_MSG_RESULT(no)
+fi
+
+AM_CONDITIONAL([DEVICE], [test x$ac_cv_enable_device = xyes])
+
 dnl Try to locate valid 8051 assembler to generate test files (.hex)
 run_tests=no
 

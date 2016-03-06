@@ -4,6 +4,10 @@ AM_CPPFLAGS = \
     $(WARNINGCFLAGS) \
     -I$(builddir)
 
+if DEVICE
+AM_CPPFLAGS += $(EMU8051_DEVICE_CFLAGS)
+endif
+
 VPATH = $(srcdir) $(builddir)
 
 noinst_LIBRARIES = libemu8051.a
@@ -30,6 +34,10 @@ libemu8051_a_SOURCES = \
     timers.c timers.h \
     common.h \
     reg8051.h
+
+if DEVICE
+libemu8051_a_SOURCES += device.c device.h
+endif
 
 nodist_libemu8051_a_SOURCES = \
     $(BUILT_SOURCES)

@@ -9,6 +9,10 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H 1
 
+#if HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #define PACKAGE_COPYRIGHT "(c) Hugo Villeneuve"
 
 #define PACKAGE_DESCRIPTION "Emulator for 8051 family microcontrollers"
@@ -21,6 +25,9 @@ struct options_t {
 	char *filename;
 	char *iotrace;
 	char *serial;
+#if HAVE_DEVICE
+	char *device;
+#endif
 	int log;
 	uint16_t stop_address; /* Run program up to that adress and exit. */
 } options_t;

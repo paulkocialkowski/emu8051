@@ -22,6 +22,7 @@
 #include "hexfile.h"
 #include "iotrace.h"
 #include "serial.h"
+#include "device.h"
 #include "timers.h"
 #include "main.h"
 #include "reset.xpm"
@@ -655,6 +656,10 @@ main(int argc, char **argv)
 	if (options.serial != NULL)
 		serial_open(options.serial);
 
+#if HAVE_DEVICE
+	device_open(options.device);
+#endif
+
 	cpu8051_reset();
 
 	log_info("Init GUI");
@@ -675,6 +680,10 @@ main(int argc, char **argv)
 
 	if (options.serial != NULL)
 		serial_close();
+
+#if HAVE_DEVICE
+	device_close();
+#endif
 
 	return EXIT_SUCCESS;
 }

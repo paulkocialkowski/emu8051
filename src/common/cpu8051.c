@@ -10,6 +10,10 @@
 /* Define only here, for not having extern scope on local variables. */
 #define CPU8051_M 1
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -18,6 +22,7 @@
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "memory.h"
+#include "device.h"
 #include "psw.h"
 #include "timers.h"
 #include "opcodes.h"

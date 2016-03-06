@@ -13,10 +13,15 @@ AM_CPPFLAGS = \
     -DGTK_DISABLE_DEPRECATED
 
 LDADD = \
+    -lpthread \
     $(top_builddir)/src/common/libemu8051.a \
     @GTK_LIBS@ \
     @ZLIB_LIBS@ \
     @GLIB_LIBS@
+
+if DEVICE
+LDADD += $(EMU8051_DEVICE_LIBS)
+endif
 
 bin_PROGRAMS = emu8051-gtk
 
