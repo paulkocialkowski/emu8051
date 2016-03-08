@@ -20,6 +20,6 @@ void
 serial_close(void);
 
 void
-serial_write(char c);
+serial_memory_write(enum mem_id_t id, unsigned int address, uint8_t value);
 
 #endif /* IOTRACE_H */

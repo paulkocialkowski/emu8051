@@ -25,6 +25,7 @@ libemu8051_a_SOURCES = \
     log.c log.h \
     serial.c serial.h \
     iotrace.c iotrace.h \
+    hardware.c hardware.h \
     hexfile.c hexfile.h \
     cpu8051.c cpu8051.h \
     memory.c memory.h \

@@ -48,12 +48,15 @@ serial_close(void)
 }
 
 void
-serial_write(char c)
+serial_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 {
 	if (serial_fp == NULL)
 		return;
 
-	fputc(c, serial_fp);
+	if (id != SFR_MEM_ID || address != _SBUF_)
+		return;
+
+	fputc(value, serial_fp);
 
 	mem_write_bit(SCON_BIT_TI, 1, true);
 }

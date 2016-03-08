@@ -7,10 +7,6 @@
  * This file is released under the GPLv2
  */
 
-#if HAVE_CONFIG_H
-#  include "config.h"
-#endif
-
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,8 +16,7 @@
 #include "reg8051.h"
 #include "hexfile.h"
 #include "iotrace.h"
-#include "serial.h"
-#include "device.h"
+#include "hardware.h"
 #include "memory.h"
 #include "options.h"
 
@@ -116,24 +111,26 @@ mem_clear(enum mem_id_t id)
 void
 mem_write8(enum mem_id_t id, unsigned long address, uint8_t value, int cached)
 {
+	enum mem_id_t mapped_id;
+	unsigned long mapped_address;
+
 	if (address >= (unsigned long) mem_infos[id].max_size) {
 		log_err("Error writing to memory ID: %d\n"
 			"  Address (%lu) greater than maximum memory size",
 			id, address);
 		return;
 	} else {
-		mem_infos[id].buf[address] = value;
-
 		if (!cached) {
-#if HAVE_DEVICE
-			device_memory_write(id, address, value);
-#endif
-
-			if (id == SFR_MEM_ID && address == _SBUF_)
-				serial_write(value);
+			hardware_memory_write(id, address, value);
 
 			iotrace_memory_write(id, address, value);
 		}
+
+		mapped_id = id;
+		mapped_address = address;
+		hardware_memory_map(&mapped_id, &mapped_address);
+
+		mem_infos[mapped_id].buf[mapped_address] = value;
 	}
 }
 
@@ -195,6 +192,8 @@ mem_sfr_write_dptr(uint16_t value, int cached)
 uint8_t
 mem_read8(enum mem_id_t id, unsigned long address, int cached)
 {
+	enum mem_id_t mapped_id;
+	unsigned long mapped_address;
 	uint8_t value;
 
 	if (address >= (unsigned long) mem_infos[id].max_size) {
@@ -203,12 +202,14 @@ mem_read8(enum mem_id_t id, unsigned long address, int cached)
 			id, address);
 		return 0;
 	} else {
-		value = mem_infos[id].buf[address];
+		mapped_id = id;
+		mapped_address = address;
+		hardware_memory_map(&mapped_id, &mapped_address);
+
+		value = mem_infos[mapped_id].buf[mapped_address];
 
 		if (!cached) {
-#if HAVE_DEVICE
-			device_memory_read(id, address, &value);
-#endif
+			hardware_memory_read(id, address, &value);
 
 			iotrace_memory_read(id, address, value);
 		}
