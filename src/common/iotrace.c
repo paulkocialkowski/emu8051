@@ -134,3 +134,12 @@ iotrace_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 	iotrace_pc();
 	iotrace_newline();
 }
+
+void
+iotrace_message(const char *message)
+{
+	if (iotrace_fp == NULL)
+		return;
+
+	fprintf(iotrace_fp, "MSG : %s\n", message);
+}

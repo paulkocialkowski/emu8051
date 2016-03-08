@@ -25,4 +25,7 @@ iotrace_memory_read(enum mem_id_t id, unsigned int address, uint8_t value);
 void
 iotrace_memory_write(enum mem_id_t id, unsigned int address, uint8_t value);
 
+void
+iotrace_message(const char *message);
+
 #endif /* IOTRACE_H */
