@@ -106,7 +106,7 @@ asciihex2int(char *str)
 int
 hexfile_load(const char *filename)
 {
-	int i, j, rec_len, load_offset, rec_type, data, checksum;
+	int i, j, rec_len, load_offset, base, rec_type, data, checksum;
 	FILE *fp;
 	int status;
 	char line[HEXFILE_LINE_BUFFER_LEN];
@@ -127,6 +127,8 @@ hexfile_load(const char *filename)
 			strerror(errno));
 		return false;
 	}
+
+	base = 0;
 
 	/* Reading one line of data from the hex file. */
 	/* char *fgets(char *s, int size, FILE *stream);
@@ -160,11 +162,19 @@ hexfile_load(const char *filename)
 			for (j = 0; j < rec_len; j++) {
 				data = asciihex2int_len(&line[i], 2);
 				mem_write8(PGM_MEM_ID,
-					   (unsigned int) (load_offset + j),
+					   (unsigned int) (base + load_offset +
+							   j),
 					   (unsigned char) data, true);
 				i += 2;
 				checksum += data;
 			}
+		} else if (rec_type == 2) {
+			base = asciihex2int_len(&line[i], 4);
+			checksum += base / 256;
+			checksum += base % 256;
+			i += 4;
+
+			base *= 16;
 		}
 
 		/* Read and add checksum value */
@@ -185,6 +195,8 @@ hexfile_load(const char *filename)
 			log_debug("hex record: End Of File");
 			valid = true;
 			goto close_file;
+		} else if (rec_type == 2) {
+			log_debug("hex record: extended address range");
 		} else {
 			log_warn("hex record: Unsupported ($%02X)", rec_type);
 		}
