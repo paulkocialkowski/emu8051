@@ -99,6 +99,20 @@ fi
 
 AM_CONDITIONAL([DEVICE], [test x$ac_cv_enable_device = xyes])
 
+dnl Checks for kb9012
+AC_ARG_ENABLE(kb9012, AS_HELP_STRING([--enable-kb9012], [enable kb9012 emulation support]),
+	[ac_cv_enable_kb9012=$enableval], [ac_cv_enable_kb9012=no])
+
+AC_MSG_CHECKING([whether to build kb9012 emulation support])
+if test x$ac_cv_enable_kb9012 = xyes; then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE([HAVE_KB9012],1,[Set to 1 to enable kb9012 emulation support.])
+else
+	AC_MSG_RESULT(no)
+fi
+
+AM_CONDITIONAL([KB9012], [test x$ac_cv_enable_kb9012 = xyes])
+
 dnl Try to locate valid 8051 assembler to generate test files (.hex)
 run_tests=no
 

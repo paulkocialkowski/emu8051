@@ -17,6 +17,7 @@
 #include "memory.h"
 #include "interrupt.h"
 #include "reg8051.h"
+#include "kb9012.h"
 #include "timers.h"
 #include "device.h"
 #include "serial.h"
@@ -43,11 +44,18 @@ hardware_interrupt_address(int index, unsigned int *address)
 void
 hardware_memory_map(enum mem_id_t *id, unsigned long *address)
 {
+#if HAVE_KB9012
+	kb9012_memory_map(id, address);
+#endif
 }
 
 void
 hardware_memory_read(enum mem_id_t id, unsigned int address, uint8_t *value)
 {
+#if HAVE_KB9012
+	kb9012_memory_read(id, address, value);
+#endif
+
 #if HAVE_DEVICE
 	device_memory_read(id, address, value);
 #endif
@@ -56,6 +64,10 @@ hardware_memory_read(enum mem_id_t id, unsigned int address, uint8_t *value)
 void
 hardware_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 {
+#if HAVE_KB9012
+	kb9012_memory_write(id, address, value);
+#endif
+
 #if HAVE_DEVICE
 	device_memory_write(id, address, value);
 #endif

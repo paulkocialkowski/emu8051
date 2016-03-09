@@ -12,7 +12,16 @@
 
 #include <stdint.h>
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#if HAVE_KB9012
+#define PGM_MEM_MAX_SIZE 131072
+#else
 #define PGM_MEM_MAX_SIZE 65536
+#endif
+
 /*
  *   Direct addressing $00 to $7F = IRAM (8051)
  *   Direct addressing $80 to $FF = SFR  (8051)
@@ -22,8 +31,12 @@
 #define SFR_MEM_MAX_SIZE   128
 #define EXT_MEM_MAX_SIZE 65536
 
-#define PGM_MEM_DEFAULT_SIZE PGM_MEM_MAX_SIZE
+#define PGM_MEM_DEFAULT_SIZE 65536
+#if HAVE_KB9012
+#define EXT_MEM_DEFAULT_SIZE 65536
+#else
 #define EXT_MEM_DEFAULT_SIZE 256
+#endif
 
 enum mem_id_t {
 	PGM_MEM_ID,

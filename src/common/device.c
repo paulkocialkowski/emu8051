@@ -6,12 +6,17 @@
  * This file is released under the GPLv2
  */
 
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
 #include <stdbool.h>
 #include <emu8051-device.h>
 
 #include "common.h"
 #include "interrupt.h"
 #include "memory.h"
+#include "kb9012.h"
 #include "reg8051.h"
 
 static struct emu8051_device device;
@@ -37,6 +42,14 @@ device_memory(enum mem_id_t id)
 static bool
 device_memory_allowed(enum mem_id_t id, unsigned int address, bool write)
 {
+#if HAVE_KB9012
+	bool allowed;
+
+	allowed = kb9012_memory_allowed(id, address, write);
+	if (!allowed)
+		return false;
+#endif
+
 	switch (id) {
 		/* Program and internal memory are used by the target program */
 		case PGM_MEM_ID:
@@ -84,6 +97,10 @@ device_memory_write_filter(enum mem_id_t id, unsigned int address, uint8_t value
 {
 	uint8_t flags_always = 0;
 	uint8_t flags_never = 0;
+
+#if HAVE_KB9012
+	value = kb9012_memory_write_filter(id, address, value);
+#endif
 
 	switch (id) {
 		case SFR_MEM_ID:

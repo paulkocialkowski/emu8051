@@ -42,6 +42,10 @@ if DEVICE
 libemu8051_a_SOURCES += device.c device.h
 endif
 
+if KB9012
+libemu8051_a_SOURCES += kb9012.c kb9012.h
+endif
+
 nodist_libemu8051_a_SOURCES = \
     $(BUILT_SOURCES)
 
