@@ -141,7 +141,6 @@ cpu8051_init(void)
 		gp_timer_reset(id);
 
 	cpu8051.pc = 0;
-	cpu8051.clock = 0;
 	cpu8051.active_priority = -1;
 	cpu8051.bp_count = 0;
 }
@@ -151,7 +150,6 @@ void
 cpu8051_reset(void)
 {
 	cpu8051.pc = 0;
-	cpu8051.clock = 0;
 	cpu8051.active_priority = -1;
 
 	/* Clear IRAM and SFR. */
@@ -273,7 +271,6 @@ cpu8051_exec(void)
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_check_interrupts();
 		timers_check();
-		cpu8051.clock++;
 	}
 
 	return true;
