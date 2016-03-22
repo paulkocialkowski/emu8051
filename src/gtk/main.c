@@ -23,7 +23,7 @@
 #include "iotrace.h"
 #include "serial.h"
 #include "device.h"
-#include "timers.h"
+#include "gp_timers.h"
 #include "main.h"
 #include "reset.xpm"
 #include "run.xpm"

@@ -32,6 +32,7 @@ libemu8051_a_SOURCES = \
     psw.c psw.h \
     sfr.c sfr.h \
     operations.c operations.h \
+    gp_timers.c gp_timers.h \
     timers.c timers.h \
     common.h \
     reg8051.h

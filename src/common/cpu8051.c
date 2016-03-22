@@ -25,6 +25,7 @@
 #include "device.h"
 #include "psw.h"
 #include "timers.h"
+#include "gp_timers.h"
 #include "opcodes.h"
 #include "options.h"
 #include "instructions_8051.h"

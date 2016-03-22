@@ -11,18 +11,6 @@
 
 #include <stdint.h>
 
-/* Maximum of 4 for CLI version */
-#define GP_TIMERS_COUNT 2
-
-void
-gp_timer_reset(int id);
-
-void
-gp_timers_increment(int count);
-
-int
-gp_timer_read(int id);
-
 void
 timers_check(void);
 

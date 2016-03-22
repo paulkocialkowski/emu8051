@@ -23,7 +23,7 @@
 #include "reg8051.h"
 #include "sfr.h"
 #include "memory.h"
-#include "timers.h"
+#include "gp_timers.h"
 #include "options.h"
 #include "hexfile.h"
 #include "keyboard.h"

@@ -16,7 +16,7 @@
 #include <stdint.h>
 
 #include "common.h"
-#include "timers.h"
+#include "gp_timers.h"
 #include "main.h"
 
 static GtkWidget *label[GP_TIMERS_COUNT];

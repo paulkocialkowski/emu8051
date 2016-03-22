@@ -8,7 +8,7 @@
 #include "log.h"
 #include "menu.h"
 #include "memory.h"
-#include "timers.h"
+#include "gp_timers.h"
 #include "memory.h"
 #include "cpu8051.h"
 

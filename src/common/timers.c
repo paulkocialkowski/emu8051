@@ -21,33 +21,7 @@
 #include "instructions_8051.h"
 #include "timers.h"
 
-static int gp_timer_value[GP_TIMERS_COUNT];
-
 extern struct options_t options;
-
-void
-gp_timer_reset(int id)
-{
-	log_debug("gp timer %d reset", id);
-	gp_timer_value[id] = 0;
-}
-
-void
-gp_timers_increment(int count)
-{
-	int id;
-
-	log_debug("gp timers increment");
-
-	for (id = 0; id < GP_TIMERS_COUNT; id++)
-		gp_timer_value[id] += count;
-}
-
-int
-gp_timer_read(int id)
-{
-	return gp_timer_value[id];
-}
 
 static void
 timer_increment_check_overflow(uint8_t counter_address, uint8_t tf_mask)
