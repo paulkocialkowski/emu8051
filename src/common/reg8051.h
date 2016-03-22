@@ -54,9 +54,14 @@
 #define TCON_FLAG_TR1 (1 << 6)
 #define TCON_FLAG_TF0 (1 << 5)
 #define TCON_FLAG_TR0 (1 << 4)
+#define TCON_FLAG_IE1 (1 << 3)
+#define TCON_FLAG_IE0 (1 << 1)
 
 #define SCON_BIT_RI 0x98
 #define SCON_BIT_TI 0x99
+
+#define SCON_FLAG_RI (1 << 0)
+#define SCON_FLAG_TI (1 << 1)
 
 #define PSW_BIT_CY 7
 #define PSW_BIT_AC 6

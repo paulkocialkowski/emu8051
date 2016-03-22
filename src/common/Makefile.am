@@ -29,6 +29,7 @@ libemu8051_a_SOURCES = \
     hexfile.c hexfile.h \
     cpu8051.c cpu8051.h \
     memory.c memory.h \
+    interrupt.c interrupt.h \
     psw.c psw.h \
     sfr.c sfr.h \
     operations.c operations.h \

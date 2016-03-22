@@ -17,6 +17,12 @@ void
 hardware_tick(void);
 
 void
+hardware_interrupt(int *index, int *priority);
+
+void
+hardware_interrupt_address(int index, unsigned int *address);
+
+void
 hardware_memory_map(enum mem_id_t *id, unsigned long *address);
 
 void

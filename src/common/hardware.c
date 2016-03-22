@@ -15,6 +15,7 @@
 
 #include "common.h"
 #include "memory.h"
+#include "interrupt.h"
 #include "reg8051.h"
 #include "timers.h"
 #include "device.h"
@@ -25,6 +26,18 @@ void
 hardware_tick(void)
 {
 	timers_tick();
+}
+
+void
+hardware_interrupt(int *index, int *priority)
+{
+	interrupt(index, priority);
+}
+
+void
+hardware_interrupt_address(int index, unsigned int *address)
+{
+	interrupt_address(index, address);
 }
 
 void
@@ -49,5 +62,3 @@ hardware_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 
 	serial_memory_write(id, address, value);
 }
-
-

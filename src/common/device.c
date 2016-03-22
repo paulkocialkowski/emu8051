@@ -10,7 +10,7 @@
 #include <emu8051-device.h>
 
 #include "common.h"
-#include "cpu8051.h"
+#include "interrupt.h"
 #include "memory.h"
 #include "reg8051.h"
 

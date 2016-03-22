@@ -15,20 +15,9 @@
 /* Maximum number of BreakPoints */
 #define MAXBP 32
 
-#define INTERRUPT_0 (0)
-#define INTERRUPT_1 (1)
-#define INTERRUPT_2 (2)
-#define INTERRUPT_3 (3)
-#define INTERRUPT_4 (4)
-#define INTERRUPT_5 (5)
-#define INTERRUPT_MASK(n) (1 << n)
-
-#define INTERRUPT_PRIORITY_HIGH     (1)
-#define INTERRUPT_PRIORITY_LOW      (0)
-
 struct cpu8051_t {
 	unsigned int pc; /* Program counter */
-	int active_priority;
+	int interrupt_priority;
 	int bp_count;
 	unsigned int bp[MAXBP]; /* List of breakpoints */
 };

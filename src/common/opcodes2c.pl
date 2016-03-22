@@ -65,6 +65,7 @@ print INST_IMP "#define INSTRUCTIONS_8051_M 1\n\n\n";
 print INST_IMP "#include <stdbool.h>\n\n";
 print INST_IMP "#include \"reg8051.h\"\n";
 print INST_IMP "#include \"cpu8051.h\"\n";
+print INST_IMP "#include \"interrupt.h\"\n";
 print INST_IMP "#include \"memory.h\"\n";
 print INST_IMP "#include \"psw.h\"\n";
 print INST_IMP "#include \"operations.h\"\n";
@@ -602,7 +603,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	# RETI
 	if ($insttype[$i] == 15) {
-	    cfw("cpu8051.active_priority = -1;");
+	    cfw("cpu8051.interrupt_priority = INTERRUPT_PRIORITY_NONE;");
             cfw("cpu8051.pc = stack_pop16();");
 	}
 

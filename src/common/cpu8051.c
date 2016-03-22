@@ -23,6 +23,7 @@
 #include "cpu8051.h"
 #include "hardware.h"
 #include "memory.h"
+#include "interrupt.h"
 #include "device.h"
 #include "psw.h"
 #include "gp_timers.h"
@@ -139,7 +140,7 @@ cpu8051_init(void)
 	gp_timers_reset();
 
 	cpu8051.pc = 0;
-	cpu8051.active_priority = -1;
+	cpu8051.interrupt_priority = INTERRUPT_PRIORITY_NONE;
 	cpu8051.bp_count = 0;
 }
 
@@ -148,7 +149,7 @@ void
 cpu8051_reset(void)
 {
 	cpu8051.pc = 0;
-	cpu8051.active_priority = -1;
+	cpu8051.interrupt_priority = INTERRUPT_PRIORITY_NONE;
 
 	/* Clear IRAM and SFR. */
 	mem_clear(INT_MEM_ID);
@@ -162,81 +163,14 @@ cpu8051_reset(void)
 	mem_sfr_write8(_SP_, 0x07, true);
 }
 
-static int
-cpu8051_interrupt_fire(int interrupt_no, int priority)
-{
-	if (mem_read_direct(_IP_, true) & INTERRUPT_MASK(interrupt_no))
-		return priority;
-	else
-		return !priority;
-}
-
-static int
-cpu8051_interrupt_enabled(int interrupt_no)
-{
-	return (mem_read_direct(_IE_, true) & INTERRUPT_MASK(interrupt_no)) ?
-		1 : 0;
-}
-
 static void
-cpu8051_process_interrupt(int pc, int pri)
+cpu8051_process_interrupt(unsigned int pc, int priority)
 {
 	stack_push16(cpu8051.pc);
 	cpu8051.pc = pc;
-	cpu8051.active_priority = pri;
+	cpu8051.interrupt_priority = priority;
 }
 
-
-/* Check interrupts state and process them as needed */
-static void
-cpu8051_check_interrupts(void)
-{
-	int i;
-
-	if ((mem_read_direct(_IE_, true) & 0x80) == 0)
-		return;
-
-	for (i = INTERRUPT_PRIORITY_HIGH; i >= INTERRUPT_PRIORITY_LOW; i--) {
-		if (cpu8051.active_priority < i) {
-			/* Interrupt timer 0 */
-			if (cpu8051_interrupt_enabled(INTERRUPT_1) &&
-			    cpu8051_interrupt_fire(INTERRUPT_1, i) &&
-			    (mem_read_direct(_TCON_, true) & 0x20)) {
-				mem_write_direct(
-					_TCON_,
-					mem_read_direct(_TCON_, true) & 0xDF,
-					true);
-				cpu8051_process_interrupt(0x0B, i);
-				return;
-			}
-			/* Interrupt timer 1 */
-			if (cpu8051_interrupt_enabled(INTERRUPT_3) &&
-			    cpu8051_interrupt_fire(INTERRUPT_3, i) &&
-			    (mem_read_direct(_TCON_, true) & 0x80)) {
-				mem_write_direct(
-					_TCON_,
-					mem_read_direct(_TCON_, true) & 0x7F,
-					true);
-				cpu8051_process_interrupt(0x1B, i);
-				return;
-			}
-			/* Serial Interrupts */
-			if (cpu8051_interrupt_enabled(INTERRUPT_4) &&
-			    cpu8051_interrupt_fire(INTERRUPT_4, i) &&
-			    (mem_read_direct(_SCON_, true) & 0x03)) {
-				cpu8051_process_interrupt(0x23, i);
-				return;
-			}
-			/* Interrupt timer 2 */
-			if (cpu8051_interrupt_enabled(INTERRUPT_5) &&
-			    cpu8051_interrupt_fire(INTERRUPT_5, i) &&
-			    (mem_read_direct(_T2CON_, true) & 0x80)) {
-				cpu8051_process_interrupt(0x2B, i);
-				return;
-			}
-		}
-	}
-}
 
 /* Execute at address cpu8051.pc from PGMMem */
 int
@@ -246,6 +180,9 @@ cpu8051_exec(void)
 	int rc;
 	unsigned char opcode;
 	int insttiming;
+	unsigned int interrupt_address;
+	int interrupt_index;
+	int interrupt_priority;
 
 	/* Basic address check (may fail later if opcode has operands). */
 	rc = mem_check_address(PGM_MEM_ID, cpu8051.pc, DISPLAY_ERROR_NO);
@@ -267,8 +204,27 @@ cpu8051_exec(void)
 	gp_timers_increment(insttiming);
 
 	for (i = 0; i < insttiming; i++) {
-		cpu8051_check_interrupts();
 		hardware_tick();
+
+		/*
+		 * Check for interrupts at each tick, possibly overriding an
+		 * already-active lower-priority interrupt.
+		 */
+
+		interrupt_address = 0;
+		interrupt_priority = INTERRUPT_PRIORITY_NONE;
+		interrupt_index = -1;
+
+		hardware_interrupt(&interrupt_index, &interrupt_priority);
+		if (interrupt_index >= 0) {
+			hardware_interrupt_address(interrupt_index,
+						   &interrupt_address);
+			if (interrupt_address == 0)
+				continue;
+
+			cpu8051_process_interrupt(interrupt_address,
+						  interrupt_priority);
+		}
 	}
 
 	return true;
