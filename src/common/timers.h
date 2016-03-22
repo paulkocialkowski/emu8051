@@ -12,6 +12,6 @@
 #include <stdint.h>
 
 void
-timers_check(void);
+timers_tick(void);
 
 #endif /* TIMERS_H */

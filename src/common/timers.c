@@ -109,9 +109,8 @@ process_timer(uint8_t tl, uint8_t th, uint8_t tf_mask, uint8_t TR, uint8_t mode,
 	}
 }
 
-/* Run 8051 timers */
 void
-timers_check(void)
+timers_tick(void)
 {
 	unsigned int tr;
 	unsigned int mode;

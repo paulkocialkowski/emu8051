@@ -14,6 +14,9 @@
 #include "memory.h"
 
 void
+hardware_tick(void);
+
+void
 hardware_memory_map(enum mem_id_t *id, unsigned long *address);
 
 void

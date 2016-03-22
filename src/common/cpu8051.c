@@ -21,10 +21,10 @@
 #include "common.h"
 #include "reg8051.h"
 #include "cpu8051.h"
+#include "hardware.h"
 #include "memory.h"
 #include "device.h"
 #include "psw.h"
-#include "timers.h"
 #include "gp_timers.h"
 #include "opcodes.h"
 #include "options.h"
@@ -268,7 +268,7 @@ cpu8051_exec(void)
 
 	for (i = 0; i < insttiming; i++) {
 		cpu8051_check_interrupts();
-		timers_check();
+		hardware_tick();
 	}
 
 	return true;

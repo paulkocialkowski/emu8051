@@ -16,9 +16,16 @@
 #include "common.h"
 #include "memory.h"
 #include "reg8051.h"
+#include "timers.h"
 #include "device.h"
 #include "serial.h"
 #include "hardware.h"
+
+void
+hardware_tick(void)
+{
+	timers_tick();
+}
 
 void
 hardware_memory_map(enum mem_id_t *id, unsigned long *address)
