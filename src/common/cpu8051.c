@@ -134,12 +134,9 @@ stop_point_is_defined(unsigned int address)
 void
 cpu8051_init(void)
 {
-	int id;
-
 	mem_init();
 
-	for (id = 0; id < GP_TIMERS_COUNT; id++)
-		gp_timer_reset(id);
+	gp_timers_reset();
 
 	cpu8051.pc = 0;
 	cpu8051.active_priority = -1;

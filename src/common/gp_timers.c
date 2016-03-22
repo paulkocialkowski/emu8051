@@ -17,6 +17,12 @@
 
 static int gp_timer_value[GP_TIMERS_COUNT];
 
+int
+gp_timer_read(int id)
+{
+	return gp_timer_value[id];
+}
+
 void
 gp_timer_reset(int id)
 {
@@ -35,8 +41,13 @@ gp_timers_increment(int count)
 		gp_timer_value[id] += count;
 }
 
-int
-gp_timer_read(int id)
+void
+gp_timers_reset(void)
 {
-	return gp_timer_value[id];
+	int id;
+
+	log_debug("gp timers reset");
+
+	for (id = 0; id < GP_TIMERS_COUNT; id++)
+		gp_timer_reset(id);
 }

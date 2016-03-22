@@ -14,13 +14,16 @@
 /* Maximum of 4 for CLI version */
 #define GP_TIMERS_COUNT 2
 
+int
+gp_timer_read(int id);
+
 void
 gp_timer_reset(int id);
 
 void
 gp_timers_increment(int count);
 
-int
-gp_timer_read(int id);
+void
+gp_timers_reset(void);
 
 #endif /* GP_TIMERS_H */
