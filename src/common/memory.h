@@ -62,6 +62,9 @@ void
 mem_write_indirect(unsigned int address, unsigned char value, int cached);
 
 void
+mem_write_external(unsigned int address, unsigned char value, int cached);
+
+void
 mem_write_bit(uint8_t bit_address, uint8_t value, int cached);
 
 void
@@ -78,6 +81,9 @@ mem_read_direct(unsigned int address, int cached);
 
 unsigned char
 mem_read_indirect(unsigned int address, int cached);
+
+unsigned char
+mem_read_external(unsigned int address, int cached);
 
 unsigned char
 mem_read_bit(uint8_t bit_address, int cached);

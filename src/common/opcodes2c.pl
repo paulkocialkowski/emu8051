@@ -346,17 +346,33 @@ for ($i = 0 ; $i < 256; $i++) {
 		}
 	    }
 	    if ($op_destination == 4) { # @R0
-		if ($destination_unused) {
-		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), true );");
+		if ($insttype[$i] == 44) { # MOVX
+		    if ($destination_unused) {
+			cfw("unsigned char destination = mem_read_external ( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), true );");
+		    } else {
+			cfw("unsigned char destination = mem_read_external ( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), false );");
+		    }
 		} else {
-		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
+		    if ($destination_unused) {
+			cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), true );");
+		    } else {
+			cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
+		    }
 		}
 	    }
 	    if ($op_destination == 5) { # @R1
-		if ($destination_unused) {
-		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), true );");
+		if ($insttype[$i] == 44) { # MOVX
+		    if ($destination_unused) {
+			cfw("unsigned char destination = mem_read_external ( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), true );");
+		    } else {
+			cfw("unsigned char destination = mem_read_external ( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), false );");
+		    }
 		} else {
-		    cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
+		    if ($destination_unused) {
+			cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), true );");
+		    } else {
+			cfw("unsigned char destination = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
+		    }
 		}
 	    }
 	    if ($op_destination == 6) { # R0
@@ -421,9 +437,9 @@ for ($i = 0 ; $i < 256; $i++) {
 	    }
 	    if ($op_destination == 24) { # @DPTR
 		if ($destination_unused) {
-		    cfw("unsigned char destination = mem_read_indirect(mem_sfr_read_dptr(), true);");
+		    cfw("unsigned char destination = mem_read_external(mem_sfr_read_dptr(), true);");
 		} else {
-		    cfw("unsigned char destination = mem_read_indirect(mem_sfr_read_dptr(), false);");
+		    cfw("unsigned char destination = mem_read_external(mem_sfr_read_dptr(), false);");
 		}
 	    }
 	}
@@ -445,10 +461,18 @@ for ($i = 0 ; $i < 256; $i++) {
 		cfw("unsigned char source = mem_read_direct( srcaddr, false );");
 	    }
 	    if ($op_source == 4) { # @R0
-		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
+		if ($insttype[$i] == 44) { # MOVX
+		    cfw("unsigned char source = mem_read_external ( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), false );");
+		} else {
+		    cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R0_, true ), false );");
+		}
 	    }
 	    if ($op_source == 5) { # @R1
-		cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
+		if ($insttype[$i] == 44) { # MOVX
+		    cfw("unsigned char source = mem_read_external ( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), false );");
+		} else {
+		    cfw("unsigned char source = mem_read_indirect ( mem_read_direct( BANKPSW + _R1_, true ), false );");
+		}
 	    }
 	    if ($op_source == 6) { # R0
 		cfw("unsigned char source = mem_read_direct( BANKPSW + _R0_, true );");
@@ -507,7 +531,7 @@ for ($i = 0 ; $i < 256; $i++) {
 		cfw("source = ( mem_read_bit( srcbitaddr, false ) ^ 1 );");
 	    }
 	    if ($op_source == 24) { # @DPTR
-		cfw("unsigned char source = mem_read_indirect(mem_sfr_read_dptr(), false);");
+		cfw("unsigned char source = mem_read_external(mem_sfr_read_dptr(), false);");
 	    }
 	}
 
@@ -798,17 +822,33 @@ for ($i = 0 ; $i < 256; $i++) {
 		}
 	    }
 	    if ($op_destination == 4) { # @R0
-		if ($destination_unused) {
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, true );");
+		if ($insttype[$i] == 44) { # MOVX
+		    if ($destination_unused) {
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), destination, true );");
+		    } else {
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), destination, false );");
+		    }
 		} else {
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, false );");
+		    if ($destination_unused) {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, true );");
+		    } else {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), destination, false );");
+		    }
 		}
 	    }
 	    if ($op_destination == 5) { # @R1
-		if ($destination_unused) {
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, true );");
+		if ($insttype[$i] == 44) { # MOVX
+		    if ($destination_unused) {
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), destination, true );");
+		    } else {
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), destination, false );");
+		    }
 		} else {
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, false );");
+		    if ($destination_unused) {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, true );");
+		    } else {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), destination, false );");
+		    }
 		}
 	    }
 	    if ($op_destination == 6) { # R0
@@ -858,9 +898,9 @@ for ($i = 0 ; $i < 256; $i++) {
 	    }
 	    if ($op_destination == 24) { # @DPTR
 		if ($destination_unused) {
-		    cfw("mem_write_indirect(mem_sfr_read_dptr(), destination, true);");
+		    cfw("mem_write_external(mem_sfr_read_dptr(), destination, true);");
 		} else {
-		    cfw("mem_write_indirect(mem_sfr_read_dptr(), destination, false);");
+		    cfw("mem_write_external(mem_sfr_read_dptr(), destination, false);");
 		}
 	    }
 	}
@@ -881,10 +921,18 @@ for ($i = 0 ; $i < 256; $i++) {
 		    cfw("mem_write_direct( srcaddr, source, false );");
 		}
 		if ($op_source == 4) { # @R0
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), source, false );");
+		    if ($insttype[$i] == 44) { # MOVX
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R0_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), source, false );");
+		    } else {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R0_, true ), source, false );");
+		    }
 		}
 		if ($op_source == 5) { # @R1
-		    cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), source, false );");
+		    if ($insttype[$i] == 44) { # MOVX
+			cfw("mem_write_external( mem_read_direct( BANKPSW + _R1_, true ) | ( mem_read_direct( _P2_, true ) << 8 ), source, false );");
+		    } else {
+			cfw("mem_write_indirect( mem_read_direct( BANKPSW + _R1_, true ), source, false );");
+		    }
 		}
 		if ($op_source == 6) { # R0
 		    cfw("mem_write_direct( BANKPSW + _R0_, source, true );");
@@ -923,7 +971,7 @@ for ($i = 0 ; $i < 256; $i++) {
 		    cfw("mem_write_bit( srcbitaddr, source, false );");
 		}
 		if ($op_source == 24) { # @DPTR
-		    cfw("mem_write_indirect(mem_sfr_read_dptr(), source, false);");
+		    cfw("mem_write_external(mem_sfr_read_dptr(), source, false);");
 		}
 	    }
 	}

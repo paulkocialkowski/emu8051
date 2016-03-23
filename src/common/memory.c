@@ -148,15 +148,14 @@ mem_write_direct(unsigned int address, unsigned char value, int cached)
 void
 mem_write_indirect(unsigned int address, unsigned char value, int cached)
 {
-	/*
-	 * We're using this function both for indirect access on internal data
-	 * and indirect access on external data, so check first if the address
-	 * fits in internal data and fallback to external.
-	 */
-	if (mem_check_address(INT_MEM_ID, address, false))
-		mem_write8(INT_MEM_ID, address, value, cached);
-	else
-		mem_write8(EXT_MEM_ID, address, value, cached);
+	mem_write8(INT_MEM_ID, address, value, cached);
+}
+
+/* Write to external memory space at Address the new Value */
+void
+mem_write_external(unsigned int address, unsigned char value, int cached)
+{
+	mem_write8(EXT_MEM_ID, address, value, cached);
 }
 
 /* Write with a bit addressing mode at BitAddress the new Value */
@@ -232,15 +231,14 @@ mem_read_direct(unsigned int address, int cached)
 unsigned char
 mem_read_indirect(unsigned int address, int cached)
 {
-	/*
-	 * We're using this function both for indirect access on internal data
-	 * and indirect access on external data, so check first if the address
-	 * fits in internal data and fallback to external.
-	 */
-	if (mem_check_address(INT_MEM_ID, address, false))
-		return mem_read8(INT_MEM_ID, address, cached);
-	else
-		return mem_read8(EXT_MEM_ID, address, cached);
+	return mem_read8(INT_MEM_ID, address, cached);
+}
+
+/* Read to external memory space at Address the new Value */
+unsigned char
+mem_read_external(unsigned int address, int cached)
+{
+	return mem_read8(EXT_MEM_ID, address, cached);
 }
 
 /* Read with a bit addressing mode at bit_address */
