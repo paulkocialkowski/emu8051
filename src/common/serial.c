@@ -31,6 +31,8 @@ serial_open(const char *serial)
 			strerror(errno));
 	}
 
+	setbuf(serial_fp, NULL);
+
 	log_info("Outputting serial to %s", serial);
 }
 
