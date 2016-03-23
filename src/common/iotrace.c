@@ -91,6 +91,8 @@ iotrace_open(const char *iotrace)
 			strerror(errno));
 	}
 
+	setbuf(iotrace_fp, NULL);
+
 	log_info("Tracing I/O to %s", iotrace);
 }
 
