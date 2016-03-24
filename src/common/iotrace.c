@@ -108,6 +108,15 @@ iotrace_close(void)
 }
 
 void
+iotrace_interrupt(int index, unsigned int address)
+{
+	if (iotrace_fp == NULL)
+		return;
+
+	fprintf(iotrace_fp, "INT : %d : A : 0x%04x\n", index, address);
+}
+
+void
 iotrace_memory_read(enum mem_id_t id, unsigned int address, uint8_t value)
 {
 	if (iotrace_fp == NULL)

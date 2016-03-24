@@ -21,6 +21,7 @@
 #include "common.h"
 #include "reg8051.h"
 #include "cpu8051.h"
+#include "iotrace.h"
 #include "hardware.h"
 #include "memory.h"
 #include "interrupt.h"
@@ -221,6 +222,8 @@ cpu8051_exec(void)
 						   &interrupt_address);
 			if (interrupt_address == 0)
 				continue;
+
+			iotrace_interrupt(interrupt_index, interrupt_address);
 
 			cpu8051_process_interrupt(interrupt_address,
 						  interrupt_priority);
