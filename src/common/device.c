@@ -239,6 +239,8 @@ device_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 	if (memory < 0)
 		return;
 
+	printf("MEM %d 0x%x = 0x%x\n", id, address, value);
+
 	value = device_memory_write_filter(id, address, value);
 
 	rc = emu8051_device_memory_write(&device, memory,

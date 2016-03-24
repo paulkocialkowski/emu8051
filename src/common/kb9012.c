@@ -41,6 +41,12 @@ kb9012_memory_allowed(enum mem_id_t id, unsigned int address, bool write)
 					return true;
 			}
 		case EXT_MEM_ID:
+			if (address >= 0xfe80 && address <= 0xfe8f) // wdt
+				return false;
+
+			if (address >= _XBISEG0_ && address <= _XBIMISC_)
+				return !write;
+
 			switch (address) {
 				case _XBISEG0_:
 				case _XBISEG3_:
