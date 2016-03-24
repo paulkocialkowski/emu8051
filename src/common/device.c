@@ -189,6 +189,19 @@ device_close(void)
 }
 
 void
+device_interrupt(int *index, int *priority)
+{
+	if (!device_opened)
+		return;
+
+	if (*index > 0)
+		return;
+
+	emu8051_device_interrupt(&device, index);
+	*priority = INTERRUPT_PRIORITY_NONE;
+}
+
+void
 device_memory_read(enum mem_id_t id, unsigned int address, uint8_t *value)
 {
 	uint8_t value_preserve;

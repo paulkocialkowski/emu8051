@@ -33,6 +33,10 @@ void
 hardware_interrupt(int *index, int *priority)
 {
 	interrupt(index, priority);
+
+#if HAVE_DEVICE
+	device_interrupt(index, priority);
+#endif
 }
 
 void
