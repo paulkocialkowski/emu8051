@@ -9,6 +9,9 @@
 #ifndef KB9012_H
 #define KB9012_H 1
 
+void
+kb9012_interrupt_address(int index, unsigned int *address);
+
 bool
 kb9012_memory_allowed(enum mem_id_t id, unsigned int address, bool write);
 

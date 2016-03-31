@@ -19,6 +19,8 @@
 #define _P1IF_      0xE8
 #define _P3IF_      0xF8
 
+#define IVHA_MASK (0x07)
+
 #define PCON2_FLAG_EXT_ENABLE (1 << 4)
 
 /* External */

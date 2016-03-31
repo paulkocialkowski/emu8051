@@ -43,6 +43,10 @@ void
 hardware_interrupt_address(int index, unsigned int *address)
 {
 	interrupt_address(index, address);
+
+#if HAVE_KB9012
+	kb9012_interrupt_address(index, address);
+#endif
 }
 
 void

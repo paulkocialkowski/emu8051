@@ -20,6 +20,14 @@
 #include "reg8051.h"
 #include "regkb9012.h"
 
+void
+kb9012_interrupt_address(int index, unsigned int *address)
+{
+	*address += (mem_sfr_read8(_IVHA_, true) & ~IVHA_MASK) << 8;
+
+	printf("interrupt %d address at 0x%x with offset  0x%x\n", index, *address, mem_sfr_read8(_IVHA_, true) & ~IVHA_MASK);
+}
+
 bool
 kb9012_memory_allowed(enum mem_id_t id, unsigned int address, bool write)
 {
