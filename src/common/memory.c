@@ -44,8 +44,8 @@ mem_init(void)
 	mem_infos[INT_MEM_ID].size = options.iram_size;
 	mem_infos[INT_MEM_ID].max_size = INT_MEM_MAX_SIZE;
 
-	mem_infos[SFR_MEM_ID].size = SFR_MEM_MAX_SIZE;
-	mem_infos[SFR_MEM_ID].max_size = INT_MEM_MAX_SIZE;
+	mem_infos[SFR_MEM_ID].size = SFR_MEM_DEFAULT_SIZE;
+	mem_infos[SFR_MEM_ID].max_size = SFR_MEM_MAX_SIZE;
 
 	mem_infos[EXT_MEM_ID].size = options.xram_size;
 	mem_infos[EXT_MEM_ID].max_size = EXT_MEM_MAX_SIZE;
@@ -250,7 +250,6 @@ mem_read_bit(uint8_t bit_address, int cached)
 	unsigned char bit_value;
 
 	mem_convert_bit_address(bit_address, &byte_address, &bit_number);
-
 	bit_value = (mem_read_direct(byte_address, cached) >> bit_number);
 	bit_value &= 1;
 	return bit_value;

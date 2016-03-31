@@ -27,11 +27,12 @@
  *   Direct addressing $80 to $FF = SFR  (8051)
  * Indirect addressing $80 to $FF = IRAM (8052)
  */
-#define INT_MEM_MAX_SIZE   256
-#define SFR_MEM_MAX_SIZE   128
+#define INT_MEM_MAX_SIZE 256
+#define SFR_MEM_MAX_SIZE 256
 #define EXT_MEM_MAX_SIZE 65536
 
 #define PGM_MEM_DEFAULT_SIZE 65536
+#define SFR_MEM_DEFAULT_SIZE 256
 #if HAVE_KB9012
 #define EXT_MEM_DEFAULT_SIZE 65536
 #else
