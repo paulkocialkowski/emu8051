@@ -213,7 +213,7 @@ cpu8051_exec(void)
 		 */
 
 		interrupt_address = 0;
-		interrupt_priority = INTERRUPT_PRIORITY_NONE;
+		interrupt_priority = cpu8051.interrupt_priority;
 		interrupt_index = -1;
 
 		hardware_interrupt(&interrupt_index, &interrupt_priority);

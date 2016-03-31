@@ -72,7 +72,6 @@ interrupt_clear(int index)
 void
 interrupt(int *index, int *priority)
 {
-	int current_priority;
 	int p;
 	int i;
 
@@ -82,8 +81,6 @@ interrupt(int *index, int *priority)
 	if ((mem_read_direct(_IE_, true) & IE_FLAG_EA) == 0)
 		return;
 
-	current_priority = cpu8051.interrupt_priority;
-
 	for (i = 0; i < INTERRUPTS_COUNT; i++) {
 		if ((mem_read_direct(_IE_, true) & INTERRUPT_MASK(i)) == 0)
 			continue;
@@ -91,7 +88,7 @@ interrupt(int *index, int *priority)
 		p = (mem_read_direct(_IP_, true) & INTERRUPT_MASK(i)) ?
 			INTERRUPT_PRIORITY_HIGH : INTERRUPT_PRIORITY_LOW;
 
-		if (p <= current_priority)
+		if (p <= *priority)
 			continue;
 
 		/*

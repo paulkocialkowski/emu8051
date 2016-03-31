@@ -194,11 +194,14 @@ device_interrupt(int *index, int *priority)
 	if (!device_opened)
 		return;
 
-	if (*index > 0)
+	if (*index > 0 || *priority >= INTERRUPT_PRIORITY_LOW)
 		return;
 
 	emu8051_device_interrupt(&device, index);
-	*priority = INTERRUPT_PRIORITY_NONE;
+	*priority = INTERRUPT_PRIORITY_LOW;
+
+	if (*index > 0)
+		printf("device interrupt %d\n", *index);
 }
 
 void
