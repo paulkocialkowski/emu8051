@@ -24,6 +24,7 @@ struct options_t {
 	int xram_size; /* Maximum external ram size. */
 	char *filename;
 	char *iotrace;
+	char *exectrace;
 	char *serial;
 #if HAVE_DEVICE
 	char *device;

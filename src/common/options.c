@@ -49,6 +49,7 @@ static struct argp_option argp_options[] = {
 	{"stop",  's', "addr",  0,
 	 "Automatically run program and stop at address", 0},
 	{"iotrace",  't', "file", 0, "I/O trace", 0},
+	{"exectrace",  'e', "file", 0, "Execution trace", 0},
 	{"serial",  'o', "serial", 0, "Serial output", 0},
 #if HAVE_DEVICE
 	{"device",  'D', "device", 0, "Device", 0},
@@ -132,6 +133,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 		options.device = arg;
 		break;
 #endif
+	case 'e':
+		options.exectrace = arg;
+		break;
 	case 'g':
 		options.g = arg;
 		break;
@@ -187,6 +191,7 @@ parse_command_line_options(int argc, char *argv[])
 	/* Setting default values. */
 	options.filename = NULL;
 	options.iotrace = NULL;
+	options.exectrace = NULL;
 	options.serial = NULL;
 #if HAVE_DEVICE
 	options.device = NULL;

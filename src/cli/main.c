@@ -17,6 +17,7 @@
 #include "options.h"
 #include "hexfile.h"
 #include "iotrace.h"
+#include "exectrace.h"
 #include "serial.h"
 #include "device.h"
 #include "menu.h"
@@ -42,6 +43,9 @@ main(int argc, char **argv)
 	if (options.iotrace != NULL)
 		iotrace_open(options.iotrace);
 
+	if (options.exectrace != NULL)
+		exectrace_open(options.exectrace);
+
 	if (options.serial != NULL)
 		serial_open(options.serial);
 
@@ -61,6 +65,9 @@ main(int argc, char **argv)
 
 	if (options.iotrace != NULL)
 		iotrace_close();
+
+	if (options.exectrace != NULL)
+		exectrace_close();
 
 	if (options.serial != NULL)
 		serial_close();

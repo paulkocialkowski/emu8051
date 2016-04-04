@@ -22,6 +22,7 @@
 #include "reg8051.h"
 #include "cpu8051.h"
 #include "iotrace.h"
+#include "exectrace.h"
 #include "hardware.h"
 #include "memory.h"
 #include "interrupt.h"
@@ -192,6 +193,8 @@ cpu8051_exec(void)
 		log_err("Trying to run past program memory limit");
 		return false; /* Error */
 	}
+
+	exectrace_instruction(cpu8051.pc);
 
 	opcode = mem_read8(PGM_MEM_ID, cpu8051.pc, true);
 	cpu8051.pc++;
