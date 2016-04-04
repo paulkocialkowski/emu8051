@@ -17,6 +17,7 @@
 
 struct cpu8051_t {
 	unsigned int pc; /* Program counter */
+	int interrupt_latency;
 	int interrupt_priority;
 	int bp_count;
 	unsigned int bp[MAXBP]; /* List of breakpoints */

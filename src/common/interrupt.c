@@ -39,7 +39,7 @@ interrupt_trigger(int index)
 				TCON_FLAG_TF1) != 0);
 		case 4:
 			return ((mem_read_direct(_SCON_, true) &
-				(SCON_FLAG_RI |SCON_FLAG_TI)) != 0);
+				(SCON_FLAG_RI | SCON_FLAG_TI)) != 0);
 		default:
 			return 0;
 	}

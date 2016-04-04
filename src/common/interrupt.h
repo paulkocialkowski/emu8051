@@ -11,6 +11,8 @@
 
 #include <stdint.h>
 
+#define INTERRUPT_LATENCY	10
+
 #define INTERRUPTS_COUNT	5
 
 #define INTERRUPT_PRIORITY_NONE	-1

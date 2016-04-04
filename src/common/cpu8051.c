@@ -213,12 +213,19 @@ cpu8051_exec(void)
 		 * already-active lower-priority interrupt.
 		 */
 
+		if (cpu8051.interrupt_latency > 0) {
+			cpu8051.interrupt_latency--;
+			continue;
+		}
+
 		interrupt_address = 0;
 		interrupt_priority = cpu8051.interrupt_priority;
 		interrupt_index = -1;
 
 		hardware_interrupt(&interrupt_index, &interrupt_priority);
 		if (interrupt_index >= 0) {
+			printf("interrupt %d\n", interrupt_index);
+
 			hardware_interrupt_address(interrupt_index,
 						   &interrupt_address);
 			if (interrupt_address == 0)
@@ -228,6 +235,8 @@ cpu8051_exec(void)
 
 			cpu8051_process_interrupt(interrupt_address,
 						  interrupt_priority);
+
+			cpu8051.interrupt_latency = INTERRUPT_LATENCY;
 		}
 	}
 
