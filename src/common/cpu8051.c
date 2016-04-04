@@ -238,8 +238,6 @@ cpu8051_exec(void)
 
 			cpu8051_process_interrupt(interrupt_address,
 						  interrupt_priority);
-
-			cpu8051.interrupt_latency = INTERRUPT_LATENCY;
 		}
 	}
 

@@ -604,6 +604,7 @@ for ($i = 0 ; $i < 256; $i++) {
 	# RETI
 	if ($insttype[$i] == 15) {
 	    cfw("cpu8051.interrupt_priority = INTERRUPT_PRIORITY_NONE;");
+	    cfw("cpu8051.interrupt_latency = INTERRUPT_LATENCY;");
             cfw("cpu8051.pc = stack_pop16();");
 	}
 
