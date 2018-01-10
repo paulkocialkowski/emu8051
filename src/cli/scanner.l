@@ -5,6 +5,7 @@
   #include "menu.h"
   #include "parser.h"
   #include "hexfile.h"
+  #include "options.h"
 
 #undef YY_INPUT
 #define YY_INPUT(buf,result,max_size) result = menu_get_input(buf, max_size);
@@ -54,6 +55,8 @@ we          return TOK_MOD_EXT;
 wi          return TOK_MOD_INT;
 wp          return TOK_MOD_PROG;
 wr          return TOK_MOD_REG;
+x           return TOK_ENABLE_TRACING;
+X           return TOK_DISABLE_TRACING;
 z           return TOK_RST;
 zt          return TOK_RST_TIMER;
 all         return TOK_ALL;

@@ -11,6 +11,7 @@
 #include "gp_timers.h"
 #include "memory.h"
 #include "cpu8051.h"
+#include "options.h"
 
 /* int yydebug = 1; */
 
@@ -42,6 +43,7 @@ int yyerror(const char *str)
 %token TOK_STEP
 %token TOK_UNASM
 %token TOK_MOD_EXT TOK_MOD_INT TOK_MOD_PROG TOK_MOD_REG
+%token TOK_ENABLE_TRACING TOK_DISABLE_TRACING
 %token TOK_QUIT
 %token TOK_A TOK_B TOK_C TOK_D
 
@@ -70,6 +72,8 @@ command:
    help
    |
    modify
+   |
+   tracing
    |
    quit
    |
@@ -175,6 +179,18 @@ modify:
 	TOK_MOD_REG WORD NUMBER TOK_ENTER
 	{
           register_set($2, $3);
+	}
+	;
+
+tracing:
+	TOK_ENABLE_TRACING TOK_ENTER
+	{
+          options.tracing = 1;
+	}
+	|
+	TOK_DISABLE_TRACING TOK_ENTER
+	{
+          options.tracing = 0;
 	}
 	;
 

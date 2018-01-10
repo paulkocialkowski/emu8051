@@ -24,22 +24,50 @@
 #define PCON2_FLAG_EXT_ENABLE (1 << 4)
 
 /* External */
-#define _XRAM_ 0xEC00
+#define XRAM_BASE 0xEC00
 
-#define _GPIO_FS10_ 0xFC02
-#define _GPIO_OE10_ 0xFC12
-#define _GPIO_IE10_ 0xFC62
+#define GPIO_FS_BASE	0xFC00
+#define GPIO_OE_BASE	0xFC10
+#define GPIO_D_BASE	0xFC20
+#define GPIO_IN_BASE	0xFC30
+#define GPIO_PU_BASE	0xFC40
+#define GPIO_OD_BASE	0xFC50
+#define GPIO_IE_BASE	0xFC60
 
-#define _XBISEG0_ 0xFEA0
-#define _XBISEG3_ 0xFEA1
-#define _XBIMISC_ 0xFEB9
+#define GPIO_MISC	0xFC70
+#define GPIO_MISC2	0xFC71
+#define GPIO_LED	0xFC74
+#define GPIO_FDA	0xFC75
 
-#define _CLKCFG_ 0xFF0D
-#define _PLLCFG_ 0xFF0F
-#define _CLKCFG2_ 0xFF1E
-#define _PLLCFG2_ 0xFF1F
+#define GPIO_FS10 0xFC02
+#define GPIO_OE10 0xFC12
+#define GPIO_IE10 0xFC62
+
+#define XBISEG0 0xFEA0
+#define XBISEG3 0xFEA1
+#define XBIMISC 0xFEB9
+
+#define CLKCFG 0xFF0D
+#define PLLCFG 0xFF0F
+#define CLKCFG2 0xFF1E
+#define PLLCFG2 0xFF1F
 
 #define XRAM_SIZE 0x1000
+
+#define GPIO_BASE_MASK						0xc0
+#define GPIO_BASE_A0						0x80
+#define GPIO_BASE_D0						0xc0
+
+#define GPIO_OFFSET_SHIFT					3
+#define GPIO_OFFSET_SPAN					0x0f
+#define GPIO_OFFSET_MASK_A0					(1 << 0)
+#define GPIO_OFFSET_A0						0x0c
+#define GPIO_OFFSET_D0						0x0f
+
+#define GPIO_BIT_MASK						0x07
+
+#define GPIO_E51TXD						0x16
+#define GPIO_E51RXD						0x17
 
 #define GPIO_FLAG_E51TXD (1 << 6)
 #define GPIO_FLAG_E51RXD (1 << 7)

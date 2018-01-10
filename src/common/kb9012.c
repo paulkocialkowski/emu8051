@@ -20,6 +20,24 @@
 #include "reg8051.h"
 #include "regkb9012.h"
 
+static uint8_t
+kb9012_gpio_base(unsigned int address)
+{
+	uint8_t offset;
+	uint8_t base;
+
+	offset = address & GPIO_OFFSET_SPAN;
+
+	if (offset >= GPIO_OFFSET_A0 && offset < GPIO_OFFSET_D0)
+		base = 0xA0 + (offset - GPIO_OFFSET_A0) << 3;
+	else if (offset == GPIO_OFFSET_D0)
+		base = 0xD0;
+	else
+		base = offset << GPIO_OFFSET_SHIFT;
+
+	return base;
+}
+
 void
 kb9012_interrupt_address(int index, unsigned int *address)
 {
@@ -30,7 +48,7 @@ bool
 kb9012_memory_allowed(enum mem_id_t id, unsigned int address, bool write)
 {
 	if (id == EXT_MEM_ID)
-		if (address < (_XRAM_ + XRAM_SIZE))
+		if (address < (XRAM_BASE + XRAM_SIZE))
 			return false;
 
 	switch (id) {
@@ -47,24 +65,24 @@ kb9012_memory_allowed(enum mem_id_t id, unsigned int address, bool write)
 					return true;
 			}
 		case EXT_MEM_ID:
-			if (address >= 0xfe80 && address <= 0xfe8f) // wdt
-				return false;
+//			if (address >= 0xfe80 && address <= 0xfe8f) // wdt
+//				return false;
 
-			if (address >= _XBISEG0_ && address <= _XBIMISC_)
-				return !write;
+//			if (address >= XBISEG0 && address <= XBIMISC)
+//				return !write;
 
 			switch (address) {
-				case _XBISEG0_:
-				case _XBISEG3_:
-				case _XBIMISC_:
-				case _CLKCFG_:
-				case _PLLCFG_:
-				case _CLKCFG2_:
-				case _PLLCFG2_:
+				case XBISEG0:
+				case XBISEG3:
+				case XBIMISC:
+				case CLKCFG:
+				case PLLCFG:
+				case CLKCFG2:
+				case PLLCFG2:
 					return false;
-				case _GPIO_FS10_:
-				case _GPIO_OE10_:
-				case _GPIO_IE10_:
+				case GPIO_FS10:
+				case GPIO_OE10:
+				case GPIO_IE10:
 					return write;
 				default:
 					return true;
@@ -90,9 +108,9 @@ kb9012_memory_write_filter(enum mem_id_t id, unsigned int address, uint8_t value
 			break;
 		case EXT_MEM_ID:
 			switch (address) {
-				case _GPIO_FS10_:
-				case _GPIO_OE10_:
-				case _GPIO_IE10_:
+				case GPIO_FS10:
+				case GPIO_OE10:
+				case GPIO_IE10:
 					flags_always = GPIO_FLAG_E51TXD |
 						       GPIO_FLAG_E51RXD;
 					break;
@@ -110,7 +128,7 @@ kb9012_memory_map(enum mem_id_t *id, unsigned long *address)
 	uint8_t value;
 
 	if (*id == EXT_MEM_ID) {
-		if (*address < _XRAM_) {
+		if (*address < XRAM_BASE) {
 			/*
 			 * Values below XRAM are mapped to program memory.
 			 * Segment remapping also applies with external memory
@@ -123,12 +141,12 @@ kb9012_memory_map(enum mem_id_t *id, unsigned long *address)
 
 	if (*id == PGM_MEM_ID) {
 		if (*address <= XBISEG_SIZE) {
-			value = mem_read8(EXT_MEM_ID, _XBISEG0_, true);
+			value = mem_read8(EXT_MEM_ID, XBISEG0, true);
 			if (value & XBISEG_FLAG_ENABLE)
 				*address = (value & XBISEG_MASK) * XBISEG_SIZE +
 					   (*address & XBISEG_ADDRESS_MASK);
 		} else if (*address >= (3 * XBISEG_SIZE)) {
-			value = mem_read8(EXT_MEM_ID, _XBISEG3_, true);
+			value = mem_read8(EXT_MEM_ID, XBISEG3, true);
 			if (value & XBISEG_FLAG_ENABLE)
 				*address = (value & XBISEG_MASK) * XBISEG_SIZE +
 					   (*address & XBISEG_ADDRESS_MASK);
@@ -136,16 +154,67 @@ kb9012_memory_map(enum mem_id_t *id, unsigned long *address)
 	}
 }
 
+static void
+kb9012_memory_read_ext(unsigned int address, uint8_t *value)
+{
+	uint8_t gpio_base;
+
+			if (address >= XBISEG0 && address <= XBIMISC)
+				iotrace_message("XBI module access");
+
+			if (address >= GPIO_IN_BASE && address < GPIO_PU_BASE) {
+				gpio_base = kb9012_gpio_base(address);
+				// TODO iotrace_message
+				printf("GPIO%02X read at 0x%x\n",
+						gpio_base, address);
+			}
+}
+
 void
 kb9012_memory_read(enum mem_id_t id, unsigned int address, uint8_t *value)
 {
 	switch (id) {
 		case EXT_MEM_ID:
-			if (address >= _XBISEG0_ && address <= _XBIMISC_)
-				iotrace_message("XBI module access");
+			kb9012_memory_read_ext(address, value);
 			break;
 		default:
 			break;
+	}
+}
+
+static void
+kb9012_memory_write_ext(unsigned int address, uint8_t value)
+{
+	const char *gpio_prefixes[] = {
+		"GPIOFS",
+		"GPIOOE",
+		"GPIOD",
+		"GPIOIN",
+		"GPIOPU",
+		"GPIOOD",
+		"GPIOIE",
+		NULL
+	};
+	uint8_t gpio_base;
+	unsigned int limit = GPIO_FS_BASE;
+	unsigned int index;
+
+	if (address >= XBISEG0 && address <= XBIMISC) {
+		iotrace_message("XBI module access");
+		return;
+	}
+
+	for (index = 0; gpio_prefixes[index] != NULL; index++) {
+		limit += 0x10;
+
+		if (address < (limit - 0x10) || address >= limit)
+			continue;
+
+		gpio_base = kb9012_gpio_base(address);
+		// TODO iotrace_message
+		printf("%s%02X write at 0x%x\n",
+				gpio_prefixes[index], gpio_base,
+				address);
 	}
 }
 
@@ -159,8 +228,7 @@ kb9012_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 						"change");
 			break;
 		case EXT_MEM_ID:
-			if (address >= _XBISEG0_ && address <= _XBIMISC_)
-				iotrace_message("XBI module access");
+			kb9012_memory_write_ext(address, value);
 			break;
 		default:
 			break;

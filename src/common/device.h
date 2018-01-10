@@ -9,6 +9,9 @@
 #ifndef DEVICE_H
 #define DEVICE_H 1
 
+bool
+device_enabled(void);
+
 void
 device_open(const char *arg);
 

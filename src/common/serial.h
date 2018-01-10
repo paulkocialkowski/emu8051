@@ -19,6 +19,17 @@ serial_open(const char *serial);
 void
 serial_close(void);
 
+#if HAVE_INTERACTIVE
+void
+serial_interactive_open(void);
+
+void
+serial_interactive_close(void);
+#endif
+
+void
+serial_memory_read(void);
+
 void
 serial_memory_write(enum mem_id_t id, unsigned int address, uint8_t value);
 

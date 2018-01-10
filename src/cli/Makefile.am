@@ -18,6 +18,10 @@ LDADD = \
     $(LIBREADLINE) \
     $(top_builddir)/src/common/libemu8051.a
 
+if INTERACTIVE
+LDADD += -lutil
+endif
+
 if DEVICE
 LDADD += $(EMU8051_DEVICE_LIBS)
 endif

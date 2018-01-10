@@ -112,6 +112,8 @@ menu_display_usage(void)
 	       "  wp ADDRESS VAL      Write VAL at ADDRESS in program memory\n"
 	       "  wr REGISTER VAL     Write VAL at REGISTER (REGISTER is name of"
 	       " register)\n"
+	       "  x                   Enable tracing\n"
+	       "  X                   Disable tracing\n"
 	       "  z                   Reset processor\n"
 	       "  zt ID               Reset emulator timer ID (");
 

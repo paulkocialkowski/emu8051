@@ -19,6 +19,10 @@ LDADD = \
     @ZLIB_LIBS@ \
     @GLIB_LIBS@
 
+if INTERACTIVE
+LDADD += -lutil
+endif
+
 if DEVICE
 LDADD += $(EMU8051_DEVICE_LIBS)
 endif

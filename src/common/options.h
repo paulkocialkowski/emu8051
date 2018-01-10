@@ -26,14 +26,18 @@ struct options_t {
 	char *iotrace;
 	char *exectrace;
 	char *serial;
+	int interactive;
 #if HAVE_DEVICE
 	char *device;
 #endif
 	int log;
 	uint16_t stop_address; /* Run program up to that adress and exit. */
+	int tracing;
 } options_t;
 
 void
 parse_command_line_options(int argc, char *argv[]);
+
+extern struct options_t options;
 
 #endif /* OPTIONS_H */

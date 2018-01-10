@@ -14,6 +14,7 @@
 #include "common.h"
 #include "memory.h"
 #include "cpu8051.h"
+#include "options.h"
 #include "iotrace.h"
 
 static FILE *iotrace_fp = NULL;
@@ -110,7 +111,7 @@ iotrace_close(void)
 void
 iotrace_interrupt(int index, unsigned int address)
 {
-	if (iotrace_fp == NULL)
+	if (iotrace_fp == NULL || !options.tracing)
 		return;
 
 	fprintf(iotrace_fp, "INT : %d : A : 0x%04x\n", index, address);
@@ -119,7 +120,7 @@ iotrace_interrupt(int index, unsigned int address)
 void
 iotrace_memory_read(enum mem_id_t id, unsigned int address, uint8_t value)
 {
-	if (iotrace_fp == NULL)
+	if (iotrace_fp == NULL || !options.tracing)
 		return;
 
 	iotrace_memory(id);
@@ -134,7 +135,7 @@ iotrace_memory_read(enum mem_id_t id, unsigned int address, uint8_t value)
 void
 iotrace_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 {
-	if (iotrace_fp == NULL)
+	if (iotrace_fp == NULL || !options.tracing)
 		return;
 
 	iotrace_memory(id);
@@ -149,7 +150,7 @@ iotrace_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 void
 iotrace_message(const char *message)
 {
-	if (iotrace_fp == NULL)
+	if (iotrace_fp == NULL || !options.tracing)
 		return;
 
 	fprintf(iotrace_fp, "MSG : %s\n", message);

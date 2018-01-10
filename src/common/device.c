@@ -160,6 +160,12 @@ device_memory_read_preserve(enum mem_id_t id, unsigned int address,
 	return (value & ~flags_preserve) | (value_preserve & flags_preserve);
 }
 
+bool
+device_enabled(void)
+{
+	return device_opened != 0;
+}
+
 void
 device_open(const char *arg)
 {

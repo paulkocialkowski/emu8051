@@ -51,6 +51,7 @@ static struct argp_option argp_options[] = {
 	{"iotrace",  't', "file", 0, "I/O trace", 0},
 	{"exectrace",  'e', "file", 0, "Execution trace", 0},
 	{"serial",  'o', "serial", 0, "Serial output", 0},
+	{"interactive",  'I', NULL, 0, "Interactive serial", 0},
 #if HAVE_DEVICE
 	{"device",  'D', "device", 0, "Device", 0},
 #endif
@@ -142,6 +143,9 @@ parse_opt(int key, char *arg, struct argp_state *state)
 	case 'i':
 		decode_memory_size(arg, state, INT_MEM_ID);
 		break;
+	case 'I':
+		options.interactive = 1;
+		break;
 	case 'o':
 		options.serial = arg;
 		break;
@@ -193,6 +197,7 @@ parse_command_line_options(int argc, char *argv[])
 	options.iotrace = NULL;
 	options.exectrace = NULL;
 	options.serial = NULL;
+	options.interactive = 0;
 #if HAVE_DEVICE
 	options.device = NULL;
 #endif
@@ -202,6 +207,7 @@ parse_command_line_options(int argc, char *argv[])
 	options.xram_size = EXT_MEM_DEFAULT_SIZE;
 	options.log = LOG_LEVEL_ERR;
 	options.stop_address = 0; /* 0 means stop address is disabled. */
+	options.tracing = 0;
 
 	/* Parse our arguments. */
 	rc = argp_parse(&argp, argc, argv, 0, 0, NULL);

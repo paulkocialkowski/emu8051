@@ -13,6 +13,7 @@
 
 #include "common.h"
 #include "cpu8051.h"
+#include "options.h"
 #include "exectrace.h"
 
 static FILE *exectrace_fp = NULL;
@@ -52,7 +53,7 @@ exectrace_instruction(unsigned int address)
 {
 	char buffer[255];
 
-	if (exectrace_fp == NULL)
+	if (exectrace_fp == NULL || !options.tracing)
 		return;
 
 	cpu8051_disasm(address, buffer);

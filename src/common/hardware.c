@@ -35,7 +35,8 @@ hardware_interrupt(int *index, int *priority)
 	interrupt(index, priority);
 
 #if HAVE_DEVICE
-	device_interrupt(index, priority);
+	if (device_enabled())
+		device_interrupt(index, priority);
 #endif
 }
 
@@ -65,7 +66,8 @@ hardware_memory_read(enum mem_id_t id, unsigned int address, uint8_t *value)
 #endif
 
 #if HAVE_DEVICE
-	device_memory_read(id, address, value);
+	if (device_enabled())
+		device_memory_read(id, address, value);
 #endif
 }
 
@@ -77,7 +79,8 @@ hardware_memory_write(enum mem_id_t id, unsigned int address, uint8_t value)
 #endif
 
 #if HAVE_DEVICE
-	device_memory_write(id, address, value);
+	if (device_enabled())
+		device_memory_write(id, address, value);
 #endif
 
 	serial_memory_write(id, address, value);

@@ -113,6 +113,20 @@ fi
 
 AM_CONDITIONAL([KB9012], [test x$ac_cv_enable_kb9012 = xyes])
 
+dnl Checks for interactive
+AC_ARG_ENABLE(interactive, AS_HELP_STRING([--enable-interactive], [enable interactive serial support]),
+	[ac_cv_enable_interactive=$enableval], [ac_cv_enable_interactive=yes])
+
+AC_MSG_CHECKING([whether to build interactive serial support])
+if test x$ac_cv_enable_interactive = xyes; then
+	AC_MSG_RESULT(yes)
+	AC_DEFINE([HAVE_INTERACTIVE],1,[Set to 1 to enable interactive serial support.])
+else
+	AC_MSG_RESULT(no)
+fi
+
+AM_CONDITIONAL([INTERACTIVE], [test x$ac_cv_enable_interactive = xyes])
+
 dnl Try to locate valid 8051 assembler to generate test files (.hex)
 run_tests=no
 

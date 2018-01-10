@@ -27,13 +27,12 @@
 #include "memory.h"
 #include "interrupt.h"
 #include "device.h"
+#include "serial.h"
 #include "psw.h"
 #include "gp_timers.h"
 #include "opcodes.h"
 #include "options.h"
 #include "instructions_8051.h"
-
-extern struct options_t options;
 
 /* Check if the address is a breakpoint */
 int
@@ -200,6 +199,8 @@ cpu8051_exec(void)
 	cpu8051.pc++;
 	insttiming = (*opcode_table[opcode])(); /* Function callback. */
 
+	serial_memory_read();
+
 	/*
 	 * Parity bit (p): is automatically set or cleared in each machine
 	 * cycle to establish even parity in the accumulator.
@@ -227,8 +228,6 @@ cpu8051_exec(void)
 
 		hardware_interrupt(&interrupt_index, &interrupt_priority);
 		if (interrupt_index >= 0) {
-			printf("interrupt %d\n", interrupt_index);
-
 			hardware_interrupt_address(interrupt_index,
 						   &interrupt_address);
 			if (interrupt_address == 0)

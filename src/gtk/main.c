@@ -660,6 +660,9 @@ main(int argc, char **argv)
 	if (options.serial != NULL)
 		serial_open(options.serial);
 
+	if (options.interactive)
+		serial_interactive_open();
+
 #if HAVE_DEVICE
 	device_open(options.device);
 #endif
@@ -687,6 +690,9 @@ main(int argc, char **argv)
 
 	if (options.serial != NULL)
 		serial_close();
+
+	if (options.interactive)
+		serial_interactive_close();
 
 #if HAVE_DEVICE
 	device_close();
