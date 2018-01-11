@@ -66,7 +66,6 @@ serial_interactive_open(void)
 {
 	struct termios termios;
 	char pty_path[PATH_MAX];
-	int flags;
 	int fd = -1;
 	int rc;
 
@@ -87,8 +86,8 @@ serial_interactive_open(void)
 		return;
 	}
 
-	flags = fcntl(serial_fd, F_GETFL, 0);
-	fcntl(serial_fd, F_SETFL, flags | O_NONBLOCK);
+	fcntl(serial_fd, F_SETFL, O_NONBLOCK);
+	tcflush(serial_fd, TCIOFLUSH);
 
 	log_info("Interactive serial served at %s", pty_path);
 }
