@@ -410,7 +410,7 @@ for ($i = 0 ; $i < 256; $i++) {
 	    }
 	    if ($op_destination == 15) { # reladdr
 		cfw("cpu8051.pc++;");
-		cfw("unsigned int destination = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
+		cfw("unsigned int destination = ((signed char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
 	    }
 	    if ($op_destination == 16) { # #data
 		cfw("unsigned char destination = mem_read8( PGM_MEM_ID, cpu8051.pc++, true );");
@@ -506,7 +506,7 @@ for ($i = 0 ; $i < 256; $i++) {
 	    }
 	    if ($op_source == 15) { # reladdr
 		cfw("(cpu8051.pc)++;");
-		cfw("unsigned int source = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
+		cfw("unsigned int source = ((signed char) mem_read8(PGM_MEM_ID, cpu8051.pc - 1, true)) + cpu8051.pc;");
 	    }
 	    if ($op_source == 16) { # #data
 		cfw("unsigned char source = mem_read8( PGM_MEM_ID, (cpu8051.pc)++, true );");
@@ -730,7 +730,7 @@ for ($i = 0 ; $i < 256; $i++) {
 
 	# CJNE
 	if ($insttype[$i] == 34) {
-	    cfw("unsigned int reladdr = ((char) mem_read8(PGM_MEM_ID, cpu8051.pc, true)) + (cpu8051.pc + 1);");
+	    cfw("unsigned int reladdr = ((signed char) mem_read8(PGM_MEM_ID, cpu8051.pc, true)) + (cpu8051.pc + 1);");
 	    cfw("psw_clr_cy();");
 	    cfw("if ( destination < source ) psw_set_cy();");
 	    cfw("if ( destination != source ) cpu8051.pc = reladdr; else cpu8051.pc++;");
