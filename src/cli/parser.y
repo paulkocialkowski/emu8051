@@ -43,7 +43,7 @@ int yyerror(const char *str)
 %token TOK_STEP
 %token TOK_UNASM
 %token TOK_MOD_EXT TOK_MOD_INT TOK_MOD_PROG TOK_MOD_REG
-%token TOK_ENABLE_TRACING TOK_DISABLE_TRACING
+%token TOK_START_TRACING TOK_STOP_TRACING
 %token TOK_QUIT
 %token TOK_A TOK_B TOK_C TOK_D
 
@@ -183,13 +183,15 @@ modify:
 	;
 
 tracing:
-	TOK_ENABLE_TRACING TOK_ENTER
+	TOK_START_TRACING TOK_ENTER
 	{
+          printf("  Starting trace\n");
           options.tracing = 1;
 	}
 	|
-	TOK_DISABLE_TRACING TOK_ENTER
+	TOK_STOP_TRACING TOK_ENTER
 	{
+          printf("  Stopping trace\n");
           options.tracing = 0;
 	}
 	;
