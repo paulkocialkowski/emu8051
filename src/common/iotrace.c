@@ -94,7 +94,8 @@ iotrace_open(const char *iotrace)
 
 	setbuf(iotrace_fp, NULL);
 
-	log_info("Tracing I/O to %s", iotrace);
+	log_info("Tracing I/O to %s (%s)", iotrace, options.tracing ?
+		 "started" : "stopped");
 }
 
 void

@@ -34,7 +34,8 @@ exectrace_open(const char *exectrace)
 
 	setbuf(exectrace_fp, NULL);
 
-	log_info("Tracing execution to %s", exectrace);
+	log_info("Tracing execution to %s (%s)", exectrace, options.tracing ?
+		 "started" : "stopped");
 }
 
 void
